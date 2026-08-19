@@ -39,3 +39,12 @@
 - Recordatorios de pagos recurrentes.
 - API pública.
 - Modo oscuro y/o idioma inglés.
+
+## Fase 5 — Panel de administración (completada)
+- [x] Dashboard global: métricas, tendencia 12 meses, top categorías y usuarios.
+- [x] Gestión de usuarios: edición, verificación manual de email, reset de contraseña, suspensión/reactivación y eliminación.
+- [x] Gastos globales con filtros, exportación CSV y comprobantes.
+- [x] Tasas del día: ajuste manual y sincronización con la API.
+- [x] Gestión global de categorías y orígenes.
+- [x] Auditoría de acciones de administradores (`admin_actions`).
+- [x] Sistema: estado del entorno y backup JSON de todas las tablas.

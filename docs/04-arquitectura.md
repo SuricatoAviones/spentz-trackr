@@ -85,6 +85,7 @@ sequenceDiagram
 ## Reglas de arquitectura
 
 1. **Scoping por usuario:** toda consulta de datos de negocio filtra por `user_id` del autenticado. Políticas de autorización por recurso (`ExpensePolicy`, `CategoryPolicy`, `PaymentSourcePolicy`).
+2. **Panel admin:** solo accesible con middleware `admin` (`auth` + `verified` + `is_admin`). Grupo de rutas en `routes/admin.php` bajo el prefijo `/admin`, controladores en `app/Http/Controllers/Admin/`, páginas Inertia en `resources/js/pages/admin/` con `AppLayout`. Los usuarios normales reciben 403 y no ven la navegación admin.
 2. **Controllers delgados:** validación en `Form Requests`, lógica de conversión en un servicio `ExpenseConverter` (o accessor de modelo), no en el controller.
 3. **Conversión única de moneda:** todo gasto guarda `usd_amount` y `usdt_amount` calculados al persistir; los reportes jamás recalculan con la tasa actual.
 4. **Tasa por transacción:** `expenses.exchange_rate` congela la tasa usada; `exchange_rates` solo alimenta el precargado del formulario.
@@ -109,12 +110,18 @@ cPanel no garantiza supervisor/queue workers persistentes. Estrategia: jobs de t
 ### ADR-004: Un gasto = una moneda
 v1 no soporta pagos mixtos (mitad Bs, mitad USD). Simplifica cálculo y reportes. Se puede agregar en v2 con tabla pivot.
 
+### ADR-005: Rol admin como columna `is_admin`, sin paquete de roles
+Solo hay dos niveles (usuario/admin); Spatie Permission y tablas pivot serían overkill. La columna `is_admin` (bool, default false) en `users` basta: el middleware `EnsureUserIsAdmin` protege todo `/admin`. El admin se crea/actualiza con `php artisan admin:create` (idempotente, lee `ADMIN_NAME`/`ADMIN_EMAIL`/`ADMIN_PASSWORD` de `.env`; si no hay password, genera una aleatoria). El admin puede listar, ver, editar (nombre/email/rol) y eliminar usuarios (cascade a gastos/categorías/orígenes); no puede eliminarse a sí mismo.
+
 ## Estructura de código propuesta
 
 ```
 app/
 ├── Http/Controllers/        # ExpenseController, CategoryController, PaymentSourceController, ReportController
-├── Http/Requests/           # StoreExpenseRequest, UpdateExpenseRequest, ...
+│   └── Admin/                # DashboardController, UserController (panel admin)
+├── Http/Requests/           # StoreExpenseRequest, UpdateExpenseRequest, Admin\UpdateAdminUserRequest
+├── Http/Middleware/         # EnsureUserIsAdmin (+ HandleInertiaRequests, HandleAppearance)
+├── Console/Commands/        # CreateAdmin (admin:create)
 ├── Models/                  # User, Expense, Category, PaymentSource, ExpenseReceipt, ExchangeRate
 ├── Services/                # ExchangeRateService (API + cache), ExpenseConversionService
 ├── Jobs/                    # SyncExchangeRatesJob
@@ -122,8 +129,9 @@ app/
 └── Console/Schedules/       # Registro de tarea de sincronización
 
 database/
-├── migrations/              # users(+extra), categories, payment_sources, expenses, expense_receipts, exchange_rates
+├── migrations/              # users(+is_admin, extra), categories, payment_sources, expenses, expense_receipts, exchange_rates
 └── seeders/                 # Categorías y orígenes por defecto
 
-resources/js/pages/          # Dashboard, Expenses/Index, Expenses/Create, Expenses/Edit, Categories/Index, Sources/Index, Reports/Monthly
+resources/js/pages/          # Dashboard, Expenses/*, Categories, Sources, Reports, Auth/*, Settings/*, admin/*
+routes/                      # web.php (+ admin.php, settings.php)
 ```

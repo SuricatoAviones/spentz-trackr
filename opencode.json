@@ -4,21 +4,12 @@
         "laravel-boost": {
             "type": "local",
             "enabled": true,
-            "command": [
-                "php",
-                "artisan",
-                "boost:mcp"
-            ]
+            "command": ["php", "artisan", "boost:mcp"]
         },
         "stitch": {
             "type": "local",
             "enabled": true,
-            "command": [
-                "npx",
-                "-y",
-                "@_davideast/stitch-mcp",
-                "proxy"
-            ]
+            "command": ["npx", "-y", "@_davideast/stitch-mcp", "proxy"]
         }
     }
 }

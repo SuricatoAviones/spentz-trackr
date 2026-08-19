@@ -14,3 +14,4 @@ Stack: Laravel 13 + Inertia + React 19 + Tailwind 4 + shadcn/ui + MySQL. Deploy 
 | [05-reportes.md](05-reportes.md) | Dashboard, reportes y exportación |
 | [06-despliegue-cpanel.md](06-despliegue-cpanel.md) | Requisitos y pasos para cPanel + MySQL |
 | [07-roadmap.md](07-roadmap.md) | Fases de implementación y PWA |
+| [08-panel-admin.md](08-panel-admin.md) | Panel admin: módulos, rutas, auditoría y backup |

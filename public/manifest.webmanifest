@@ -1,0 +1,24 @@
+{
+    "name": "Spent Trackr",
+    "short_name": "Spent Trackr",
+    "description": "Controla tus gastos en USD, Bs y USDT",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#0B1220",
+    "theme_color": "#0B1220",
+    "lang": "es-VE",
+    "icons": [
+        {
+            "src": "/images/logo.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/images/logo.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable"
+        }
+    ]
+}

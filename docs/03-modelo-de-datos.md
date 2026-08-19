@@ -9,16 +9,20 @@ erDiagram
     users ||--o{ payment_sources : "posee"
     users ||--o{ exchange_rates : "ajusta"
     users ||--o{ expense_receipts : "adjunta"
+    users ||--o{ admin_actions : "ejecuta (admin)"
 
     categories ||--o{ expenses : "clasifica"
     payment_sources ||--o{ expenses : "origina"
 
     expenses ||--o{ expense_receipts : "tiene"
+    admin_actions }o--o| users : "apunta (target morph)"
 
     users {
         bigint id PK
         varchar name
         varchar email UK
+        boolean is_admin "default false"
+        timestamp suspended_at "nullable"
         varchar password
         varchar default_display_currency "usd | usdt"
         timestamp email_verified_at
@@ -79,13 +83,25 @@ erDiagram
         unique index "user_id + rate_date + source"
         timestamps
     }
+
+    admin_actions {
+        bigint id PK
+        bigint admin_id FK "users, cascade"
+        varchar action
+        varchar target_type "nullable, morph"
+        bigint target_id "nullable, morph"
+        json details "nullable"
+        timestamps
+    }
 ```
 
 ## Entidades y reglas
 
 ### `users`
 - El email es único. `default_display_currency` define la moneda principal del dashboard (`usd` por defecto).
-- Sin roles: cada usuario es autónomo y solo ve sus datos (scoping por `user_id` en todas las consultas).
+- `is_admin` (bool, default `false`) marca a los administradores; se crea con `php artisan admin:create` (credenciales en `.env`: `ADMIN_NAME`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`).
+- `suspended_at` (timestamp, nullable): si está seteado el usuario está suspendido; el middleware `EnsureUserNotSuspended` (grupo web) cierra su sesión y responde 403 en toda la app (incluido el panel admin). El admin no puede suspenderse a sí mismo.
+- El resto de usuarios son autónomos y solo ven sus datos (scoping por `user_id` en todas las consultas). Solo los administradores acceden al panel `/admin` (middleware `admin` → 403 para el resto) y pueden ver/editar/eliminar cuentas.
 
 ### `categories` (tipo de gasto)
 - Pertenece a un usuario. `is_system` marca las creadas por defecto (no impedir editar nombre, pero sí marcar para restauración).
@@ -111,14 +127,19 @@ erDiagram
 - **Descripción**: corta y obligatoria. **Nota**: texto libre opcional.
 
 ### `expense_receipts`
-- Una imagen por gasto (v1). Se guarda en `storage/app/public/receipts/...` y se sirve por el disco público.
-- Al eliminar el gasto, se elimina el archivo.
+- Uno o varios comprobantes por gasto (hasMany). Se guardan en `storage/app/public/receipts/...` y se sirven por el disco público (usuario) o por `GET /admin/expenses/receipts/{receipt}` (admin, inline).
+- Al eliminar el gasto, se eliminan los archivos.
 
 ### `exchange_rates`
 - **Registro por día y por fuente**: un día puede tener tasa `api` (BCV) y una sobrescritura `manual` del usuario.
 - `user_id` null ⇒ tasa global de la API; `user_id` set ⇒ ajuste manual del usuario (su "tasa del día").
 - La consulta de "tasa del día" para un usuario: última tasa `manual` del usuario; si no existe, última tasa `api`.
 - Se conserva histórico para auditoría y para que gastos antiguos conserven su tasa.
+
+### `admin_actions` (auditoría del panel)
+- Registra cada acción de los administradores: `admin_id` (FK a `users`, `cascadeOnDelete`), `action` (ej. `user.suspended`, `expense.deleted`, `rate.updated`), `target` morph (usuario, gasto, categoría, origen, tasa o comprobante) y `details` JSON opcional.
+- Se crea con `AdminAction::record(action, target?, details?)`; la lista completa de acciones está en `docs/08-panel-admin.md`.
+- El registro persiste aunque se elimine el objetivo (el morph no tiene FK).
 
 ## Índices recomendados
 

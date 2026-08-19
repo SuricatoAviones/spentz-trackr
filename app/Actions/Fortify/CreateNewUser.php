@@ -5,6 +5,8 @@ namespace App\Actions\Fortify;
 use App\Concerns\PasswordValidationRules;
 use App\Concerns\ProfileValidationRules;
 use App\Models\User;
+use Database\Seeders\DefaultCategoriesSeeder;
+use Database\Seeders\DefaultPaymentSourcesSeeder;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Fortify\Contracts\CreatesNewUsers;
 
@@ -24,10 +26,20 @@ class CreateNewUser implements CreatesNewUsers
             'password' => $this->passwordRules(),
         ])->validate();
 
-        return User::create([
+        $user = User::create([
             'name' => $input['name'],
             'email' => $input['email'],
             'password' => $input['password'],
         ]);
+
+        foreach (DefaultCategoriesSeeder::DEFAULT_CATEGORIES as $category) {
+            $user->categories()->create([...$category, 'is_system' => true]);
+        }
+
+        foreach (DefaultPaymentSourcesSeeder::DEFAULT_SOURCES as $source) {
+            $user->paymentSources()->create([...$source, 'is_system' => true]);
+        }
+
+        return $user;
     }
 }
