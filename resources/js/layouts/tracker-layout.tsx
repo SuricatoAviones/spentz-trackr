@@ -6,10 +6,12 @@ import {
     Plus,
     Settings,
     Shield,
+    TrendingUp,
     Users,
     Wallet,
 } from 'lucide-react';
 import type { ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ajustes, dashboard, logout } from '@/routes';
 import { dashboard as adminDashboard } from '@/routes/admin';
 import { index as adminUsersIndex } from '@/routes/admin/users';
@@ -17,14 +19,11 @@ import {
     create as expensesCreate,
     index as expensesIndex,
 } from '@/routes/expenses';
+import {
+    create as incomesCreate,
+    index as incomesIndex,
+} from '@/routes/incomes';
 import { index as reportsIndex } from '@/routes/reports';
-
-const NAV_ITEMS = [
-    { title: 'Inicio', href: dashboard, icon: ChartPie },
-    { title: 'Gastos', href: expensesIndex, icon: Wallet },
-    { title: 'Reportes', href: reportsIndex, icon: BarChart3 },
-    { title: 'Ajustes', href: ajustes, icon: Settings },
-];
 
 export default function TrackerLayout({
     title = '',
@@ -35,8 +34,54 @@ export default function TrackerLayout({
     description?: string;
     children: ReactNode;
 }) {
+    const { t } = useTranslation();
     const { url } = usePage();
     const { auth } = usePage().props;
+
+    const trackingType = auth.user.tracking_type;
+    const showExpenses = trackingType !== 'income';
+    const showIncomes = trackingType !== 'expenses';
+
+    const createTarget: 'income' | 'expense' =
+        url.startsWith('/incomes') && showIncomes
+            ? 'income'
+            : url.startsWith('/expenses') && showExpenses
+              ? 'expense'
+              : showIncomes
+                ? 'income'
+                : 'expense';
+
+    const navItems = [
+        { title: t('shell.tracker.nav_home'), href: dashboard, icon: ChartPie },
+        ...(showExpenses
+            ? [
+                  {
+                      title: t('shell.tracker.nav_expenses'),
+                      href: expensesIndex,
+                      icon: Wallet,
+                  },
+              ]
+            : []),
+        ...(showIncomes
+            ? [
+                  {
+                      title: t('shell.tracker.nav_incomes'),
+                      href: incomesIndex,
+                      icon: TrendingUp,
+                  },
+              ]
+            : []),
+        {
+            title: t('shell.tracker.nav_reports'),
+            href: reportsIndex,
+            icon: BarChart3,
+        },
+        {
+            title: t('shell.tracker.nav_settings'),
+            href: ajustes,
+            icon: Settings,
+        },
+    ];
 
     function isActive(href: string): boolean {
         return url === href || url.startsWith(`${href}/`);
@@ -67,19 +112,19 @@ export default function TrackerLayout({
                             Spent Trackr
                         </p>
                         <p className="text-[10px] text-muted-foreground">
-                            Control de gastos
+                            {t('shell.tracker.subtitle')}
                         </p>
                     </div>
                 </div>
 
                 <nav
                     className="mt-2 flex-1 space-y-1 overflow-y-auto px-3"
-                    aria-label="Navegación principal"
+                    aria-label={t('shell.tracker.nav_aria')}
                 >
                     <p className="px-3 pt-2 pb-1 text-[10px] font-bold tracking-widest text-muted-foreground/70 uppercase">
-                        Principal
+                        {t('shell.tracker.main_section')}
                     </p>
-                    {NAV_ITEMS.map((item) => {
+                    {navItems.map((item) => {
                         const href = item.href().url;
                         const active = isActive(href);
 
@@ -108,7 +153,7 @@ export default function TrackerLayout({
                     {auth.user.is_admin && (
                         <>
                             <p className="px-3 pt-4 pb-1 text-[10px] font-bold tracking-widest text-muted-foreground/70 uppercase">
-                                Administración
+                                {t('shell.tracker.admin_section')}
                             </p>
                             <Link
                                 href={adminDashboard().url}
@@ -122,7 +167,7 @@ export default function TrackerLayout({
                                     <span className="absolute top-1/2 left-0 h-5 w-1 -translate-y-1/2 rounded-r-full bg-emerald-400" />
                                 )}
                                 <Shield className="size-4.5 shrink-0" />
-                                Panel admin
+                                {t('shell.tracker.admin_panel')}
                             </Link>
                             <Link
                                 href={adminUsersIndex().url}
@@ -136,7 +181,7 @@ export default function TrackerLayout({
                                     <span className="absolute top-1/2 left-0 h-5 w-1 -translate-y-1/2 rounded-r-full bg-emerald-400" />
                                 )}
                                 <Users className="size-4.5 shrink-0" />
-                                Usuarios
+                                {t('shell.tracker.users')}
                             </Link>
                         </>
                     )}
@@ -159,7 +204,7 @@ export default function TrackerLayout({
                             type="button"
                             onClick={logoutUser}
                             className="inline-flex size-8 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-white/5 hover:text-destructive"
-                            aria-label="Cerrar sesión"
+                            aria-label={t('shell.tracker.logout_aria')}
                         >
                             <LogOut className="size-4" />
                         </button>
@@ -181,15 +226,29 @@ export default function TrackerLayout({
                             )}
                         </div>
                         <Link
-                            href={expensesCreate().url}
-                            className="inline-flex items-center justify-center rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 text-primary-foreground shadow-lg shadow-emerald-500/25 transition-transform active:scale-95 lg:h-10 lg:gap-2 lg:px-4 lg:text-sm lg:font-semibold"
-                            aria-label="Nuevo gasto"
+                            href={
+                                createTarget === 'income'
+                                    ? incomesCreate().url
+                                    : expensesCreate().url
+                            }
+                            className={`inline-flex items-center justify-center rounded-xl text-primary-foreground shadow-lg transition-transform active:scale-95 lg:h-10 lg:gap-2 lg:px-4 lg:text-sm lg:font-semibold ${
+                                createTarget === 'income'
+                                    ? 'bg-gradient-to-br from-blue-400 to-blue-600 shadow-blue-500/25'
+                                    : 'bg-gradient-to-br from-emerald-400 to-emerald-600 shadow-emerald-500/25'
+                            }`}
+                            aria-label={
+                                createTarget === 'income'
+                                    ? t('shell.tracker.new_income')
+                                    : t('shell.tracker.new_expense')
+                            }
                         >
                             <span className="flex size-9 items-center justify-center lg:size-auto">
                                 <Plus className="size-4" strokeWidth={2.5} />
                             </span>
                             <span className="hidden lg:inline">
-                                Nuevo gasto
+                                {createTarget === 'income'
+                                    ? t('shell.tracker.new_income')
+                                    : t('shell.tracker.new_expense')}
                             </span>
                         </Link>
                     </div>
@@ -202,10 +261,14 @@ export default function TrackerLayout({
 
             <nav
                 className="fixed inset-x-0 bottom-0 z-40 border-t border-white/5 bg-[#0b1220]/80 backdrop-blur-2xl lg:hidden"
-                aria-label="Navegación principal"
+                aria-label={t('shell.tracker.nav_aria')}
             >
-                <div className="mx-auto grid w-full max-w-md grid-cols-4">
-                    {NAV_ITEMS.map((item) => {
+                <div
+                    className={`mx-auto grid w-full max-w-md ${
+                        navItems.length >= 5 ? 'grid-cols-5' : 'grid-cols-4'
+                    }`}
+                >
+                    {navItems.map((item) => {
                         const href = item.href().url;
                         const active = isActive(href);
 

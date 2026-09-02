@@ -38,6 +38,7 @@ test('a user can create a category', function () {
         'name' => 'Vivienda',
         'icon' => 'home',
         'color' => '#10B981',
+        'type' => 'expense',
     ])->assertRedirect(route('categories.index'));
 
     $this->assertDatabaseHas('categories', [
@@ -45,6 +46,22 @@ test('a user can create a category', function () {
         'name' => 'Vivienda',
         'icon' => 'home',
         'color' => '#10B981',
+        'type' => 'expense',
+    ]);
+});
+
+test('a user can create an income category', function () {
+    $this->post(route('categories.store'), [
+        'name' => 'Salario',
+        'icon' => 'dollar-sign',
+        'color' => '#3B82F6',
+        'type' => 'income',
+    ])->assertRedirect(route('categories.index'));
+
+    $this->assertDatabaseHas('categories', [
+        'user_id' => $this->user->id,
+        'name' => 'Salario',
+        'type' => 'income',
     ]);
 });
 

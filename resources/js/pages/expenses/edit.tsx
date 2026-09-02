@@ -1,6 +1,9 @@
+import { setLayoutProps } from '@inertiajs/react';
+import { useTranslation } from 'react-i18next';
 import { ExpenseForm } from '@/components/tracker/expense-form';
 import type {
     CategoryOption,
+    CommissionDefaults,
     Expense,
     RateInfo,
     RateOptions,
@@ -13,13 +16,19 @@ export default function EditExpense({
     sources,
     rate,
     rates,
+    commissionDefaults,
 }: {
     expense: Expense;
     categories: CategoryOption[];
     sources: SourceOption[];
     rate: RateInfo;
     rates: RateOptions;
+    commissionDefaults: CommissionDefaults;
 }) {
+    const { t } = useTranslation();
+
+    setLayoutProps({ title: t('expenses.edit_title') });
+
     return (
         <div className="space-y-4 lg:mx-auto lg:max-w-2xl">
             <ExpenseForm
@@ -28,12 +37,17 @@ export default function EditExpense({
                 sources={sources}
                 rate={rate}
                 rates={rates}
+                commissionDefaults={commissionDefaults}
                 initial={{
                     id: expense.id,
                     description: expense.description,
                     note: expense.note ?? '',
-                    amount: String(expense.amount),
+                    amount: String(Number(expense.amount) || 0),
                     currency: expense.currency,
+                    payment_method: expense.payment_method ?? null,
+                    commission: expense.commission
+                        ? String(expense.commission)
+                        : null,
                     exchange_rate: expense.exchange_rate
                         ? String(expense.exchange_rate)
                         : null,

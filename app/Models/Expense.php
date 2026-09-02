@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\Currency;
+use App\Enums\PaymentMethod;
 use Database\Factories\ExpenseFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
@@ -18,6 +19,8 @@ use Illuminate\Support\Carbon;
  * @property int $category_id
  * @property int $payment_source_id
  * @property Currency $currency
+ * @property PaymentMethod|null $payment_method
+ * @property string|null $commission
  * @property string $amount
  * @property string|null $exchange_rate
  * @property string $usd_amount
@@ -32,6 +35,8 @@ use Illuminate\Support\Carbon;
     'category_id',
     'payment_source_id',
     'currency',
+    'payment_method',
+    'commission',
     'amount',
     'exchange_rate',
     'rate_provider',
@@ -80,6 +85,8 @@ class Expense extends Model
     {
         return [
             'currency' => Currency::class,
+            'payment_method' => PaymentMethod::class,
+            'commission' => 'decimal:2',
             'amount' => 'decimal:2',
             'exchange_rate' => 'decimal:4',
             'usd_amount' => 'decimal:2',

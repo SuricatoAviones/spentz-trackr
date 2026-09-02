@@ -5,25 +5,48 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExchangeRateController;
 use App\Http\Controllers\ExpenseController;
+use App\Http\Controllers\IncomeController;
+use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\PaymentSourceController;
 use App\Http\Controllers\ReportController;
+use App\Http\Middleware\EnsureTrackingFeature;
 use Illuminate\Support\Facades\Route;
 
 Route::inertia('/', 'welcome')->name('home');
 
+Route::middleware('auth')->group(function () {
+    Route::post('language', [LanguageController::class, 'update'])->name('language.update');
+});
+
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', DashboardController::class)->name('dashboard');
     Route::get('ajustes', AjustesController::class)->name('ajustes');
+    Route::put('commission-preferences', [AjustesController::class, 'updateCommissions'])->name('commission-preferences.update');
+    Route::put('tracking-preferences', [AjustesController::class, 'updateTracking'])->name('tracking-preferences.update');
 
-    Route::resource('expenses', ExpenseController::class)->except(['create', 'edit', 'show'])->names([
-        'index' => 'expenses.index',
-        'store' => 'expenses.store',
-        'update' => 'expenses.update',
-        'destroy' => 'expenses.destroy',
-    ]);
-    Route::get('expenses/nuevo', [ExpenseController::class, 'create'])->name('expenses.create');
-    Route::get('expenses/{expense}', [ExpenseController::class, 'show'])->name('expenses.show');
-    Route::get('expenses/{expense}/editar', [ExpenseController::class, 'edit'])->name('expenses.edit');
+    Route::middleware([EnsureTrackingFeature::class.':incomes'])->group(function () {
+        Route::resource('incomes', IncomeController::class)->except(['create', 'edit', 'show'])->names([
+            'index' => 'incomes.index',
+            'store' => 'incomes.store',
+            'update' => 'incomes.update',
+            'destroy' => 'incomes.destroy',
+        ]);
+        Route::get('incomes/nuevo', [IncomeController::class, 'create'])->name('incomes.create');
+        Route::get('incomes/{income}', [IncomeController::class, 'show'])->name('incomes.show');
+        Route::get('incomes/{income}/editar', [IncomeController::class, 'edit'])->name('incomes.edit');
+    });
+
+    Route::middleware([EnsureTrackingFeature::class.':expenses'])->group(function () {
+        Route::resource('expenses', ExpenseController::class)->except(['create', 'edit', 'show'])->names([
+            'index' => 'expenses.index',
+            'store' => 'expenses.store',
+            'update' => 'expenses.update',
+            'destroy' => 'expenses.destroy',
+        ]);
+        Route::get('expenses/nuevo', [ExpenseController::class, 'create'])->name('expenses.create');
+        Route::get('expenses/{expense}', [ExpenseController::class, 'show'])->name('expenses.show');
+        Route::get('expenses/{expense}/editar', [ExpenseController::class, 'edit'])->name('expenses.edit');
+    });
 
     Route::resource('categories', CategoryController::class)->only(['index', 'store', 'update', 'destroy']);
 

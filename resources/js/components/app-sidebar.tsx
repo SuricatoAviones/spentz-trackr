@@ -12,7 +12,9 @@ import {
     Tag,
     Users,
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import AppLogo from '@/components/app-logo';
+import { LanguageSwitcher } from '@/components/language-switcher';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
@@ -36,72 +38,73 @@ import { index as adminSystemIndex } from '@/routes/admin/system';
 import { index as adminUsersIndex } from '@/routes/admin/users';
 import type { Auth, NavItem } from '@/types';
 
-const mainNavItems: NavItem[] = [
-    {
-        title: 'Dashboard',
-        href: dashboard(),
-        icon: LayoutGrid,
-    },
-];
-
-const adminNavItems: NavItem[] = [
-    {
-        title: 'Panel admin',
-        href: adminDashboard(),
-        icon: Shield,
-    },
-    {
-        title: 'Usuarios',
-        href: adminUsersIndex(),
-        icon: Users,
-    },
-    {
-        title: 'Gastos',
-        href: adminExpensesIndex(),
-        icon: Receipt,
-    },
-    {
-        title: 'Tasas',
-        href: adminRatesIndex(),
-        icon: Coins,
-    },
-    {
-        title: 'Categorías',
-        href: adminCategoriesIndex(),
-        icon: Tag,
-    },
-    {
-        title: 'Orígenes',
-        href: adminSourcesIndex(),
-        icon: Landmark,
-    },
-    {
-        title: 'Auditoría',
-        href: adminAuditIndex(),
-        icon: History,
-    },
-    {
-        title: 'Sistema',
-        href: adminSystemIndex(),
-        icon: Server,
-    },
-];
-
-const footerNavItems: NavItem[] = [
-    {
-        title: 'Repository',
-        href: 'https://github.com/laravel/react-starter-kit',
-        icon: FolderGit2,
-    },
-    {
-        title: 'Documentation',
-        href: 'https://laravel.com/docs/starter-kits#react',
-        icon: BookOpen,
-    },
-];
-
 export function AppSidebar() {
+    const { t } = useTranslation();
     const { auth } = usePage<{ auth: Auth }>().props;
+
+    const mainNavItems: NavItem[] = [
+        {
+            title: t('shell.sidebar.dashboard'),
+            href: dashboard(),
+            icon: LayoutGrid,
+        },
+    ];
+
+    const adminNavItems: NavItem[] = [
+        {
+            title: t('shell.sidebar.admin_panel'),
+            href: adminDashboard(),
+            icon: Shield,
+        },
+        {
+            title: t('shell.sidebar.users'),
+            href: adminUsersIndex(),
+            icon: Users,
+        },
+        {
+            title: t('shell.sidebar.expenses'),
+            href: adminExpensesIndex(),
+            icon: Receipt,
+        },
+        {
+            title: t('shell.sidebar.rates'),
+            href: adminRatesIndex(),
+            icon: Coins,
+        },
+        {
+            title: t('shell.sidebar.categories'),
+            href: adminCategoriesIndex(),
+            icon: Tag,
+        },
+        {
+            title: t('shell.sidebar.sources'),
+            href: adminSourcesIndex(),
+            icon: Landmark,
+        },
+        {
+            title: t('shell.sidebar.audit'),
+            href: adminAuditIndex(),
+            icon: History,
+        },
+        {
+            title: t('shell.sidebar.system'),
+            href: adminSystemIndex(),
+            icon: Server,
+        },
+    ];
+
+    const footerNavItems: NavItem[] = [
+        {
+            title: t('shell.sidebar.repository'),
+            href: 'https://github.com/laravel/react-starter-kit',
+            icon: FolderGit2,
+        },
+        {
+            title: t('shell.sidebar.documentation'),
+            href: 'https://laravel.com/docs/starter-kits#react',
+            icon: BookOpen,
+        },
+    ];
 
     return (
         <Sidebar collapsible="icon" variant="inset">
@@ -124,6 +127,11 @@ export function AppSidebar() {
 
             <SidebarFooter>
                 <NavFooter items={footerNavItems} className="mt-auto" />
+                <SidebarMenu>
+                    <SidebarMenuItem>
+                        <LanguageSwitcher compact />
+                    </SidebarMenuItem>
+                </SidebarMenu>
                 <NavUser />
             </SidebarFooter>
         </Sidebar>

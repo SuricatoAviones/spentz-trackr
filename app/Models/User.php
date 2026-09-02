@@ -14,6 +14,7 @@ use Illuminate\Support\Carbon;
 use Laravel\Fortify\Contracts\PasskeyUser;
 use Laravel\Fortify\PasskeyAuthenticatable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
+use Laravel\Sanctum\HasApiTokens;
 
 /**
  * @property int $id
@@ -23,6 +24,10 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
  * @property Carbon|null $suspended_at
  * @property Carbon|null $email_verified_at
  * @property string $default_display_currency
+ * @property string|null $min_commission
+ * @property string|null $commission_rate
+ * @property string $tracking_type
+ * @property string|null $locale
  * @property string $password
  * @property string|null $two_factor_secret
  * @property string|null $two_factor_recovery_codes
@@ -31,12 +36,12 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-#[Fillable(['name', 'email', 'password', 'default_display_currency', 'is_admin'])]
+#[Fillable(['name', 'email', 'password', 'default_display_currency', 'min_commission', 'commission_rate', 'tracking_type', 'locale', 'is_admin'])]
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
 class User extends Authenticatable implements PasskeyUser
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable, PasskeyAuthenticatable, TwoFactorAuthenticatable;
+    use HasApiTokens, HasFactory, Notifiable, PasskeyAuthenticatable, TwoFactorAuthenticatable;
 
     public function isAdmin(): bool
     {
@@ -63,6 +68,11 @@ class User extends Authenticatable implements PasskeyUser
         return $this->hasMany(Expense::class);
     }
 
+    public function incomes(): HasMany
+    {
+        return $this->hasMany(Income::class);
+    }
+
     public function exchangeRates(): HasMany
     {
         return $this->hasMany(ExchangeRate::class);
@@ -81,6 +91,8 @@ class User extends Authenticatable implements PasskeyUser
             'two_factor_confirmed_at' => 'datetime',
             'is_admin' => 'boolean',
             'suspended_at' => 'datetime',
+            'min_commission' => 'decimal:2',
+            'commission_rate' => 'decimal:2',
         ];
     }
 }

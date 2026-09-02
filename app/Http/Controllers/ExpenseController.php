@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\CategoryType;
 use App\Enums\Currency;
 use App\Http\Requests\StoreExpenseRequest;
 use App\Http\Requests\UpdateExpenseRequest;
 use App\Models\Category;
 use App\Models\Expense;
 use App\Models\PaymentSource;
+use App\Models\User;
 use App\Services\ExchangeRateService;
 use App\Services\ExpenseConversionService;
 use Illuminate\Http\RedirectResponse;
@@ -79,6 +81,7 @@ class ExpenseController extends Controller
             'sources' => $this->selectSources($user->id),
             'rate' => $rateService->rateForUser($user),
             'rates' => $rateService->ratesForUser($user),
+            'commissionDefaults' => $this->commissionDefaults($user),
         ]);
     }
 
@@ -102,10 +105,13 @@ class ExpenseController extends Controller
             ]);
         }
 
-        $converted = $converter->convert($currency, (float) $validated['amount'], $exchangeRate !== null ? (float) $exchangeRate : null);
+        $converted = $converter->convert($currency, $this->totalAmount($validated), $exchangeRate !== null ? (float) $exchangeRate : null);
 
         $expense = $request->user()->expenses()->create([
             ...$validated,
+            'amount' => $this->baseAmount($validated),
+            'payment_method' => $this->paymentMethod($currency, $validated),
+            'commission' => $this->commission($currency, $validated),
             'exchange_rate' => $currency === Currency::Ves ? $exchangeRate : null,
             'rate_provider' => $currency === Currency::Ves ? $rateProvider : null,
             'usd_amount' => $converted['usd_amount'],
@@ -118,7 +124,7 @@ class ExpenseController extends Controller
 
         return redirect()
             ->route('expenses.show', $expense)
-            ->with('success', 'Gasto registrado correctamente.');
+            ->with('success', __('messages.expense_created'));
     }
 
     public function show(Request $request, Expense $expense): Response
@@ -144,6 +150,7 @@ class ExpenseController extends Controller
             'sources' => $this->selectSources($user->id),
             'rate' => $rateService->rateForUser($user),
             'rates' => $rateService->ratesForUser($user),
+            'commissionDefaults' => $this->commissionDefaults($user),
         ]);
     }
 
@@ -169,10 +176,13 @@ class ExpenseController extends Controller
             ]);
         }
 
-        $converted = $converter->convert($currency, (float) $validated['amount'], $exchangeRate !== null ? (float) $exchangeRate : null);
+        $converted = $converter->convert($currency, $this->totalAmount($validated), $exchangeRate !== null ? (float) $exchangeRate : null);
 
         $expense->update([
             ...$validated,
+            'amount' => $this->baseAmount($validated),
+            'payment_method' => $this->paymentMethod($currency, $validated),
+            'commission' => $this->commission($currency, $validated),
             'exchange_rate' => $currency === Currency::Ves ? $exchangeRate : null,
             'rate_provider' => $currency === Currency::Ves ? $rateProvider : null,
             'usd_amount' => $converted['usd_amount'],
@@ -189,7 +199,7 @@ class ExpenseController extends Controller
 
         return redirect()
             ->route('expenses.show', $expense)
-            ->with('success', 'Gasto actualizado correctamente.');
+            ->with('success', __('messages.expense_updated'));
     }
 
     public function destroy(Request $request, Expense $expense): RedirectResponse
@@ -201,7 +211,7 @@ class ExpenseController extends Controller
 
         return redirect()
             ->route('expenses.index')
-            ->with('success', 'Gasto eliminado.');
+            ->with('success', __('messages.expense_deleted'));
     }
 
     /**
@@ -215,6 +225,8 @@ class ExpenseController extends Controller
             'note' => $expense->note,
             'amount' => $expense->amount,
             'currency' => $expense->currency->value,
+            'payment_method' => $expense->payment_method?->value,
+            'commission' => $expense->commission,
             'exchange_rate' => $expense->exchange_rate,
             'rate_provider' => $expense->rate_provider,
             'usd_amount' => $expense->usd_amount,
@@ -274,6 +286,7 @@ class ExpenseController extends Controller
     private function selectCategories(int $userId): array
     {
         return Category::query()
+            ->forType(CategoryType::Expense)
             ->where('user_id', $userId)
             ->orderBy('name')
             ->get(['id', 'name', 'icon', 'color'])
@@ -320,5 +333,71 @@ class ExpenseController extends Controller
             Storage::disk('public')->delete($receipt->path);
             $receipt->delete();
         }
+    }
+
+    /**
+     * Base expense amount as entered by the user, excluding the commission.
+     *
+     * @param  array<string, mixed>  $validated
+     */
+    private function baseAmount(array $validated): float
+    {
+        return round((float) $validated['amount'], 2);
+    }
+
+    /**
+     * Real expense total: base amount plus commission when paying in Bs.
+     *
+     * @param  array<string, mixed>  $validated
+     */
+    private function totalAmount(array $validated): float
+    {
+        $base = (float) $validated['amount'];
+        $commission = isset($validated['commission']) ? (float) $validated['commission'] : 0.0;
+
+        return round($base + $commission, 2);
+    }
+
+    /**
+     * The stored commission is only meaningful for Bs expenses.
+     *
+     * @param  array<string, mixed>  $validated
+     */
+    private function commission(Currency $currency, array $validated): ?string
+    {
+        if ($currency !== Currency::Ves) {
+            return null;
+        }
+
+        return $validated['commission'] ?? null;
+    }
+
+    /**
+     * The stored payment method is only meaningful for Bs expenses.
+     *
+     * @param  array<string, mixed>  $validated
+     */
+    private function paymentMethod(Currency $currency, array $validated): ?string
+    {
+        if ($currency !== Currency::Ves) {
+            return null;
+        }
+
+        return $validated['payment_method'] ?? null;
+    }
+
+    /**
+     * @return array{min_commission: string|null, commission_rate: string|null}
+     */
+    private function commissionDefaults(User $user): array
+    {
+        $defaults = User::query()
+            ->whereKey($user->id)
+            ->firstOrFail(['min_commission', 'commission_rate']);
+
+        return [
+            'min_commission' => $defaults->min_commission,
+            'commission_rate' => $defaults->commission_rate,
+        ];
     }
 }

@@ -1,6 +1,7 @@
-import { router, useForm } from '@inertiajs/react';
+import { router, setLayoutProps, useForm } from '@inertiajs/react';
 import { ChevronRight, Pencil, Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { CategoryIcon } from '@/components/tracker/category-icon';
 import {
     Dialog,
@@ -48,8 +49,11 @@ type Source = {
 };
 
 export default function SourcesIndex({ sources }: { sources: Source[] }) {
+    const { t } = useTranslation();
     const [open, setOpen] = useState(false);
     const [editing, setEditing] = useState<Source | null>(null);
+
+    setLayoutProps({ title: t('sources.title') });
 
     const { data, setData, post, put, processing, errors, reset } = useForm({
         name: '',
@@ -90,7 +94,7 @@ export default function SourcesIndex({ sources }: { sources: Source[] }) {
     }
 
     function destroy(source: Source) {
-        if (confirm(`¿Eliminar el origen "${source.name}"?`)) {
+        if (confirm(t('sources.delete_confirm', { name: source.name }))) {
             router.delete(sourcesDestroy(source.id).url);
         }
     }
@@ -99,8 +103,7 @@ export default function SourcesIndex({ sources }: { sources: Source[] }) {
         <div className="space-y-4">
             <div className="flex items-center justify-between">
                 <p className="text-sm font-medium text-muted-foreground">
-                    {sources.length}{' '}
-                    {sources.length === 1 ? 'origen' : 'orígenes'} de pago
+                    {t('sources.count', { count: sources.length })}
                 </p>
                 <button
                     type="button"
@@ -108,7 +111,7 @@ export default function SourcesIndex({ sources }: { sources: Source[] }) {
                     className="hidden items-center gap-2 rounded-lg bg-gradient-to-br from-emerald-400 to-emerald-600 px-4 py-2 text-xs font-bold text-primary-foreground lg:inline-flex"
                 >
                     <Plus className="size-4" />
-                    Nuevo origen
+                    {t('sources.new')}
                 </button>
             </div>
 
@@ -125,9 +128,9 @@ export default function SourcesIndex({ sources }: { sources: Source[] }) {
                             </p>
                             <p className="text-xs text-muted-foreground">
                                 {source.expenses_count}{' '}
-                                {source.expenses_count === 1
-                                    ? 'gasto'
-                                    : 'gastos'}{' '}
+                                {t('expenses.word', {
+                                    count: source.expenses_count,
+                                })}{' '}
                                 · {formatAmount(source.total_usd)} USD
                             </p>
                         </div>
@@ -135,7 +138,7 @@ export default function SourcesIndex({ sources }: { sources: Source[] }) {
                             type="button"
                             onClick={() => openEdit(source)}
                             className="inline-flex size-8 items-center justify-center rounded-lg text-muted-foreground hover:text-foreground"
-                            aria-label={`Editar ${source.name}`}
+                            aria-label={t('sources.edit_aria', { name: source.name })}
                         >
                             <Pencil className="size-4" />
                         </button>
@@ -144,11 +147,11 @@ export default function SourcesIndex({ sources }: { sources: Source[] }) {
                             onClick={() => destroy(source)}
                             disabled={source.expenses_count > 0}
                             className="inline-flex size-8 items-center justify-center rounded-lg text-muted-foreground hover:text-destructive disabled:cursor-not-allowed disabled:opacity-30"
-                            aria-label={`Eliminar ${source.name}`}
+                            aria-label={t('sources.delete_aria', { name: source.name })}
                             title={
                                 source.expenses_count > 0
-                                    ? 'No se puede eliminar: tiene gastos asociados'
-                                    : 'Eliminar'
+                                    ? t('common.delete_blocked')
+                                    : t('common.delete')
                             }
                         >
                             <Trash2 className="size-4" />
@@ -162,7 +165,7 @@ export default function SourcesIndex({ sources }: { sources: Source[] }) {
                 type="button"
                 onClick={openCreate}
                 className="fixed right-4 bottom-24 z-30 inline-flex size-14 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 text-primary-foreground shadow-xl shadow-emerald-500/30 transition-transform active:scale-95 md:right-[calc(50%-13rem)] lg:hidden"
-                aria-label="Nuevo origen"
+                aria-label={t('sources.new')}
             >
                 <Plus className="size-6" strokeWidth={2.5} />
             </button>
@@ -171,12 +174,14 @@ export default function SourcesIndex({ sources }: { sources: Source[] }) {
                 <DialogContent className="rounded-2xl border-white/10 bg-surface-low">
                     <DialogHeader>
                         <DialogTitle className="font-display">
-                            {editing ? 'Editar origen' : 'Nuevo origen'}
+                            {editing
+                                ? t('sources.edit_title')
+                                : t('sources.create_title')}
                         </DialogTitle>
                         <DialogDescription className="text-muted-foreground">
                             {editing
-                                ? 'Actualiza los datos del origen de pago.'
-                                : 'Crea un origen de pago (billetera, banco, efectivo...).'}
+                                ? t('sources.edit_description')
+                                : t('sources.create_description')}
                         </DialogDescription>
                     </DialogHeader>
 
@@ -186,7 +191,7 @@ export default function SourcesIndex({ sources }: { sources: Source[] }) {
                                 htmlFor="source-name"
                                 className="mb-1.5 block text-[11px] font-semibold tracking-wider text-muted-foreground uppercase"
                             >
-                                Nombre
+                                {t('common.name')}
                             </label>
                             <input
                                 id="source-name"
@@ -196,7 +201,7 @@ export default function SourcesIndex({ sources }: { sources: Source[] }) {
                                 onChange={(event) =>
                                     setData('name', event.target.value)
                                 }
-                                placeholder="Ej: Zelle"
+                                placeholder={t('sources.name_placeholder')}
                                 className="h-11 w-full rounded-lg bg-surface-high px-3 text-sm text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-emerald-500/50 focus:outline-none"
                             />
                             {errors.name && (
@@ -208,7 +213,7 @@ export default function SourcesIndex({ sources }: { sources: Source[] }) {
 
                         <div>
                             <span className="mb-1.5 block text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
-                                Icono
+                                {t('common.icon')}
                             </span>
                             <div className="flex flex-wrap gap-2">
                                 {ICON_OPTIONS.map((icon) => (
@@ -221,7 +226,7 @@ export default function SourcesIndex({ sources }: { sources: Source[] }) {
                                                 ? 'bg-emerald-500/20 ring-2 ring-emerald-500'
                                                 : 'bg-surface-high'
                                         }`}
-                                        aria-label={`Icono ${icon}`}
+                                        aria-label={t('common.icon_aria', { icon })}
                                     >
                                         <CategoryIcon
                                             icon={icon}
@@ -240,7 +245,7 @@ export default function SourcesIndex({ sources }: { sources: Source[] }) {
 
                         <div>
                             <span className="mb-1.5 block text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
-                                Color
+                                {t('common.color')}
                             </span>
                             <div className="flex flex-wrap gap-2">
                                 {PRESET_COLORS.map((color) => (
@@ -254,7 +259,7 @@ export default function SourcesIndex({ sources }: { sources: Source[] }) {
                                                 : ''
                                         }`}
                                         style={{ backgroundColor: color }}
-                                        aria-label={`Color ${color}`}
+                                        aria-label={t('common.color_aria', { color })}
                                     />
                                 ))}
                             </div>
@@ -271,10 +276,10 @@ export default function SourcesIndex({ sources }: { sources: Source[] }) {
                             className="w-full rounded-lg bg-gradient-to-br from-emerald-400 to-emerald-600 py-3 font-display text-sm font-bold text-primary-foreground disabled:opacity-60"
                         >
                             {processing
-                                ? 'Guardando...'
+                                ? t('common.saving')
                                 : editing
-                                  ? 'ACTUALIZAR'
-                                  : 'CREAR'}
+                                  ? t('common.update')
+                                  : t('common.create')}
                         </button>
                     </form>
                 </DialogContent>

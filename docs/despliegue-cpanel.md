@@ -206,7 +206,7 @@ cd /home/usuario/spent_trackr && php artisan key:generate --force && php artisan
 
 ## 8. Configurar los cron jobs (tasa de cambio)
 
-La app sincroniza la tasa BCV/Paralelo con dolarapi.com cada día a las 08:00 mediante
+La app sincroniza las tasas BCV/Paralela con dolarapi.com cada 5 minutos mediante
 el scheduler de Laravel. En cPanel el scheduler se activa con un cron que corre cada minuto:
 
 1. cPanel → **Cron Jobs**.

@@ -1,5 +1,6 @@
 import { router } from '@inertiajs/react';
 import { KeyRound } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { destroy } from '@/actions/Laravel/Passkeys/Http/Controllers/PasskeyRegistrationController';
 import Heading from '@/components/heading';
 import PasskeyItem from '@/components/passkey-item';
@@ -11,21 +12,8 @@ export type Props = {
     passkeys?: Passkey[];
 };
 
-const EmptyState = () => {
-    return (
-        <div className="p-8 text-center">
-            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-muted">
-                <KeyRound className="h-7 w-7 text-muted-foreground" />
-            </div>
-            <p className="font-medium">No passkeys yet</p>
-            <p className="mt-1 text-sm text-muted-foreground">
-                Add a passkey to sign in without a password
-            </p>
-        </div>
-    );
-};
-
 export default function ManagePasskeys(props: Props) {
+    const { t } = useTranslation();
     const passkeys = props.passkeys ?? [];
 
     const handleDelete = (id: number, onError: () => void) => {
@@ -47,8 +35,8 @@ export default function ManagePasskeys(props: Props) {
         <div className="space-y-6">
             <Heading
                 variant="small"
-                title="Passkeys"
-                description="Manage your passkeys for passwordless sign-in"
+                title={t('settings.passkeys_heading')}
+                description={t('settings.passkeys_description')}
             />
 
             <div className="overflow-hidden rounded-lg border border-border">
@@ -61,7 +49,17 @@ export default function ManagePasskeys(props: Props) {
                         />
                     ))
                 ) : (
-                    <EmptyState />
+                    <div className="p-8 text-center">
+                        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-muted">
+                            <KeyRound className="h-7 w-7 text-muted-foreground" />
+                        </div>
+                        <p className="font-medium">
+                            {t('settings.passkeys_empty')}
+                        </p>
+                        <p className="mt-1 text-sm text-muted-foreground">
+                            {t('settings.passkeys_empty_hint')}
+                        </p>
+                    </div>
                 )}
             </div>
 

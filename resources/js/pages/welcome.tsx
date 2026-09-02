@@ -1,36 +1,16 @@
 import { Head, Link, usePage } from '@inertiajs/react';
 import { ArrowRight, BarChart3, Camera, Wallet, Zap } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { dashboard, login } from '@/routes';
 import { register } from '@/routes';
 
-const FEATURES = [
-    {
-        icon: Zap,
-        title: 'Tasa automática',
-        description:
-            'El BCV y el paralelo se sincronizan solos todos los días desde DolarAPI.',
-    },
-    {
-        icon: Camera,
-        title: 'Comprobantes',
-        description:
-            'Guarda la foto de cada recibo junto a su gasto y tenlo siempre a mano.',
-    },
-    {
-        icon: BarChart3,
-        title: 'Reportes mensuales',
-        description:
-            'Totales por mes, categoría y origen de pago, listos para exportar en CSV.',
-    },
-];
+function RadarVisual({ t }: { t: (key: string) => string }) {
+    const legend = [
+        { color: '#10b981', label: 'USD', pct: '45%' },
+        { color: '#f59e0b', label: 'Bs', pct: '30%' },
+        { color: '#3b82f6', label: 'USDT', pct: '25%' },
+    ];
 
-const LEGEND = [
-    { color: '#10b981', label: 'USD', pct: '45%' },
-    { color: '#f59e0b', label: 'Bs', pct: '30%' },
-    { color: '#3b82f6', label: 'USDT', pct: '25%' },
-];
-
-function RadarVisual() {
     return (
         <div className="relative mx-auto w-full max-w-sm">
             <div className="absolute -inset-10 rounded-full bg-[radial-gradient(circle_at_center,rgba(16,185,129,0.12),transparent_70%)]" />
@@ -123,18 +103,18 @@ function RadarVisual() {
                     </svg>
                     <div className="absolute inset-0 flex flex-col items-center justify-center gap-0.5">
                         <span className="text-[10px] font-semibold tracking-[0.2em] text-muted-foreground uppercase">
-                            Gasto del mes
+                            {t('welcome.visual_month_spend')}
                         </span>
                         <span className="font-display text-3xl font-bold">
                             US$ 1.248
                         </span>
                         <span className="text-xs text-muted-foreground">
-                            en 3 monedas
+                            {t('welcome.visual_in_currencies')}
                         </span>
                     </div>
                 </div>
                 <div className="mt-6 space-y-2.5">
-                    {LEGEND.map((item) => (
+                    {legend.map((item) => (
                         <div
                             key={item.label}
                             className="flex items-center justify-between text-sm"
@@ -156,7 +136,26 @@ function RadarVisual() {
 }
 
 export default function Welcome() {
+    const { t } = useTranslation();
     const { auth } = usePage().props;
+
+    const features = [
+        {
+            icon: Zap,
+            title: t('welcome.feature_rate_title'),
+            description: t('welcome.feature_rate_description'),
+        },
+        {
+            icon: Camera,
+            title: t('welcome.feature_receipts_title'),
+            description: t('welcome.feature_receipts_description'),
+        },
+        {
+            icon: BarChart3,
+            title: t('welcome.feature_reports_title'),
+            description: t('welcome.feature_reports_description'),
+        },
+    ];
 
     return (
         <>
@@ -186,14 +185,14 @@ export default function Welcome() {
                     </div>
                     <nav
                         className="flex items-center gap-3"
-                        aria-label="Acceso"
+                        aria-label={t('welcome.nav_aria')}
                     >
                         {auth.user ? (
                             <Link
                                 href={dashboard().url}
                                 className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 px-4 py-2 text-sm font-semibold text-primary-foreground shadow-lg shadow-emerald-500/25 transition-transform active:scale-95"
                             >
-                                Ir al panel
+                                {t('welcome.go_dashboard')}
                                 <ArrowRight
                                     className="size-4"
                                     strokeWidth={2.4}
@@ -205,13 +204,13 @@ export default function Welcome() {
                                     href={login().url}
                                     className="rounded-xl px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
                                 >
-                                    Iniciar sesión
+                                    {t('welcome.login')}
                                 </Link>
                                 <Link
                                     href={register().url}
                                     className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 px-4 py-2 text-sm font-semibold text-primary-foreground shadow-lg shadow-emerald-500/25 transition-transform active:scale-95"
                                 >
-                                    Crear cuenta
+                                    {t('welcome.create_account')}
                                 </Link>
                             </>
                         )}
@@ -222,18 +221,24 @@ export default function Welcome() {
                     <section>
                         <span className="inline-flex animate-in items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-xs font-medium text-muted-foreground duration-700 fade-in slide-in-from-bottom-2">
                             <span className="size-1.5 rounded-full bg-emerald-400" />
-                            Hecho para Venezuela
+                            {t('welcome.made_for')}
                         </span>
                         <h1 className="mt-5 animate-in font-display text-4xl leading-[1.05] font-bold tracking-tight delay-100 duration-700 fade-in slide-in-from-bottom-3 motion-reduce:animate-none sm:text-5xl">
-                            Controla tus gastos en{' '}
-                            <span className="text-emerald-400">USD</span>,{' '}
-                            <span className="text-amber-400">Bs</span> y{' '}
-                            <span className="text-blue-400">USDT</span>
+                            {t('welcome.hero_1')}{' '}
+                            <span className="text-emerald-400">
+                                {t('welcome.hero_usd')}
+                            </span>
+                            ,{' '}
+                            <span className="text-amber-400">
+                                {t('welcome.hero_bs')}
+                            </span>{' '}
+                            {t('welcome.hero_2')}{' '}
+                            <span className="text-blue-400">
+                                {t('welcome.hero_usdt')}
+                            </span>
                         </h1>
                         <p className="mt-5 max-w-md animate-in text-base leading-relaxed text-muted-foreground delay-200 duration-700 fade-in slide-in-from-bottom-3 motion-reduce:animate-none">
-                            Registra cada gasto con la tasa del día, adjunta tus
-                            comprobantes y descubre en qué se va tu dinero cada
-                            mes.
+                            {t('welcome.hero_description')}
                         </p>
                         <div className="mt-8 flex animate-in flex-wrap items-center gap-3 delay-300 duration-700 fade-in slide-in-from-bottom-3 motion-reduce:animate-none">
                             <Link
@@ -243,8 +248,8 @@ export default function Welcome() {
                                 className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 px-5 py-3 text-sm font-semibold text-primary-foreground shadow-lg shadow-emerald-500/25 transition-transform active:scale-95"
                             >
                                 {auth.user
-                                    ? 'Ir al panel'
-                                    : 'Crear cuenta gratis'}
+                                    ? t('welcome.go_dashboard')
+                                    : t('welcome.create_free')}
                                 <ArrowRight
                                     className="size-4"
                                     strokeWidth={2.4}
@@ -252,7 +257,7 @@ export default function Welcome() {
                             </Link>
                         </div>
                         <div className="mt-10 grid animate-in gap-3 delay-400 duration-700 fade-in slide-in-from-bottom-3 motion-reduce:animate-none sm:grid-cols-3">
-                            {FEATURES.map((feature) => (
+                            {features.map((feature) => (
                                 <div
                                     key={feature.title}
                                     className="rounded-2xl border border-white/5 bg-[#111a2e]/60 p-4"
@@ -273,13 +278,13 @@ export default function Welcome() {
                     </section>
 
                     <div className="animate-in delay-200 duration-700 zoom-in-95 fade-in motion-reduce:animate-none">
-                        <RadarVisual />
+                        <RadarVisual t={t} />
                     </div>
                 </main>
 
                 <footer className="relative z-10 mx-auto flex w-full max-w-5xl items-center justify-between px-6 py-6 text-xs text-muted-foreground">
                     <span>© 2026 Spent Trackr</span>
-                    <span>Tasas de cambio: ve.dolarapi.com</span>
+                    <span>{t('welcome.rates_source')}</span>
                 </footer>
             </div>
         </>

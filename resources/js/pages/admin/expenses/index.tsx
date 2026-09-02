@@ -8,6 +8,7 @@ import {
     Trash2,
 } from 'lucide-react';
 import { useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -79,6 +80,7 @@ export default function AdminExpensesIndex({
     users: { id: number; name: string; email: string }[];
     categories: { id: number; name: string; user_name: string }[];
 }) {
+    const { t } = useTranslation();
     const [search, setSearch] = useState(filters.search ?? '');
     const [userId, setUserId] = useState(filters.user_id ? Number(filters.user_id) : 0);
     const [categoryId, setCategoryId] = useState(
@@ -117,7 +119,10 @@ export default function AdminExpensesIndex({
     function destroy(expense: AdminExpense) {
         if (
             confirm(
-                `¿Eliminar el gasto "${expense.description}" de ${expense.user.name}? Esta acción no se puede deshacer.`,
+                t('admin:expenses.delete_confirm', {
+                    description: expense.description,
+                    user: expense.user.name,
+                }),
             )
         ) {
             router.delete(expensesDestroy({ expense: expense.id }).url, {
@@ -145,17 +150,18 @@ export default function AdminExpensesIndex({
 
     return (
         <>
-            <Head title="Gastos - Panel admin" />
+            <Head title={t('admin:expenses.title')} />
 
             <div className="space-y-8 px-4 py-6 sm:px-6 lg:px-8">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                         <h2 className="text-xl font-semibold tracking-tight">
-                            Gastos
+                            {t('admin:users.col_expenses')}
                         </h2>
                         <p className="text-sm text-muted-foreground">
-                            {expenses.total} gastos registrados en la
-                            plataforma.
+                            {t('admin:expenses.total', {
+                                count: expenses.total,
+                            })}
                         </p>
                     </div>
 
@@ -185,19 +191,21 @@ export default function AdminExpensesIndex({
                                         400,
                                     );
                                 }}
-                                placeholder="Buscar gasto..."
+                                placeholder={t('admin:expenses.search_placeholder')}
                                 className="pl-9"
                             />
                         </div>
-                        <Button type="submit">Buscar</Button>
+                        <Button type="submit">
+                            {t('admin:users.search_button')}
+                        </Button>
                         <Button variant="outline" asChild>
                             <a
                                 href={exportUrl}
-                                aria-label="Exportar gastos a CSV"
-                                title="Exportar a CSV con los filtros actuales"
+                                aria-label={t('admin:expenses.export_aria')}
+                                title={t('admin:expenses.export_title')}
                             >
                                 <Download className="size-4" />
-                                Exportar
+                                {t('admin:expenses.export')}
                             </a>
                         </Button>
                     </form>
@@ -207,7 +215,7 @@ export default function AdminExpensesIndex({
                     <CardContent className="grid gap-4 p-5 sm:grid-cols-2 lg:grid-cols-5">
                         <label className="block">
                             <span className="mb-1 block text-[10px] font-semibold tracking-wider text-muted-foreground uppercase">
-                                Usuario
+                                {t('admin:expenses.filter_user')}
                             </span>
                             <select
                                 value={userId}
@@ -218,7 +226,9 @@ export default function AdminExpensesIndex({
                                 }}
                                 className="h-10 w-full rounded-lg bg-surface-low px-3 text-sm text-foreground focus:ring-2 focus:ring-emerald-500/50 focus:outline-none"
                             >
-                                <option value={0}>Todos</option>
+                                <option value={0}>
+                                    {t('admin:expenses.all_users')}
+                                </option>
                                 {users.map((user) => (
                                     <option key={user.id} value={user.id}>
                                         {user.name} ({user.email})
@@ -229,7 +239,7 @@ export default function AdminExpensesIndex({
 
                         <label className="block">
                             <span className="mb-1 block text-[10px] font-semibold tracking-wider text-muted-foreground uppercase">
-                                Moneda
+                                {t('admin:expenses.filter_currency')}
                             </span>
                             <select
                                 value={currency}
@@ -240,7 +250,9 @@ export default function AdminExpensesIndex({
                                 }}
                                 className="h-10 w-full rounded-lg bg-surface-low px-3 text-sm text-foreground focus:ring-2 focus:ring-emerald-500/50 focus:outline-none"
                             >
-                                <option value="">Todas</option>
+                                <option value="">
+                                    {t('admin:expenses.all_currencies')}
+                                </option>
                                 <option value="usd">USD</option>
                                 <option value="ves">Bs</option>
                                 <option value="usdt">USDT</option>
@@ -249,7 +261,7 @@ export default function AdminExpensesIndex({
 
                         <label className="block">
                             <span className="mb-1 block text-[10px] font-semibold tracking-wider text-muted-foreground uppercase">
-                                Categoría
+                                {t('admin:expenses.filter_category')}
                             </span>
                             <select
                                 value={categoryId}
@@ -260,7 +272,9 @@ export default function AdminExpensesIndex({
                                 }}
                                 className="h-10 w-full rounded-lg bg-surface-low px-3 text-sm text-foreground focus:ring-2 focus:ring-emerald-500/50 focus:outline-none"
                             >
-                                <option value={0}>Todas</option>
+                                <option value={0}>
+                                    {t('admin:expenses.all_categories')}
+                                </option>
                                 {categories.map((category) => (
                                     <option
                                         key={category.id}
@@ -274,7 +288,7 @@ export default function AdminExpensesIndex({
 
                         <label className="block">
                             <span className="mb-1 block text-[10px] font-semibold tracking-wider text-muted-foreground uppercase">
-                                Desde
+                                {t('admin:expenses.filter_from')}
                             </span>
                             <Input
                                 type="date"
@@ -290,7 +304,7 @@ export default function AdminExpensesIndex({
 
                         <label className="block">
                             <span className="mb-1 block text-[10px] font-semibold tracking-wider text-muted-foreground uppercase">
-                                Hasta
+                                {t('admin:expenses.filter_to')}
                             </span>
                             <Input
                                 type="date"
@@ -324,7 +338,7 @@ export default function AdminExpensesIndex({
                                 }}
                                 className="text-xs font-medium text-muted-foreground hover:text-foreground sm:col-span-2 lg:col-span-5"
                             >
-                                Limpiar filtros
+                                {t('admin:expenses.clear_filters')}
                             </button>
                         )}
                     </CardContent>
@@ -337,28 +351,28 @@ export default function AdminExpensesIndex({
                                 <thead>
                                     <tr className="border-b text-left text-xs tracking-wider text-muted-foreground uppercase">
                                         <th className="px-4 py-3 font-medium">
-                                            Gasto
+                                            {t('admin:expenses.col_expense')}
                                         </th>
                                         <th className="hidden px-4 py-3 font-medium md:table-cell">
-                                            Usuario
+                                            {t('admin:expenses.filter_user')}
                                         </th>
                                         <th className="hidden px-4 py-3 font-medium lg:table-cell">
-                                            Categoría
+                                            {t('admin:expenses.filter_category')}
                                         </th>
                                         <th className="hidden px-4 py-3 font-medium lg:table-cell">
-                                            Origen
+                                            {t('admin:expenses.col_source')}
                                         </th>
                                         <th className="hidden px-4 py-3 font-medium sm:table-cell">
-                                            Monto
+                                            {t('admin:expenses.col_amount')}
                                         </th>
                                         <th className="hidden px-4 py-3 font-medium sm:table-cell">
                                             USD
                                         </th>
                                         <th className="hidden px-4 py-3 font-medium md:table-cell">
-                                            Fecha
+                                            {t('admin:expenses.col_date')}
                                         </th>
                                         <th className="px-4 py-3 text-right font-medium">
-                                            Acciones
+                                            {t('admin:users.col_actions')}
                                         </th>
                                     </tr>
                                 </thead>
@@ -430,7 +444,10 @@ export default function AdminExpensesIndex({
                                                                 )
                                                             }
                                                             className="text-muted-foreground hover:text-foreground"
-                                                            aria-label={`Comprobantes de ${expense.description}`}
+                                                            aria-label={t('admin:expenses.receipts_aria', {
+                                                                description:
+                                                                    expense.description,
+                                                            })}
                                                         >
                                                             <Paperclip className="size-4" />
                                                         </Button>
@@ -442,7 +459,10 @@ export default function AdminExpensesIndex({
                                                             destroy(expense)
                                                         }
                                                         className="text-destructive hover:text-destructive"
-                                                        aria-label={`Eliminar ${expense.description}`}
+                                                        aria-label={t('admin:expenses.delete_aria', {
+                                                            description:
+                                                                expense.description,
+                                                        })}
                                                     >
                                                         <Trash2 className="size-4" />
                                                     </Button>
@@ -456,7 +476,7 @@ export default function AdminExpensesIndex({
 
                         {expenses.data.length === 0 && (
                             <p className="px-4 py-12 text-center text-sm text-muted-foreground">
-                                No se encontraron gastos.
+                                {t('admin:expenses.no_expenses')}
                             </p>
                         )}
                     </CardContent>
@@ -465,8 +485,10 @@ export default function AdminExpensesIndex({
                 {expenses.last_page > 1 && (
                     <div className="flex items-center justify-between">
                         <p className="text-sm text-muted-foreground">
-                            Página {expenses.current_page} de{' '}
-                            {expenses.last_page}
+                            {t('admin:users.page_of', {
+                                current: expenses.current_page,
+                                total: expenses.last_page,
+                            })}
                         </p>
                         <div className="flex gap-2">
                             {expenses.current_page > 1 && (
@@ -485,7 +507,7 @@ export default function AdminExpensesIndex({
                                         )
                                     }
                                 >
-                                    <ChevronLeft className="size-4" /> Anterior
+                                    <ChevronLeft className="size-4" /> {t('admin:users.prev')}
                                 </Button>
                             )}
                             {expenses.current_page < expenses.last_page && (
@@ -504,7 +526,7 @@ export default function AdminExpensesIndex({
                                         )
                                     }
                                 >
-                                    Siguiente{' '}
+                                    {t('admin:users.next')}{' '}
                                     <ChevronRight className="size-4" />
                                 </Button>
                             )}
@@ -522,7 +544,9 @@ export default function AdminExpensesIndex({
                 >
                     <DialogContent className="rounded-2xl sm:max-w-md">
                         <DialogHeader>
-                            <DialogTitle>Comprobantes</DialogTitle>
+                            <DialogTitle>
+                                {t('admin:expenses.receipts_title')}
+                            </DialogTitle>
                             <DialogDescription>
                                 {receiptsFor
                                     ? `${receiptsFor.description} · ${receiptsFor.user.name}`
@@ -545,7 +569,7 @@ export default function AdminExpensesIndex({
                                         {receipt.original_name}
                                     </span>
                                     <span className="text-xs text-muted-foreground">
-                                        Abrir
+                                        {t('admin:expenses.open')}
                                     </span>
                                 </a>
                             ))}

@@ -1,6 +1,7 @@
 import { Link, router } from '@inertiajs/react';
 import { Trash2 } from 'lucide-react';
 import { useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { CurrencyChip } from '@/components/tracker/currency-chip';
 import type { CurrencyCode } from '@/lib/format';
 import { formatAmount } from '@/lib/format';
@@ -31,11 +32,14 @@ export function ExpenseListItem({
     const [dragging, setDragging] = useState(false);
     const startX = useRef(0);
     const baseX = useRef(0);
+    const { t } = useTranslation();
 
     function destroy() {
         if (
             confirm(
-                `¿Eliminar "${expense.description}"? Esta acción no se puede deshacer.`,
+                t('expenses.delete_confirm', {
+                    description: expense.description,
+                }),
             )
         ) {
             router.delete(expensesDestroy(expense.id).url);
@@ -48,7 +52,9 @@ export function ExpenseListItem({
                 type="button"
                 onClick={destroy}
                 className="absolute inset-y-0 right-0 flex w-20 items-center justify-center bg-destructive/90 text-destructive-foreground"
-                aria-label={`Eliminar ${expense.description}`}
+                aria-label={t('expenses.delete_aria', {
+                    description: expense.description,
+                })}
             >
                 <Trash2 className="size-5" />
             </button>

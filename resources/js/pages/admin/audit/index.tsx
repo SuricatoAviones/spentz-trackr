@@ -1,8 +1,10 @@
 import { Head, router } from '@inertiajs/react';
 import { ChevronLeft, ChevronRight, ScrollText } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { getLocale } from '@/lib/format';
 import { index as auditIndex } from '@/routes/admin/audit';
 
 type AuditAction = {
@@ -25,22 +27,22 @@ type ActionsPaginator = {
     per_page: number;
 };
 
-const ACTION_LABELS: Record<string, string> = {
-    'user.updated': 'Usuario actualizado',
-    'user.deleted': 'Usuario eliminado',
-    'user.verified': 'Email verificado',
-    'user.password_reset': 'Contraseña restablecida',
-    'user.suspended': 'Usuario suspendido',
-    'user.reactivated': 'Usuario reactivado',
-    'expense.deleted': 'Gasto eliminado',
-    'expenses.exported': 'Exportación CSV',
-    'rate.updated': 'Tasa actualizada',
-    'rate.synced': 'Sincronización de tasas',
-    'category.updated': 'Categoría actualizada',
-    'category.deleted': 'Categoría eliminada',
-    'source.updated': 'Origen actualizado',
-    'source.deleted': 'Origen eliminado',
-    'backup.generated': 'Backup generado',
+const ACTION_KEYS: Record<string, string> = {
+    'user.updated': 'admin:audit.action_user_updated',
+    'user.deleted': 'admin:audit.action_user_deleted',
+    'user.verified': 'admin:audit.action_user_verified',
+    'user.password_reset': 'admin:audit.action_user_password_reset',
+    'user.suspended': 'admin:audit.action_user_suspended',
+    'user.reactivated': 'admin:audit.action_user_reactivated',
+    'expense.deleted': 'admin:audit.action_expense_deleted',
+    'expenses.exported': 'admin:audit.action_expenses_exported',
+    'rate.updated': 'admin:audit.action_rate_updated',
+    'rate.synced': 'admin:audit.action_rate_synced',
+    'category.updated': 'admin:audit.action_category_updated',
+    'category.deleted': 'admin:audit.action_category_deleted',
+    'source.updated': 'admin:audit.action_source_updated',
+    'source.deleted': 'admin:audit.action_source_deleted',
+    'backup.generated': 'admin:audit.action_backup_generated',
 };
 
 export default function AdminAuditIndex({
@@ -48,17 +50,19 @@ export default function AdminAuditIndex({
 }: {
     actions: ActionsPaginator;
 }) {
+    const { t } = useTranslation();
+
     const actionLabel = (action: string): string =>
-        ACTION_LABELS[action] ?? action;
+        t(ACTION_KEYS[action] ?? action);
 
     const formatDateTime = (value: string): string => {
         const date = new Date(value);
 
-        return date.toLocaleDateString('es-VE', {
+        return date.toLocaleDateString(getLocale(), {
             day: '2-digit',
             month: 'short',
             year: 'numeric',
-        }) + ' · ' + date.toLocaleTimeString('es-VE', {
+        }) + ' · ' + date.toLocaleTimeString(getLocale(), {
             hour: '2-digit',
             minute: '2-digit',
         });
@@ -66,16 +70,15 @@ export default function AdminAuditIndex({
 
     return (
         <>
-            <Head title="Auditoría - Panel admin" />
+            <Head title={t('admin:audit.title')} />
 
             <div className="space-y-8 px-4 py-6 sm:px-6 lg:px-8">
                 <div>
                     <h2 className="text-xl font-semibold tracking-tight">
-                        Auditoría
+                        {t('admin:audit.title')}
                     </h2>
                     <p className="text-sm text-muted-foreground">
-                        {actions.total} acciones registradas de
-                        administradores.
+                        {t('admin:audit.total', { count: actions.total })}
                     </p>
                 </div>
 
@@ -86,16 +89,16 @@ export default function AdminAuditIndex({
                                 <thead>
                                     <tr className="border-b text-left text-xs tracking-wider text-muted-foreground uppercase">
                                         <th className="px-4 py-3 font-medium">
-                                            Fecha
+                                            {t('admin:expenses.col_date')}
                                         </th>
                                         <th className="hidden px-4 py-3 font-medium md:table-cell">
-                                            Administrador
+                                            {t('admin:audit.col_admin')}
                                         </th>
                                         <th className="px-4 py-3 font-medium">
-                                            Acción
+                                            {t('admin:audit.col_action')}
                                         </th>
                                         <th className="hidden px-4 py-3 font-medium lg:table-cell">
-                                            Objetivo
+                                            {t('admin:audit.col_target')}
                                         </th>
                                     </tr>
                                 </thead>
@@ -140,7 +143,7 @@ export default function AdminAuditIndex({
                             <div className="flex flex-col items-center gap-2 px-4 py-12 text-center">
                                 <ScrollText className="size-8 text-muted-foreground" />
                                 <p className="text-sm text-muted-foreground">
-                                    Aún no hay acciones registradas.
+                                    {t('admin:audit.empty')}
                                 </p>
                             </div>
                         )}
@@ -150,8 +153,10 @@ export default function AdminAuditIndex({
                 {actions.last_page > 1 && (
                     <div className="flex items-center justify-between">
                         <p className="text-sm text-muted-foreground">
-                            Página {actions.current_page} de{' '}
-                            {actions.last_page}
+                            {t('admin:users.page_of', {
+                                current: actions.current_page,
+                                total: actions.last_page,
+                            })}
                         </p>
                         <div className="flex gap-2">
                             {actions.current_page > 1 && (
@@ -168,7 +173,7 @@ export default function AdminAuditIndex({
                                         )
                                     }
                                 >
-                                    <ChevronLeft className="size-4" /> Anterior
+                                    <ChevronLeft className="size-4" /> {t('admin:users.prev')}
                                 </Button>
                             )}
                             {actions.current_page < actions.last_page && (
@@ -185,7 +190,7 @@ export default function AdminAuditIndex({
                                         )
                                     }
                                 >
-                                    Siguiente{' '}
+                                    {t('admin:users.next')}{' '}
                                     <ChevronRight className="size-4" />
                                 </Button>
                             )}

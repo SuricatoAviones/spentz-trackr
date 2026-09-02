@@ -13,15 +13,15 @@ class ExchangeRateController extends Controller
     {
         $service->saveManualRate($request->user(), (float) $request->validated('rate'));
 
-        return back()->with('success', 'Tasa actualizada correctamente.');
+        return back()->with('success', __('messages.rate_updated'));
     }
 
     public function sync(Request $request, ExchangeRateService $service): RedirectResponse
     {
         if ($service->syncFromApi() !== null) {
-            return back()->with('success', 'Tasas sincronizadas con dolarapi.com.');
+            return back()->with('success', __('messages.rates_synced'));
         }
 
-        return back()->with('error', 'No se pudo sincronizar con dolarapi.com.');
+        return back()->with('error', __('messages.rates_sync_failed'));
     }
 }

@@ -49,7 +49,7 @@
    ```cron
    * * * * * php /home/usuario/spent_trackr/artisan schedule:run >> /dev/null 2>&1
    ```
-   Dentro de `bootstrap/app.php` se registran: `SyncExchangeRatesJob` (diario) y, si se usa cola `database`, `queue:work --once --stop-when-empty` cada minuto (sin supervisor en hosting compartido).
+   Dentro de `bootstrap/app.php` se registran: `SyncExchangeRatesJob` (cada 5 minutos) y, si se usa cola `database`, `queue:work --once --stop-when-empty` cada minuto (sin supervisor en hosting compartido).
 8. **Permisos:** `storage/` y `bootstrap/cache/` con escritura para el usuario del proceso PHP.
 
 ## Riesgos y mitigaciones

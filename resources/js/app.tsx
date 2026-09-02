@@ -1,13 +1,23 @@
 import { createInertiaApp } from '@inertiajs/react';
+import { useEffect } from 'react';
 import { Toaster } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { initializeTheme } from '@/hooks/use-appearance';
+import { initI18n, syncI18n, type TranslationProps } from '@/i18n';
 import AppLayout from '@/layouts/app-layout';
 import AuthLayout from '@/layouts/auth-layout';
 import SettingsLayout from '@/layouts/settings/layout';
 import TrackerLayout from '@/layouts/tracker-layout';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
+
+function I18nBridge({ props }: { props: TranslationProps }) {
+    useEffect(() => {
+        syncI18n(props);
+    }, [props.locale, props.translations]);
+
+    return null;
+}
 
 createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),
@@ -21,6 +31,7 @@ createInertiaApp({
                 return [AppLayout, SettingsLayout];
             case name === 'dashboard' ||
                 name.startsWith('expenses/') ||
+                name.startsWith('incomes/') ||
                 name.startsWith('categories/') ||
                 name.startsWith('sources/') ||
                 name.startsWith('reports/') ||
@@ -33,10 +44,13 @@ createInertiaApp({
         }
     },
     strictMode: true,
-    withApp(app) {
+    withApp(app, { page }) {
+        initI18n(page.props);
+
         return (
             <TooltipProvider delayDuration={0}>
                 {app}
+                <I18nBridge props={page.props} />
                 <Toaster />
             </TooltipProvider>
         );

@@ -128,7 +128,7 @@ class ExpenseController extends Controller
 
         return redirect()
             ->route('admin.expenses.index')
-            ->with('success', 'Gasto eliminado.');
+            ->with('success', __('messages.expense_deleted'));
     }
 
     /**

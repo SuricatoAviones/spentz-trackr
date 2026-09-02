@@ -1,4 +1,4 @@
-import { Link, router } from '@inertiajs/react';
+import { Link, router, setLayoutProps } from '@inertiajs/react';
 import {
     ChevronLeft,
     ChevronRight,
@@ -8,6 +8,7 @@ import {
     X,
 } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { CategoryIcon } from '@/components/tracker/category-icon';
 import { CurrencyChip } from '@/components/tracker/currency-chip';
 import { TrackerCard } from '@/components/tracker/tracker-card';
@@ -16,13 +17,14 @@ import { destroy as expensesDestroy } from '@/routes/expenses';
 import type { Expense } from '@/types';
 
 export default function ShowExpense({ expense }: { expense: Expense }) {
+    const { t } = useTranslation();
     const receipts = expense.receipts ?? [];
     const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
+    setLayoutProps({ title: t('expenses.show_title') });
+
     function destroy() {
-        if (
-            confirm('¿Eliminar este gasto? Esta acción no se puede deshacer.')
-        ) {
+        if (confirm(t('expenses.show_delete_confirm'))) {
             router.delete(expensesDestroy(expense.id).url);
         }
     }
@@ -58,24 +60,24 @@ export default function ShowExpense({ expense }: { expense: Expense }) {
 
     const rateProviderLabel =
         expense.rate_provider === 'bcv'
-            ? 'BCV'
+            ? t('rates.provider_bcv')
             : expense.rate_provider === 'paralelo'
-              ? 'Paralelo'
+              ? t('rates.provider_paralelo')
               : expense.rate_provider === 'user'
-                ? 'Manual'
-                : 'Personalizada';
+                ? t('rates.provider_manual')
+                : t('rates.provider_custom');
 
     return (
         <div className="space-y-4 lg:mx-auto lg:max-w-2xl">
             <div className="flex items-center justify-between">
                 <p className="text-xs font-medium text-muted-foreground">
-                    Detalle del gasto
+                    {t('expenses.show_detail')}
                 </p>
                 <div className="flex gap-2">
                     <Link
                         href={`/expenses/${expense.id}/editar`}
                         className="inline-flex size-9 items-center justify-center rounded-lg bg-surface-low text-foreground"
-                        aria-label="Editar gasto"
+                        aria-label={t('expenses.show_edit_aria')}
                     >
                         <Pencil className="size-4" />
                     </Link>
@@ -83,7 +85,7 @@ export default function ShowExpense({ expense }: { expense: Expense }) {
                         type="button"
                         onClick={destroy}
                         className="inline-flex size-9 items-center justify-center rounded-lg bg-surface-low text-destructive"
-                        aria-label="Eliminar gasto"
+                        aria-label={t('expenses.show_delete_aria')}
                     >
                         <Trash2 className="size-4" />
                     </button>
@@ -110,11 +112,11 @@ export default function ShowExpense({ expense }: { expense: Expense }) {
             </section>
 
             {isVes && (
-                <TrackerCard title="Equivalencias">
+                <TrackerCard title={t('expenses.show_equivalences')}>
                     <div className="space-y-3 px-4 pt-3 pb-4">
                         <div className="flex items-center justify-between">
                             <span className="text-sm text-muted-foreground">
-                                En USD
+                                {t('expenses.show_in_usd')}
                             </span>
                             <span className="font-display text-lg font-bold text-emerald-400 tabular-nums">
                                 {formatAmount(expense.usd_amount)} USD
@@ -122,28 +124,59 @@ export default function ShowExpense({ expense }: { expense: Expense }) {
                         </div>
                         <div className="flex items-center justify-between">
                             <span className="text-sm text-muted-foreground">
-                                En USDT
+                                {t('expenses.show_in_usdt')}
                             </span>
                             <span className="font-display text-lg font-bold text-blue-400 tabular-nums">
                                 {formatAmount(expense.usdt_amount)} USDT
                             </span>
                         </div>
                         <p className="border-t border-white/5 pt-2.5 text-[11px] text-muted-foreground">
-                            Tasa {formatRate(expense.exchange_rate ?? 0)} Bs/USD
+                            {t('expenses.show_rate', {
+                                rate: formatRate(expense.exchange_rate ?? 0),
+                            })}{' '}
                             ·{' '}
                             <span className="font-semibold text-foreground">
                                 {rateProviderLabel}
                             </span>
                         </p>
+                        {expense.commission &&
+                            Number(expense.commission) > 0 && (
+                                <div className="flex items-center justify-between">
+                                    <span className="text-sm text-muted-foreground">
+                                        {t('expenses.show_commission')}
+                                    </span>
+                                    <span className="font-display text-base font-bold text-amber-400 tabular-nums">
+                                        {formatAmount(expense.commission)} Bs
+                                    </span>
+                                </div>
+                            )}
+                        {expense.commission &&
+                            Number(expense.commission) > 0 && (
+                                <p className="border-t border-white/5 pt-2.5 text-[11px] text-muted-foreground">
+                                    {t('expenses.show_total_hint')}
+                                </p>
+                            )}
+                        {expense.payment_method && (
+                            <div className="flex items-center justify-between">
+                                <span className="text-sm text-muted-foreground">
+                                    {t('expenses.show_payment_method')}
+                                </span>
+                                <span className="text-sm font-semibold text-foreground">
+                                    {expense.payment_method === 'pago_movil'
+                                        ? t('expenses.method_pago_movil')
+                                        : t('expenses.method_transferencia')}
+                                </span>
+                            </div>
+                        )}
                     </div>
                 </TrackerCard>
             )}
 
-            <TrackerCard title="Detalles">
+            <TrackerCard title={t('expenses.show_details')}>
                 <div className="divide-y divide-white/5 px-4">
                     <div className="flex items-center justify-between py-3">
                         <span className="text-sm text-muted-foreground">
-                            Categoría
+                            {t('expenses.show_category')}
                         </span>
                         <span className="flex items-center gap-2 text-sm font-medium text-foreground">
                             <CategoryIcon
@@ -156,7 +189,7 @@ export default function ShowExpense({ expense }: { expense: Expense }) {
                     </div>
                     <div className="flex items-center justify-between py-3">
                         <span className="text-sm text-muted-foreground">
-                            Origen
+                            {t('expenses.show_source')}
                         </span>
                         <span className="flex items-center gap-2 text-sm font-medium text-foreground">
                             <CategoryIcon
@@ -169,7 +202,7 @@ export default function ShowExpense({ expense }: { expense: Expense }) {
                     </div>
                     <div className="flex items-center justify-between py-3">
                         <span className="text-sm text-muted-foreground">
-                            Fecha
+                            {t('expenses.show_date')}
                         </span>
                         <span className="text-sm font-medium text-foreground tabular-nums">
                             {formatDate(expense.spent_at)}
@@ -178,7 +211,7 @@ export default function ShowExpense({ expense }: { expense: Expense }) {
                     {expense.note && (
                         <div className="py-3">
                             <span className="text-sm text-muted-foreground">
-                                Nota
+                                {t('expenses.show_note')}
                             </span>
                             <p className="mt-1 text-sm text-foreground">
                                 {expense.note}
@@ -188,14 +221,14 @@ export default function ShowExpense({ expense }: { expense: Expense }) {
                 </div>
             </TrackerCard>
 
-            <TrackerCard title="Comprobante">
+            <TrackerCard title={t('expenses.show_receipt')}>
                 <div className="px-4 pt-3 pb-4">
                     {receipts.length === 0 ? (
                         <div className="flex h-28 items-center justify-center rounded-lg border border-dashed border-white/10 bg-white/[0.02]">
                             <span className="flex flex-col items-center gap-1.5 text-muted-foreground">
                                 <FileImage className="size-6" />
                                 <span className="text-[11px]">
-                                    Sin comprobante adjunto
+                                    {t('expenses.show_no_receipt')}
                                 </span>
                             </span>
                         </div>
@@ -207,7 +240,12 @@ export default function ShowExpense({ expense }: { expense: Expense }) {
                                     type="button"
                                     onClick={() => setLightboxIndex(index)}
                                     className="relative aspect-square overflow-hidden rounded-lg bg-surface-high"
-                                    aria-label={`Ver comprobante ${receipt.original_name}`}
+                                    aria-label={t(
+                                        'expenses.show_view_receipt_aria',
+                                        {
+                                            name: receipt.original_name,
+                                        },
+                                    )}
                                 >
                                     <img
                                         src={receipt.url}
@@ -227,14 +265,14 @@ export default function ShowExpense({ expense }: { expense: Expense }) {
                     className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 p-4"
                     role="dialog"
                     aria-modal="true"
-                    aria-label="Comprobante"
+                    aria-label={t('expenses.show_lightbox_aria')}
                     onClick={closeLightbox}
                 >
                     <button
                         type="button"
                         onClick={closeLightbox}
                         className="absolute top-4 right-4 inline-flex size-10 items-center justify-center rounded-full bg-white/10 text-white"
-                        aria-label="Cerrar comprobante"
+                        aria-label={t('expenses.show_close_receipt_aria')}
                     >
                         <X className="size-5" />
                     </button>
@@ -252,7 +290,9 @@ export default function ShowExpense({ expense }: { expense: Expense }) {
                                     );
                                 }}
                                 className="absolute top-1/2 left-3 inline-flex size-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white"
-                                aria-label="Comprobante anterior"
+                                aria-label={t(
+                                    'expenses.show_prev_receipt_aria',
+                                )}
                             >
                                 <ChevronLeft className="size-5" />
                             </button>
@@ -268,7 +308,9 @@ export default function ShowExpense({ expense }: { expense: Expense }) {
                                     );
                                 }}
                                 className="absolute top-1/2 right-3 inline-flex size-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white"
-                                aria-label="Comprobante siguiente"
+                                aria-label={t(
+                                    'expenses.show_next_receipt_aria',
+                                )}
                             >
                                 <ChevronRight className="size-5" />
                             </button>
@@ -296,7 +338,7 @@ export default function ShowExpense({ expense }: { expense: Expense }) {
                 href={`/expenses/${expense.id}/editar`}
                 className="block w-full rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 py-3.5 text-center font-display text-sm font-bold text-primary-foreground shadow-lg shadow-emerald-500/25"
             >
-                EDITAR GASTO
+                {t('expenses.show_edit_button')}
             </Link>
         </div>
     );

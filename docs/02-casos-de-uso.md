@@ -158,7 +158,7 @@ flowchart TB
 #### UC-16 Sincronizar tasa vía API (sistema)
 - **Actor:** Sistema (cron/schedule)
 - **Flujo principal:**
-  1. El scheduler ejecuta la tarea diaria (p. ej., 08:00) o bajo demanda.
+  1. El scheduler ejecuta la tarea cada 5 minutos (o bajo demanda).
   2. Consulta `https://ve.dolarapi.com/v1/dolares` (fuentes: BCV y paralelo).
   3. Guarda/actualiza la tasa del día en `exchange_rates` con fuente `api`.
   4. Si la API falla: registra el error y conserva la última tasa conocida (el usuario puede ingresarla manual).

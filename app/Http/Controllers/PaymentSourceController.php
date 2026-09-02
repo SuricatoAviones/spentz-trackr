@@ -43,7 +43,7 @@ class PaymentSourceController extends Controller
 
         return redirect()
             ->route('sources.index')
-            ->with('success', 'Origen creado.');
+            ->with('success', __('messages.source_created'));
     }
 
     public function update(UpdatePaymentSourceRequest $request, PaymentSource $source): RedirectResponse
@@ -54,7 +54,7 @@ class PaymentSourceController extends Controller
 
         return redirect()
             ->route('sources.index')
-            ->with('success', 'Origen actualizado.');
+            ->with('success', __('messages.source_updated'));
     }
 
     public function destroy(Request $request, PaymentSource $source): RedirectResponse
@@ -65,6 +65,6 @@ class PaymentSourceController extends Controller
 
         return redirect()
             ->route('sources.index')
-            ->with('success', 'Origen eliminado.');
+            ->with('success', __('messages.source_deleted'));
     }
 }

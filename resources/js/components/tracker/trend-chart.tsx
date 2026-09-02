@@ -1,3 +1,6 @@
+import { useTranslation } from 'react-i18next';
+import { formatIsoMonthLabel } from '@/lib/format';
+
 export function TrendChart({
     data,
     height = 120,
@@ -5,6 +8,7 @@ export function TrendChart({
     data: { month: string; total: number }[];
     height?: number;
 }) {
+    useTranslation();
     const width = 300;
     const padding = 8;
     const max = Math.max(...data.map((item) => item.total), 1);
@@ -80,7 +84,7 @@ export function TrendChart({
                         key={point.month}
                         className="text-[9px] font-medium text-muted-foreground"
                     >
-                        {point.month}
+{formatIsoMonthLabel(point.month)}
                     </span>
                 ))}
             </div>

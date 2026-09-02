@@ -94,7 +94,7 @@ class RateController extends Controller
 
         AdminAction::record('rate.updated', null, ['rate_date' => $today]);
 
-        return back()->with('success', 'Tasa del día actualizada.');
+        return back()->with('success', __('messages.rate_day_updated'));
     }
 
     public function sync(ExchangeRateService $service): RedirectResponse
@@ -102,9 +102,9 @@ class RateController extends Controller
         AdminAction::record('rate.synced');
 
         if ($service->syncFromApi() !== null) {
-            return back()->with('success', 'Tasas sincronizadas con dolarapi.com.');
+            return back()->with('success', __('messages.rates_synced'));
         }
 
-        return back()->with('error', 'No se pudo sincronizar con dolarapi.com.');
+        return back()->with('error', __('messages.rates_sync_failed'));
     }
 }

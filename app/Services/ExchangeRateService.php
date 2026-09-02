@@ -12,7 +12,7 @@ class ExchangeRateService
 {
     private const API_URL = 'https://ve.dolarapi.com/v1/dolares';
 
-    private const CACHE_TTL_SECONDS = 300;
+    private const CACHE_TTL_SECONDS = 60;
 
     /**
      * Get today's available rates for the expense form: manual override, BCV and paralelo.

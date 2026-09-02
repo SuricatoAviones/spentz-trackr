@@ -20,10 +20,11 @@ Spent Trackr es una aplicación personal de control de gastos diseñada para el 
 |---|---|---|
 | Usuarios | **Multi-usuario con login** | Fortify ya instalado; cada usuario tiene datos aislados |
 | Registro | **Solo gastos** (sin ingresos) | No hay balance neto ni módulo de ingresos |
-| Tasas de cambio | **API automática + override manual** | Sincronización diaria programada; cada gasto puede usar tasa manual |
+| Tasas de cambio | **API automática + override manual** | Sincronización cada 5 minutos (BCV y paralela); cada gasto puede usar tasa manual |
 | Saldos por cuenta | **No** — solo movimientos | El origen es una etiqueta, no se calculan saldos |
 | Presupuestos | **No por ahora** | Fuera de alcance v1, posible v2 |
 | Reportes | **Completos** | Dashboard, gráficas, comparativos, CSV |
+| Idioma | **ES/EN con selector persistente** | Español por defecto (mercado principal), inglés completo vía i18next + `lang/`; preferencia por usuario, sesión y navegador |
 
 ## Monedas soportadas
 

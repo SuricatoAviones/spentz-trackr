@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Enums\CategoryType;
 use App\Models\Category;
 use App\Models\User;
 
@@ -36,6 +37,12 @@ class CategoryPolicy
      */
     public function delete(User $user, Category $category): bool
     {
-        return $category->user_id === $user->id && $category->expenses()->doesntExist();
+        if ($category->user_id !== $user->id) {
+            return false;
+        }
+
+        return $category->type === CategoryType::Expense
+            ? $category->expenses()->doesntExist()
+            : $category->incomes()->doesntExist();
     }
 }

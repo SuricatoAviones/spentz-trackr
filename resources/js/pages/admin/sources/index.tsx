@@ -1,6 +1,7 @@
 import { Head, router, useForm } from '@inertiajs/react';
 import { Pencil, Search, Trash2 } from 'lucide-react';
 import { useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { CategoryIcon } from '@/components/tracker/category-icon';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -68,6 +69,7 @@ export default function AdminSourcesIndex({
     filters: { search: string; user_id: number | null };
     users: { id: number; name: string; email: string }[];
 }) {
+    const { t } = useTranslation();
     const [search, setSearch] = useState(filters.search ?? '');
     const [userId, setUserId] = useState(filters.user_id ? Number(filters.user_id) : 0);
     const [editing, setEditing] = useState<AdminSource | null>(null);
@@ -104,7 +106,10 @@ export default function AdminSourcesIndex({
     function destroy(source: AdminSource) {
         if (
             confirm(
-                `¿Eliminar el origen "${source.name}" de ${source.user.name}?`,
+                t('admin:sources.delete_confirm', {
+                    name: source.name,
+                    user: source.user.name,
+                }),
             )
         ) {
             router.delete(sourcesDestroy({ source: source.id }).url, {
@@ -126,16 +131,18 @@ export default function AdminSourcesIndex({
 
     return (
         <>
-            <Head title="Orígenes de pago - Panel admin" />
+            <Head title={t('admin:sources.title')} />
 
             <div className="space-y-8 px-4 py-6 sm:px-6 lg:px-8">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                         <h2 className="text-xl font-semibold tracking-tight">
-                            Orígenes de pago
+                            {t('sources:title')}
                         </h2>
                         <p className="text-sm text-muted-foreground">
-                            {sources.total} orígenes de todos los usuarios.
+                            {t('admin:sources.total', {
+                                count: sources.total,
+                            })}
                         </p>
                     </div>
 
@@ -164,11 +171,13 @@ export default function AdminSourcesIndex({
                                         400,
                                     );
                                 }}
-                                placeholder="Buscar origen..."
+                                placeholder={t('admin:sources.search_placeholder')}
                                 className="pl-9"
                             />
                         </div>
-                        <Button type="submit">Buscar</Button>
+                        <Button type="submit">
+                            {t('admin:users.search_button')}
+                        </Button>
                     </form>
                 </div>
 
@@ -176,7 +185,7 @@ export default function AdminSourcesIndex({
                     <CardContent className="p-4">
                         <label className="block max-w-xs">
                             <span className="mb-1 block text-[10px] font-semibold tracking-wider text-muted-foreground uppercase">
-                                Usuario
+                                {t('admin:expenses.filter_user')}
                             </span>
                             <select
                                 value={userId}
@@ -197,7 +206,7 @@ export default function AdminSourcesIndex({
                                 }}
                                 className="h-10 w-full rounded-lg bg-surface-low px-3 text-sm text-foreground focus:ring-2 focus:ring-emerald-500/50 focus:outline-none"
                             >
-                                <option value={0}>Todos</option>
+                                <option value={0}>{t('admin:expenses.all_users')}</option>
                                 {users.map((user) => (
                                     <option key={user.id} value={user.id}>
                                         {user.name} ({user.email})
@@ -215,19 +224,19 @@ export default function AdminSourcesIndex({
                                 <thead>
                                     <tr className="border-b text-left text-xs tracking-wider text-muted-foreground uppercase">
                                         <th className="px-4 py-3 font-medium">
-                                            Origen
+                                            {t('admin:expenses.col_source')}
                                         </th>
                                         <th className="hidden px-4 py-3 font-medium md:table-cell">
-                                            Usuario
+                                            {t('admin:expenses.filter_user')}
                                         </th>
                                         <th className="hidden px-4 py-3 font-medium sm:table-cell">
-                                            Gastos
+                                            {t('admin:users.col_expenses')}
                                         </th>
                                         <th className="hidden px-4 py-3 font-medium sm:table-cell">
-                                            Total USD
+                                            {t('admin:users.col_total_usd')}
                                         </th>
                                         <th className="px-4 py-3 text-right font-medium">
-                                            Acciones
+                                            {t('admin:users.col_actions')}
                                         </th>
                                     </tr>
                                 </thead>
@@ -249,7 +258,7 @@ export default function AdminSourcesIndex({
                                                             {source.name}
                                                             {source.is_system && (
                                                                 <Badge variant="outline">
-                                                                    Sistema
+                                                                    {t('admin:categories.badge_system')}
                                                                 </Badge>
                                                             )}
                                                         </p>
@@ -283,7 +292,9 @@ export default function AdminSourcesIndex({
                                                         onClick={() =>
                                                             openEdit(source)
                                                         }
-                                                        aria-label={`Editar ${source.name}`}
+                                                        aria-label={t('admin:users.edit_aria', {
+                                                            name: source.name,
+                                                        })}
                                                     >
                                                         <Pencil className="size-4" />
                                                     </Button>
@@ -297,11 +308,13 @@ export default function AdminSourcesIndex({
                                                             !source.can_delete
                                                         }
                                                         className="text-destructive hover:text-destructive disabled:opacity-40"
-                                                        aria-label={`Eliminar ${source.name}`}
+                                                        aria-label={t('admin:users.delete_aria', {
+                                                            name: source.name,
+                                                        })}
                                                         title={
                                                             source.can_delete
                                                                 ? undefined
-                                                                : 'No se puede eliminar: tiene gastos asociados'
+                                                                : t('common:delete_blocked')
                                                         }
                                                     >
                                                         <Trash2 className="size-4" />
@@ -316,7 +329,7 @@ export default function AdminSourcesIndex({
 
                         {sources.data.length === 0 && (
                             <p className="px-4 py-12 text-center text-sm text-muted-foreground">
-                                No se encontraron orígenes.
+                                {t('admin:sources.no_sources')}
                             </p>
                         )}
                     </CardContent>
@@ -328,17 +341,18 @@ export default function AdminSourcesIndex({
                 >
                     <DialogContent className="rounded-2xl sm:max-w-md">
                         <DialogHeader>
-                            <DialogTitle>Editar origen</DialogTitle>
+                            <DialogTitle>{t('admin:sources.edit_title')}</DialogTitle>
                             <DialogDescription>
-                                Actualiza los datos del origen de{' '}
-                                {editing?.user.name}.
+                                {t('admin:sources.edit_description', {
+                                    name: editing?.user.name,
+                                })}
                             </DialogDescription>
                         </DialogHeader>
 
                         <form onSubmit={submitEdit} className="space-y-4">
                             <div className="grid gap-2">
                                 <Label htmlFor="edit-source-name">
-                                    Nombre
+                                    {t('common:name')}
                                 </Label>
                                 <Input
                                     id="edit-source-name"
@@ -358,7 +372,7 @@ export default function AdminSourcesIndex({
 
                             <div className="grid gap-2">
                                 <Label htmlFor="edit-source-icon">
-                                    Icono
+                                    {t('common:icon')}
                                 </Label>
                                 <select
                                     id="edit-source-icon"
@@ -377,7 +391,7 @@ export default function AdminSourcesIndex({
                             </div>
 
                             <div className="grid gap-2">
-                                <Label>Color</Label>
+                                <Label>{t('common:color')}</Label>
                                 <div className="flex flex-wrap gap-2">
                                     {PRESET_COLORS.map((color) => (
                                         <button
@@ -392,7 +406,7 @@ export default function AdminSourcesIndex({
                                                     : 'hover:scale-105'
                                             }`}
                                             style={{ backgroundColor: color }}
-                                            aria-label={`Color ${color}`}
+                                            aria-label={t('common:color_aria', { color })}
                                         />
                                     ))}
                                 </div>
@@ -409,8 +423,8 @@ export default function AdminSourcesIndex({
                                 className="w-full"
                             >
                                 {processing
-                                    ? 'Guardando...'
-                                    : 'Guardar cambios'}
+                                    ? t('common:saving')
+                                    : t('admin:users.save_changes')}
                             </Button>
                         </form>
                     </DialogContent>

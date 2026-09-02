@@ -8,6 +8,7 @@ import {
     XCircle,
 } from 'lucide-react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import {
     Card,
@@ -45,6 +46,7 @@ export default function AdminSystem({
     status: Status;
     counts: Counts;
 }) {
+    const { t } = useTranslation();
     const [generating, setGenerating] = useState(false);
 
     function generateBackup() {
@@ -61,32 +63,32 @@ export default function AdminSystem({
 
     const healthItems = [
         {
-            label: 'Conexión a la base de datos',
+            label: t('admin:system.health_db'),
             ok: status.database_ok,
             detail: status.database_ok
-                ? 'Respondiendo correctamente'
-                : 'No se pudo conectar',
+                ? t('admin:system.health_db_ok')
+                : t('admin:system.health_db_fail'),
         },
         {
-            label: 'Almacenamiento',
+            label: t('admin:system.health_storage'),
             ok: status.storage_writable,
             detail: status.storage_writable
-                ? 'Directorio storage escribible'
-                : 'storage no es escribible',
+                ? t('admin:system.health_storage_ok')
+                : t('admin:system.health_storage_fail'),
         },
     ];
 
     return (
         <>
-            <Head title="Sistema - Panel admin" />
+            <Head title={t('admin:system.title')} />
 
             <div className="space-y-8 px-4 py-6 sm:px-6 lg:px-8">
                 <div>
                     <h2 className="text-xl font-semibold tracking-tight">
-                        Sistema y backup
+                        {t('admin:system.title')}
                     </h2>
                     <p className="text-sm text-muted-foreground">
-                        Estado general de la aplicación y respaldo de datos.
+                        {t('admin:system.subtitle')}
                     </p>
                 </div>
 
@@ -94,16 +96,16 @@ export default function AdminSystem({
                     <Card>
                         <CardHeader>
                             <CardTitle className="text-base">
-                                Estado del sistema
+                                {t('admin:system.system_status')}
                             </CardTitle>
                             <CardDescription>
-                                Entorno y servicios de la aplicación.
+                                {t('admin:system.system_status_desc')}
                             </CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-3 text-sm">
                             <div className="flex items-center justify-between">
                                 <span className="text-muted-foreground">
-                                    Entorno
+                                    {t('admin:system.environment')}
                                 </span>
                                 <span className="font-medium">
                                     {status.environment}
@@ -127,7 +129,7 @@ export default function AdminSystem({
                             </div>
                             <div className="flex items-center justify-between">
                                 <span className="text-muted-foreground">
-                                    Base de datos
+                                    {t('admin:system.database')}
                                 </span>
                                 <span className="font-medium">
                                     {status.database}
@@ -135,7 +137,7 @@ export default function AdminSystem({
                             </div>
                             <div className="flex items-center justify-between">
                                 <span className="text-muted-foreground">
-                                    Caché
+                                    {t('admin:system.cache')}
                                 </span>
                                 <span className="font-medium">
                                     {status.cache_driver}
@@ -170,42 +172,42 @@ export default function AdminSystem({
                         <Card>
                             <CardHeader>
                                 <CardTitle className="text-base">
-                                    Volumen de datos
+                                    {t('admin:system.data_volume')}
                                 </CardTitle>
                                 <CardDescription>
-                                    Registros almacenados en la plataforma.
+                                    {t('admin:system.data_volume_desc')}
                                 </CardDescription>
                             </CardHeader>
                             <CardContent className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                                 {[
                                     {
                                         icon: Server,
-                                        label: 'Usuarios',
+                                        label: t('admin:system.count_users'),
                                         value: counts.users,
                                     },
                                     {
                                         icon: Database,
-                                        label: 'Gastos',
+                                        label: t('admin:system.count_expenses'),
                                         value: counts.expenses,
                                     },
                                     {
                                         icon: HardDrive,
-                                        label: 'Comprobantes',
+                                        label: t('admin:system.count_receipts'),
                                         value: counts.receipts,
                                     },
                                     {
                                         icon: Database,
-                                        label: 'Tasas',
+                                        label: t('admin:system.count_rates'),
                                         value: counts.exchange_rates,
                                     },
                                     {
                                         icon: Server,
-                                        label: 'Categorías',
+                                        label: t('admin:system.count_categories'),
                                         value: counts.categories,
                                     },
                                     {
                                         icon: Server,
-                                        label: 'Orígenes',
+                                        label: t('admin:system.count_sources'),
                                         value: counts.payment_sources,
                                     },
                                 ].map((item) => (
@@ -228,13 +230,10 @@ export default function AdminSystem({
                         <Card>
                             <CardHeader>
                                 <CardTitle className="text-base">
-                                    Backup de la base de datos
+                                    {t('admin:system.backup_title')}
                                 </CardTitle>
                                 <CardDescription>
-                                    Descarga un respaldo JSON con todos los
-                                    registros (usuarios, categorías, orígenes,
-                                    tasas, gastos y comprobantes). Los archivos
-                                    de comprobantes no se incluyen.
+                                    {t('admin:system.backup_desc')}
                                 </CardDescription>
                             </CardHeader>
                             <CardContent>
@@ -244,8 +243,8 @@ export default function AdminSystem({
                                 >
                                     <Download className="size-4" />
                                     {generating
-                                        ? 'Generando...'
-                                        : 'Descargar backup'}
+                                        ? t('admin:system.backup_generating')
+                                        : t('admin:system.backup_download')}
                                 </Button>
                             </CardContent>
                         </Card>

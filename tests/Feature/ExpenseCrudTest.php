@@ -373,3 +373,109 @@ test('the expenses index can be filtered by search, currency and category', func
             ->has('expenses.data', 2)
         );
 });
+
+test('a Bs expense with a mobile payment commission keeps the base amount and the commission apart', function () {
+    $this->post(route('expenses.store'), [
+        'category_id' => $this->category->id,
+        'payment_source_id' => $this->source->id,
+        'currency' => Currency::Ves->value,
+        'amount' => 100,
+        'exchange_rate' => 50,
+        'payment_method' => 'pago_movil',
+        'commission' => 14,
+        'description' => 'Recarga',
+        'spent_at' => now()->toDateString(),
+    ])->assertRedirect();
+
+    $expense = Expense::query()->first();
+
+    expect($expense->amount)->toBe('100.00')
+        ->and($expense->payment_method?->value)->toBe('pago_movil')
+        ->and($expense->commission)->toBe('14.00')
+        ->and($expense->usd_amount)->toBe('2.28')
+        ->and($expense->usdt_amount)->toBe('2.28');
+});
+
+test('a Bs expense without commission (checked option) stores the base amount', function () {
+    $this->post(route('expenses.store'), [
+        'category_id' => $this->category->id,
+        'payment_source_id' => $this->source->id,
+        'currency' => Currency::Ves->value,
+        'amount' => 100,
+        'exchange_rate' => 50,
+        'payment_method' => 'transferencia',
+        'commission' => 0,
+        'description' => 'Mercado',
+        'spent_at' => now()->toDateString(),
+    ])->assertRedirect();
+
+    $expense = Expense::query()->first();
+
+    expect($expense->amount)->toBe('100.00')
+        ->and($expense->payment_method?->value)->toBe('transferencia')
+        ->and($expense->commission)->toBe('0.00')
+        ->and($expense->usd_amount)->toBe('2.00');
+});
+
+test('a commission without a payment method is rejected in Bs', function () {
+    $this->post(route('expenses.store'), [
+        'category_id' => $this->category->id,
+        'payment_source_id' => $this->source->id,
+        'currency' => Currency::Ves->value,
+        'amount' => 100,
+        'exchange_rate' => 50,
+        'commission' => 14,
+        'description' => 'Invalido',
+        'spent_at' => now()->toDateString(),
+    ])->assertSessionHasErrors('payment_method');
+
+    $this->assertDatabaseCount('expenses', 0);
+});
+
+test('payment method and commission are rejected for non-Bs currencies', function () {
+    $this->post(route('expenses.store'), [
+        'category_id' => $this->category->id,
+        'payment_source_id' => $this->source->id,
+        'currency' => Currency::Usd->value,
+        'amount' => 10,
+        'payment_method' => 'pago_movil',
+        'commission' => 2,
+        'description' => 'Invalido',
+        'spent_at' => now()->toDateString(),
+    ])->assertSessionHasErrors(['payment_method', 'commission']);
+
+    $this->assertDatabaseCount('expenses', 0);
+});
+
+test('a Bs expense recalculates the equivalents when a commission is added', function () {
+    $expense = Expense::factory()
+        ->for($this->user)
+        ->for($this->category)
+        ->for($this->source, 'paymentSource')
+        ->create([
+            'currency' => Currency::Ves,
+            'amount' => 100,
+            'exchange_rate' => 20,
+            'usd_amount' => 5,
+            'usdt_amount' => 5,
+        ]);
+
+    $this->put(route('expenses.update', $expense), [
+        'category_id' => $this->category->id,
+        'payment_source_id' => $this->source->id,
+        'currency' => Currency::Ves->value,
+        'amount' => 100,
+        'exchange_rate' => 20,
+        'payment_method' => 'transferencia',
+        'commission' => 8,
+        'description' => 'Actualizado',
+        'spent_at' => now()->toDateString(),
+    ])->assertRedirect(route('expenses.show', $expense));
+
+    $expense->refresh();
+
+    expect($expense->amount)->toBe('100.00')
+        ->and($expense->commission)->toBe('8.00')
+        ->and($expense->payment_method?->value)->toBe('transferencia')
+        ->and($expense->usd_amount)->toBe('5.40');
+});

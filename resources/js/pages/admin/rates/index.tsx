@@ -1,5 +1,6 @@
 import { Head, router, useForm } from '@inertiajs/react';
 import { RefreshCw, Users } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -41,15 +42,9 @@ type HistoryEntry = {
 
 const PROVIDER_LABEL: Record<string, string> = {
     bcv: 'BCV',
-    paralelo: 'Paralelo',
-    user: 'Manual',
+    paralelo: 'rates:provider_paralelo',
+    user: 'rates:provider_manual',
     dolarapi: 'dolarapi',
-};
-
-const SOURCE_LABEL: Record<HistoryEntry['source'], string> = {
-    api: 'API',
-    manual: 'Manual',
-    seed: 'Semilla',
 };
 
 export default function AdminRatesIndex({
@@ -61,6 +56,16 @@ export default function AdminRatesIndex({
     manualToday: ManualOverride[];
     history: HistoryEntry[];
 }) {
+    const { t } = useTranslation();
+
+    const sourceLabel = (source: HistoryEntry['source']): string =>
+        t(`admin:rates.source_${source}`);
+
+    const providerLabel = (provider: string): string =>
+        PROVIDER_LABEL[provider]
+            ? t(PROVIDER_LABEL[provider])
+            : provider;
+
     const { data, setData, put, processing, errors } = useForm({
         bcv: today.bcv ? String(today.bcv) : '',
         paralelo: today.paralelo ? String(today.paralelo) : '',
@@ -77,16 +82,15 @@ export default function AdminRatesIndex({
 
     return (
         <>
-            <Head title="Tasas de cambio - Panel admin" />
+            <Head title={t('admin:rates.title')} />
 
             <div className="space-y-8 px-4 py-6 sm:px-6 lg:px-8">
                 <div>
                     <h2 className="text-xl font-semibold tracking-tight">
-                        Tasas de cambio
+                        {t('admin:rates.title')}
                     </h2>
                     <p className="text-sm text-muted-foreground">
-                        Tasas globales Bs/USD usadas para precargar los
-                        formularios de gasto.
+                        {t('admin:rates.subtitle')}
                     </p>
                 </div>
 
@@ -94,12 +98,12 @@ export default function AdminRatesIndex({
                     <CardHeader className="flex flex-row items-start justify-between gap-4">
                         <div>
                             <CardTitle className="text-base">
-                                Tasa del día ({today.date})
+                                {t('admin:rates.today_rate', {
+                                    date: today.date,
+                                })}
                             </CardTitle>
                             <CardDescription>
-                                Sobrescribe la tasa del día para toda la
-                                plataforma. La sincronización automática no la
-                                reemplazará hoy.
+                                {t('admin:rates.today_rate_desc')}
                             </CardDescription>
                         </div>
                         <Button
@@ -108,7 +112,7 @@ export default function AdminRatesIndex({
                             onClick={syncRates}
                         >
                             <RefreshCw className="size-4" />
-                            Sincronizar con dolarapi
+                            {t('admin:rates.sync_dolarapi')}
                         </Button>
                     </CardHeader>
                     <CardContent>
@@ -129,7 +133,7 @@ export default function AdminRatesIndex({
                                         onChange={(event) =>
                                             setData('bcv', event.target.value)
                                         }
-                                        placeholder="Ej: 36.5000"
+                                        placeholder={t('admin:rates.bcv_placeholder')}
                                     />
                                     {errors.bcv && (
                                         <p className="text-xs text-destructive">
@@ -155,7 +159,7 @@ export default function AdminRatesIndex({
                                                 event.target.value,
                                             )
                                         }
-                                        placeholder="Ej: 37.2000"
+                                        placeholder={t('admin:rates.paralelo_placeholder')}
                                     />
                                     {errors.paralelo && (
                                         <p className="text-xs text-destructive">
@@ -166,7 +170,9 @@ export default function AdminRatesIndex({
                             </div>
 
                             <Button type="submit" disabled={processing}>
-                                {processing ? 'Guardando...' : 'Guardar tasas'}
+                                {processing
+                                    ? t('common:saving')
+                                    : t('admin:rates.save_rates')}
                             </Button>
                         </form>
                     </CardContent>
@@ -176,17 +182,16 @@ export default function AdminRatesIndex({
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2 text-base">
                             <Users className="size-4" />
-                            Tasas manuales de usuarios hoy
+                            {t('admin:rates.manual_today')}
                         </CardTitle>
                         <CardDescription>
-                            Los usuarios que fijaron su propia tasa hoy. Sus
-                            gastos usan su tasa manual, no la global.
+                            {t('admin:rates.manual_today_desc')}
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="px-2">
                         {manualToday.length === 0 ? (
                             <p className="px-4 py-8 text-center text-sm text-muted-foreground">
-                                Ningún usuario fijó una tasa manual hoy.
+                                {t('admin:rates.no_manual_today')}
                             </p>
                         ) : (
                             <div className="divide-y">
@@ -216,10 +221,10 @@ export default function AdminRatesIndex({
                 <Card>
                     <CardHeader>
                         <CardTitle className="text-base">
-                            Historial reciente
+                            {t('admin:rates.recent_history')}
                         </CardTitle>
                         <CardDescription>
-                            Últimos 50 registros de tasas guardadas.
+                            {t('admin:rates.recent_history_desc')}
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="px-0">
@@ -228,19 +233,19 @@ export default function AdminRatesIndex({
                                 <thead>
                                     <tr className="border-b text-left text-xs tracking-wider text-muted-foreground uppercase">
                                         <th className="px-4 py-3 font-medium">
-                                            Fecha
+                                            {t('admin:expenses.col_date')}
                                         </th>
                                         <th className="px-4 py-3 font-medium">
-                                            Origen
+                                            {t('admin:expenses.col_source')}
                                         </th>
                                         <th className="px-4 py-3 font-medium">
-                                            Proveedor
+                                            {t('admin:rates.provider_col')}
                                         </th>
                                         <th className="hidden px-4 py-3 font-medium md:table-cell">
-                                            Usuario
+                                            {t('admin:expenses.filter_user')}
                                         </th>
                                         <th className="px-4 py-3 text-right font-medium">
-                                            Tasa
+                                            {t('admin:rates.rate_col')}
                                         </th>
                                     </tr>
                                 </thead>
@@ -262,22 +267,16 @@ export default function AdminRatesIndex({
                                                             : 'outline'
                                                     }
                                                 >
-                                                    {
-                                                        SOURCE_LABEL[
-                                                            entry.source
-                                                        ]
-                                                    }
+                                                    {sourceLabel(entry.source)}
                                                 </Badge>
                                             </td>
                                             <td className="px-4 py-3">
-                                                {PROVIDER_LABEL[
-                                                    entry.provider
-                                                ] ?? entry.provider}
+                                                {providerLabel(entry.provider)}
                                             </td>
                                             <td className="hidden px-4 py-3 md:table-cell">
                                                 {entry.user_name ?? (
                                                     <span className="text-muted-foreground">
-                                                        Global
+                                                        {t('admin:rates.global')}
                                                     </span>
                                                 )}
                                             </td>
@@ -292,7 +291,7 @@ export default function AdminRatesIndex({
 
                         {history.length === 0 && (
                             <p className="px-4 py-12 text-center text-sm text-muted-foreground">
-                                Aún no hay tasas registradas.
+                                {t('admin:rates.no_rates')}
                             </p>
                         )}
                     </CardContent>

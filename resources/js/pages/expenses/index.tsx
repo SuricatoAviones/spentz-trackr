@@ -1,4 +1,4 @@
-import { Link, router } from '@inertiajs/react';
+import { Link, router, setLayoutProps } from '@inertiajs/react';
 import {
     ChevronLeft,
     ChevronRight,
@@ -9,6 +9,7 @@ import {
     X,
 } from 'lucide-react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { CurrencyChip } from '@/components/tracker/currency-chip';
 import { ExpenseListItem } from '@/components/tracker/expense-list-item';
 import { TrackerCard } from '@/components/tracker/tracker-card';
@@ -55,7 +56,10 @@ export default function ExpensesIndex({
     categories,
     sources,
 }: ExpensesIndexProps) {
+    const { t } = useTranslation();
     const [search, setSearch] = useState(filters.search ?? '');
+
+    setLayoutProps({ title: t('expenses.title') });
     const [currency, setCurrency] = useState(filters.currency ?? '');
     const [categoryId, setCategoryId] = useState(
         filters.category_id ? Number(filters.category_id) : 0,
@@ -122,11 +126,11 @@ export default function ExpensesIndex({
 
     const groupLabel = (date: string): string => {
         if (isToday(date)) {
-            return 'HOY';
+            return t('expenses.today');
         }
 
         if (isYesterday(date)) {
-            return 'AYER';
+            return t('expenses.yesterday');
         }
 
         return formatMonthLabel(date).replace(',', '');
@@ -137,7 +141,7 @@ export default function ExpensesIndex({
             <TrackerCard>
                 <div className="px-4 py-3">
                     <p className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
-                        Este mes
+                        {t('expenses.this_month')}
                     </p>
                     <div className="mt-1.5 flex flex-wrap items-baseline gap-x-4 gap-y-1">
                         <span className="font-display text-2xl font-extrabold text-emerald-400 tabular-nums">
@@ -165,9 +169,9 @@ export default function ExpensesIndex({
                         onKeyDown={(event) =>
                             event.key === 'Enter' && applyFilters()
                         }
-                        placeholder="Buscar gasto..."
+                        placeholder={t('expenses.search_placeholder')}
                         className="h-11 w-full rounded-xl bg-surface-low pr-10 pl-10 text-sm text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-emerald-500/50 focus:outline-none"
-                        aria-label="Buscar gasto"
+                        aria-label={t('expenses.search_aria')}
                     />
                     {search && (
                         <button
@@ -181,7 +185,7 @@ export default function ExpensesIndex({
                                 );
                             }}
                             className="absolute top-1/2 right-3 -translate-y-1/2 text-muted-foreground"
-                            aria-label="Limpiar búsqueda"
+                            aria-label={t('expenses.clear_search_aria')}
                         >
                             <X className="size-4" />
                         </button>
@@ -196,7 +200,7 @@ export default function ExpensesIndex({
                             className="relative inline-flex items-center gap-2 rounded-full bg-surface-low px-3.5 py-2 text-xs font-semibold text-foreground"
                         >
                             <SlidersHorizontal className="size-3.5" />
-                            Filtros
+                            {t('expenses.filters')}
                             {activeFilterCount > 0 && (
                                 <span className="absolute -top-1 -right-1 flex size-4 items-center justify-center rounded-full bg-emerald-500 text-[9px] font-bold text-primary-foreground">
                                     {activeFilterCount}
@@ -207,11 +211,11 @@ export default function ExpensesIndex({
                         <a
                             href={exportUrl}
                             className="inline-flex items-center gap-2 rounded-full bg-surface-low px-3.5 py-2 text-xs font-semibold text-foreground"
-                            aria-label="Exportar gastos a CSV"
-                            title="Exportar a CSV con los filtros actuales"
+                            aria-label={t('expenses.export_aria')}
+                            title={t('expenses.export_title')}
                         >
                             <Download className="size-3.5" />
-                            Exportar
+                            {t('expenses.export')}
                         </a>
                     </div>
 
@@ -221,7 +225,7 @@ export default function ExpensesIndex({
                             onClick={clearFilters}
                             className="text-xs font-medium text-muted-foreground hover:text-foreground"
                         >
-                            Limpiar filtros
+                            {t('expenses.clear_filters')}
                         </button>
                     )}
                 </div>
@@ -232,7 +236,7 @@ export default function ExpensesIndex({
                     <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
                         <label className="block">
                             <span className="mb-1 block text-[10px] font-semibold tracking-wider text-muted-foreground uppercase">
-                                Moneda
+                                {t('expenses.currency')}
                             </span>
                             <select
                                 value={currency}
@@ -252,7 +256,7 @@ export default function ExpensesIndex({
                                 }}
                                 className="h-10 w-full rounded-lg bg-surface-high px-3 text-sm text-foreground focus:ring-2 focus:ring-emerald-500/50 focus:outline-none"
                             >
-                                <option value="">Todas</option>
+                                <option value="">{t('expenses.all')}</option>
                                 <option value="usd">USD</option>
                                 <option value="ves">Bs</option>
                                 <option value="usdt">USDT</option>
@@ -261,7 +265,7 @@ export default function ExpensesIndex({
 
                         <label className="block">
                             <span className="mb-1 block text-[10px] font-semibold tracking-wider text-muted-foreground uppercase">
-                                Categoría
+                                {t('expenses.category')}
                             </span>
                             <select
                                 value={categoryId}
@@ -281,7 +285,7 @@ export default function ExpensesIndex({
                                 }}
                                 className="h-10 w-full rounded-lg bg-surface-high px-3 text-sm text-foreground focus:ring-2 focus:ring-emerald-500/50 focus:outline-none"
                             >
-                                <option value={0}>Todas</option>
+                                <option value={0}>{t('expenses.all')}</option>
                                 {categories.map((category) => (
                                     <option
                                         key={category.id}
@@ -295,7 +299,7 @@ export default function ExpensesIndex({
 
                         <label className="block">
                             <span className="mb-1 block text-[10px] font-semibold tracking-wider text-muted-foreground uppercase">
-                                Origen
+                                {t('expenses.source_filter')}
                             </span>
                             <select
                                 value={sourceId}
@@ -315,7 +319,7 @@ export default function ExpensesIndex({
                                 }}
                                 className="h-10 w-full rounded-lg bg-surface-high px-3 text-sm text-foreground focus:ring-2 focus:ring-emerald-500/50 focus:outline-none"
                             >
-                                <option value={0}>Todos</option>
+                                <option value={0}>{t('expenses.all_sources')}</option>
                                 {sources.map((source) => (
                                     <option key={source.id} value={source.id}>
                                         {source.name}
@@ -330,7 +334,7 @@ export default function ExpensesIndex({
                         onClick={applyFilters}
                         className="w-full rounded-lg bg-gradient-to-br from-emerald-400 to-emerald-600 py-2.5 text-sm font-semibold text-primary-foreground lg:w-auto lg:px-8"
                     >
-                        Aplicar filtros
+                        {t('expenses.apply_filters')}
                     </button>
                 </div>
             )}
@@ -350,7 +354,7 @@ export default function ExpensesIndex({
                                         { preserveState: true },
                                     );
                                 }}
-                                aria-label="Quitar filtro de moneda"
+                                aria-label={t('expenses.remove_currency_filter')}
                             >
                                 <X className="size-3" />
                             </button>
@@ -373,7 +377,7 @@ export default function ExpensesIndex({
                                         { preserveState: true },
                                     );
                                 }}
-                                aria-label="Quitar filtro de categoría"
+                                aria-label={t('expenses.remove_category_filter')}
                             >
                                 <X className="size-3" />
                             </button>
@@ -395,7 +399,7 @@ export default function ExpensesIndex({
                                         { preserveState: true },
                                     );
                                 }}
-                                aria-label="Quitar filtro de origen"
+                                aria-label={t('expenses.remove_source_filter')}
                             >
                                 <X className="size-3" />
                             </button>
@@ -407,10 +411,10 @@ export default function ExpensesIndex({
             {Object.keys(grouped).length === 0 ? (
                 <div className="rounded-xl bg-surface-low py-12 text-center">
                     <p className="text-sm font-medium text-foreground">
-                        Sin resultados
+                        {t('expenses.no_results')}
                     </p>
                     <p className="mt-1 text-xs text-muted-foreground">
-                        No hay gastos que coincidan con tu búsqueda.
+                        {t('expenses.no_results_hint')}
                     </p>
                 </div>
             ) : (
@@ -420,19 +424,19 @@ export default function ExpensesIndex({
                             <thead>
                                 <tr className="text-left text-[10px] font-bold tracking-widest text-muted-foreground uppercase">
                                     <th className="px-4 py-1 font-bold">
-                                        Fecha
+                                        {t('expenses.col_date')}
                                     </th>
                                     <th className="px-4 py-1 font-bold">
-                                        Gasto
+                                        {t('expenses.col_expense')}
                                     </th>
                                     <th className="px-4 py-1 font-bold">
-                                        Origen
+                                        {t('expenses.col_source')}
                                     </th>
                                     <th className="px-4 py-1 font-bold">
-                                        Moneda
+                                        {t('expenses.col_currency')}
                                     </th>
                                     <th className="px-4 py-1 text-right font-bold">
-                                        Monto
+                                        {t('expenses.col_amount')}
                                     </th>
                                     <th className="w-12 px-2 py-1" />
                                 </tr>
@@ -479,7 +483,13 @@ export default function ExpensesIndex({
                                                 onClick={() => {
                                                     if (
                                                         confirm(
-                                                            `¿Eliminar "${expense.description}"? Esta acción no se puede deshacer.`,
+                                                            t(
+                                                                'expenses.delete_confirm',
+                                                                {
+                                                                    description:
+                                                                        expense.description,
+                                                                },
+                                                            ),
                                                         )
                                                     ) {
                                                         router.delete(
@@ -490,7 +500,9 @@ export default function ExpensesIndex({
                                                     }
                                                 }}
                                                 className="inline-flex size-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-destructive/15 hover:text-destructive"
-                                                aria-label={`Eliminar ${expense.description}`}
+                                                aria-label={t('expenses.delete_aria', {
+                                                    description: expense.description,
+                                                })}
                                             >
                                                 <Trash2 className="size-4" />
                                             </button>
@@ -531,12 +543,12 @@ export default function ExpensesIndex({
                             router.get(expenses.prev_page_url)
                         }
                         className="inline-flex size-9 items-center justify-center rounded-lg bg-surface-low text-foreground disabled:opacity-40"
-                        aria-label="Página anterior"
+                        aria-label={t('expenses.prev_page')}
                     >
                         <ChevronLeft className="size-4" />
                     </button>
                     <span className="text-xs text-muted-foreground tabular-nums">
-                        {expenses.total} gastos
+                        {t('expenses.total_count', { count: expenses.total })}
                     </span>
                     <button
                         type="button"
@@ -546,7 +558,7 @@ export default function ExpensesIndex({
                             router.get(expenses.next_page_url)
                         }
                         className="inline-flex size-9 items-center justify-center rounded-lg bg-surface-low text-foreground disabled:opacity-40"
-                        aria-label="Página siguiente"
+                        aria-label={t('expenses.next_page')}
                     >
                         <ChevronRight className="size-4" />
                     </button>

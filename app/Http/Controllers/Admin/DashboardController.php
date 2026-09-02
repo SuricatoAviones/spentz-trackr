@@ -38,7 +38,7 @@ class DashboardController extends Controller
             $end = now()->startOfYear()->addMonths($month - 1)->endOfMonth()->toDateString();
 
             return [
-                'month' => strftime('%b', strtotime($start)),
+                'month' => now()->startOfYear()->addMonths($month - 1)->format('Y-m'),
                 'total' => round((float) Expense::query()->forPeriod($start, $end)->sum('usd_amount'), 2),
             ];
         })->values();

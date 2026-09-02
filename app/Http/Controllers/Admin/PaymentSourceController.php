@@ -63,19 +63,19 @@ class PaymentSourceController extends Controller
 
         AdminAction::record('source.updated', $source);
 
-        return back()->with('success', 'Origen actualizado.');
+        return back()->with('success', __('messages.source_updated'));
     }
 
     public function destroy(Request $request, PaymentSource $source): RedirectResponse
     {
         if ($source->expenses()->exists()) {
-            return back()->with('error', 'No se puede eliminar: el origen tiene gastos asociados.');
+            return back()->with('error', __('messages.source_delete_blocked'));
         }
 
         AdminAction::record('source.deleted', $source);
         $source->delete();
 
-        return back()->with('success', 'Origen eliminado.');
+        return back()->with('success', __('messages.source_deleted'));
     }
 
     /**

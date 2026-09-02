@@ -71,7 +71,7 @@ sequenceDiagram
     participant A as dolarapi.com
     participant DB as MySQL
 
-    S->>T: Dispara job (diario 08:00 + on-demand)
+    S->>T: Dispara job (cada 5 min + on-demand)
     T->>A: GET /v1/dolares
     alt Éxito
         A-->>T: JSON { usd: { bcv, paralelo } }
@@ -93,7 +93,7 @@ sequenceDiagram
 6. **API de tasas fuera del request del usuario:** se consulta solo vía scheduler/job; el formulario lee la última tasa persistida (nunca hace HTTP en línea).
 7. **Comprobantes:** subida con validación de tipo/imagen y tamaño; guardado en disco público; nombre único generado por Laravel.
 8. **Jobs/queues:** la sincronización de tasas va a la cola (`queue:listen` ya incluido en `composer run dev`); en cPanel se usa la cola por cron o driver `sync` si no hay supervisor.
-9. **Caché:** tasa del día con `Cache::remember` (TTL corto, p. ej. 5 min) para no golpear MySQL en cada formulario.
+9. **Caché:** tasa del día con `Cache::remember` (TTL de 60 s) para no golpear MySQL en cada formulario.
 10. **PWA futura:** los endpoints de Inertia deben ser compatibles con GET/offline básico; no introducir dependencias de tiempo real.
 
 ## Decisiones registradas (ADR)
@@ -112,6 +112,9 @@ v1 no soporta pagos mixtos (mitad Bs, mitad USD). Simplifica cálculo y reportes
 
 ### ADR-005: Rol admin como columna `is_admin`, sin paquete de roles
 Solo hay dos niveles (usuario/admin); Spatie Permission y tablas pivot serían overkill. La columna `is_admin` (bool, default false) en `users` basta: el middleware `EnsureUserIsAdmin` protege todo `/admin`. El admin se crea/actualiza con `php artisan admin:create` (idempotente, lee `ADMIN_NAME`/`ADMIN_EMAIL`/`ADMIN_PASSWORD` de `.env`; si no hay password, genera una aleatoria). El admin puede listar, ver, editar (nombre/email/rol) y eliminar usuarios (cascade a gastos/categorías/orígenes); no puede eliminarse a sí mismo.
+
+### ADR-006: Multilenguaje ES/EN con i18next + shared props de Inertia
+El backend usa `lang/es|en` de Laravel (`__()`), el frontend usa `react-i18next` con diccionarios `resources/js/i18n/{es,en}.json` cargados vía shared props (`translations`) — sin petición extra por página. Resolución del locale: usuario autenticado (`users.locale`) → sesión → `APP_LOCALE` (es) → navegador (fallback defensivo). El selector persiste vía `POST /language`; `I18nBridge` en `app.tsx` sincroniza i18next al recibir las props, sin recarga. Fechas/montos/meses se formatean con `Intl` en el cliente (nunca `strftime`). Alternativas descartadas: i18next-http-backend (petición extra) y helper `t()` a mano (menos features). Detalle en `10-multilenguaje.md`.
 
 ## Estructura de código propuesta
 

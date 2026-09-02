@@ -2,6 +2,7 @@
 
 use App\Models\Category;
 use App\Models\Expense;
+use App\Models\Income;
 use App\Models\PaymentSource;
 use App\Models\User;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -114,4 +115,40 @@ test('the CSV export respects search and currency filters', function () {
 
     expect($content)->toContain('Netflix')
         ->not->toContain('Mercado');
+});
+
+test('reports expose income totals and net balance when incomes are shown', function () {
+    $this->user->update(['tracking_type' => 'both']);
+    $incomeCategory = Category::factory()->for($this->user)->income()->create(['name' => 'Salario']);
+
+    Income::factory()->for($this->user)->for($incomeCategory)
+        ->on(now()->format('Y-m').'-05')
+        ->create(['amount' => 500, 'usd_amount' => 500, 'usdt_amount' => 500]);
+    Expense::factory()->for($this->user)->for($this->category)->for($this->source, 'paymentSource')
+        ->on(now()->format('Y-m').'-20')
+        ->create(['amount' => 100, 'usd_amount' => 100, 'usdt_amount' => 100]);
+
+    $this->get(route('reports.index'))
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('reports/index')
+            ->where('showIncomes', true)
+            ->where('annual.usd', 100)
+            ->where('incomeAnnual.usd', 500)
+            ->where('net.usd', 400)
+            ->where('incomeMonths.'.(now()->month - 1).'.usd', 500)
+            ->where('incomeCategories.0.name', 'Salario')
+            ->where('incomeCategories.0.total', 500)
+        );
+});
+
+test('reports hide income data when tracking type is expense only', function () {
+    $this->get(route('reports.index'))
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('reports/index')
+            ->where('showIncomes', false)
+            ->where('incomeAnnual.usd', 0)
+            ->where('incomeAnnual.usdt', 0)
+            ->where('net.usd', 0)
+            ->has('incomeCategories', 0)
+        );
 });

@@ -64,19 +64,19 @@ class CategoryController extends Controller
 
         AdminAction::record('category.updated', $category);
 
-        return back()->with('success', 'Categoría actualizada.');
+        return back()->with('success', __('messages.category_updated'));
     }
 
     public function destroy(Request $request, Category $category): RedirectResponse
     {
         if ($category->expenses()->exists()) {
-            return back()->with('error', 'No se puede eliminar: la categoría tiene gastos asociados.');
+            return back()->with('error', __('messages.category_delete_blocked'));
         }
 
         AdminAction::record('category.deleted', $category);
         $category->delete();
 
-        return back()->with('success', 'Categoría eliminada.');
+        return back()->with('success', __('messages.category_deleted'));
     }
 
     /**

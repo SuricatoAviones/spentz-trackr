@@ -83,7 +83,7 @@ class UserController extends Controller
 
         return redirect()
             ->route('admin.users.show', $user)
-            ->with('success', 'Usuario actualizado.');
+            ->with('success', __('messages.user_updated'));
     }
 
     public function destroy(Request $request, User $user): RedirectResponse
@@ -97,20 +97,20 @@ class UserController extends Controller
 
         return redirect()
             ->route('admin.users.index')
-            ->with('success', 'Usuario eliminado.');
+            ->with('success', __('messages.user_deleted'));
     }
 
     public function verifyEmail(Request $request, User $user): RedirectResponse
     {
         if ($user->hasVerifiedEmail()) {
-            return back()->with('error', 'El usuario ya tiene el email verificado.');
+            return back()->with('error', __('messages.user_already_verified'));
         }
 
         $user->forceFill(['email_verified_at' => now()])->save();
 
         AdminAction::record('user.verified', $user);
 
-        return back()->with('success', 'Email verificado.');
+        return back()->with('success', __('messages.user_verified'));
     }
 
     public function resetPassword(ResetAdminUserPasswordRequest $request, User $user): RedirectResponse
@@ -119,7 +119,7 @@ class UserController extends Controller
 
         AdminAction::record('user.password_reset', $user);
 
-        return back()->with('success', 'Contraseña restablecida.');
+        return back()->with('success', __('messages.user_password_reset'));
     }
 
     public function suspend(Request $request, User $user): RedirectResponse
@@ -129,27 +129,27 @@ class UserController extends Controller
         }
 
         if ($user->isSuspended()) {
-            return back()->with('error', 'El usuario ya está suspendido.');
+            return back()->with('error', __('messages.user_already_suspended'));
         }
 
         $user->forceFill(['suspended_at' => now()])->save();
 
         AdminAction::record('user.suspended', $user);
 
-        return back()->with('success', 'Usuario suspendido.');
+        return back()->with('success', __('messages.user_suspended'));
     }
 
     public function reactivate(Request $request, User $user): RedirectResponse
     {
         if (! $user->isSuspended()) {
-            return back()->with('error', 'El usuario no está suspendido.');
+            return back()->with('error', __('messages.user_not_suspended'));
         }
 
         $user->forceFill(['suspended_at' => null])->save();
 
         AdminAction::record('user.reactivated', $user);
 
-        return back()->with('success', 'Usuario reactivado.');
+        return back()->with('success', __('messages.user_reactivated'));
     }
 
     /**

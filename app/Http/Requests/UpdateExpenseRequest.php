@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Enums\Currency;
+use App\Enums\PaymentMethod;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -27,6 +28,8 @@ class UpdateExpenseRequest extends FormRequest
             'category_id' => ['required', 'integer', Rule::exists('categories', 'id')->where('user_id', $this->user()->id)],
             'payment_source_id' => ['required', 'integer', Rule::exists('payment_sources', 'id')->where('user_id', $this->user()->id)],
             'currency' => ['required', Rule::enum(Currency::class)],
+            'payment_method' => ['prohibited_unless:currency,ves', 'nullable', Rule::enum(PaymentMethod::class), 'required_with:commission'],
+            'commission' => ['prohibited_unless:currency,ves', 'nullable', 'numeric', 'min:0', 'max:9999999999.99'],
             'amount' => ['required', 'numeric', 'gt:0', 'max:9999999999.99'],
             'exchange_rate' => ['nullable', 'numeric', 'gt:0', 'max:9999999999.9999'],
             'rate_provider' => ['nullable', Rule::in(['bcv', 'paralelo', 'user', 'custom'])],
