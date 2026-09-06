@@ -3,7 +3,8 @@ import { useEffect } from 'react';
 import { Toaster } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { initializeTheme } from '@/hooks/use-appearance';
-import { initI18n, syncI18n, type TranslationProps } from '@/i18n';
+import { initI18n, syncI18n  } from '@/i18n';
+import type {TranslationProps} from '@/i18n';
 import AppLayout from '@/layouts/app-layout';
 import AuthLayout from '@/layouts/auth-layout';
 import SettingsLayout from '@/layouts/settings/layout';
@@ -24,6 +25,8 @@ createInertiaApp({
     layout: (name) => {
         switch (true) {
             case name === 'welcome':
+                return null;
+            case name.startsWith('install/'):
                 return null;
             case name.startsWith('auth/'):
                 return AuthLayout;

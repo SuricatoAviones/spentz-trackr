@@ -59,7 +59,14 @@ class SystemController extends Controller
         return response()->streamDownload(function (): void {
             $payload = [
                 'exported_at' => now()->toISOString(),
-                'users' => User::query()->get()->toArray(),
+                'users' => User::query()->get()
+                    ->map(fn (User $user) => collect($user->toArray())->except([
+                        'password',
+                        'two_factor_secret',
+                        'two_factor_recovery_codes',
+                        'remember_token',
+                    ])->all())
+                    ->all(),
                 'categories' => Category::query()->get()->toArray(),
                 'payment_sources' => PaymentSource::query()->get()->toArray(),
                 'exchange_rates' => ExchangeRate::query()->get()->toArray(),

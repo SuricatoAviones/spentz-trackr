@@ -31,6 +31,9 @@ class DashboardController extends Controller
             'month' => $today->translatedFormat('F Y'),
             'trackingType' => $trackingType,
             'rate' => $rateService->rateForUser($user),
+            'monthlyBudget' => $user->monthly_budget !== null
+                ? (float) $user->monthly_budget
+                : null,
         ];
 
         if ($showExpenses) {

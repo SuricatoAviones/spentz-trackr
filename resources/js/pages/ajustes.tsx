@@ -15,8 +15,9 @@ import {
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { TrackerCard } from '@/components/tracker/tracker-card';
-import { formatRate } from '@/lib/format';
+import { formatAmount, formatRate } from '@/lib/format';
 import { logout } from '@/routes';
+import { update as budgetPreferenceUpdate } from '@/routes/budget-preference';
 import { index as categoriesIndex } from '@/routes/categories';
 import { update as commissionPreferencesUpdate } from '@/routes/commission-preferences';
 import { sync as rateSync, update as rateUpdate } from '@/routes/exchange-rate';
@@ -34,12 +35,16 @@ export default function Ajustes({
     rate,
     commissionDefaults,
     trackingType,
+    monthlyBudget,
+    monthlySpent,
     monthlyExpenseCount,
     monthlyIncomeCount,
 }: {
     rate: RateInfo;
     commissionDefaults: CommissionDefaults;
     trackingType: 'expenses' | 'income' | 'both';
+    monthlyBudget: string | number | null;
+    monthlySpent: number;
     monthlyExpenseCount: number;
     monthlyIncomeCount: number;
 }) {
@@ -77,6 +82,16 @@ export default function Ajustes({
         tracking_type: trackingType,
     });
 
+    const {
+        data: budgetData,
+        setData: setBudgetData,
+        put: putBudget,
+        processing: budgetProcessing,
+        errors: budgetErrors,
+    } = useForm({
+        monthly_budget: defaultCommissionValue(monthlyBudget),
+    });
+
     function saveRate(event: React.FormEvent) {
         event.preventDefault();
         put(rateUpdate().url);
@@ -90,6 +105,11 @@ export default function Ajustes({
     function saveTracking(event: React.FormEvent) {
         event.preventDefault();
         putTracking(trackingPreferencesUpdate().url);
+    }
+
+    function saveBudget(event: React.FormEvent) {
+        event.preventDefault();
+        putBudget(budgetPreferenceUpdate().url);
     }
 
     function syncRates() {
@@ -324,6 +344,80 @@ export default function Ajustes({
                     </form>
                 </TrackerCard>
 
+                <TrackerCard title={t('ajustes.budget_title')}>
+                    <form onSubmit={saveBudget} className="px-4 pt-3 pb-4">
+                        <p className="text-[11px] text-muted-foreground">
+                            {t('ajustes.budget_desc')}
+                        </p>
+                        <div className="mt-3 flex items-end gap-3">
+                            <label className="block flex-1">
+                                <span className="text-xs font-medium text-muted-foreground">
+                                    {t('ajustes.budget_label')}
+                                </span>
+                                <input
+                                    type="number"
+                                    step="0.01"
+                                    min="0"
+                                    inputMode="decimal"
+                                    placeholder={t('ajustes.budget_placeholder')}
+                                    value={budgetData.monthly_budget}
+                                    onChange={(event) =>
+                                        setBudgetData(
+                                            'monthly_budget',
+                                            event.target.value,
+                                        )
+                                    }
+                                    className="mt-1.5 h-11 w-full rounded-lg bg-surface-high px-3 text-sm font-semibold text-emerald-400 tabular-nums focus:ring-2 focus:ring-emerald-500/50 focus:outline-none"
+                                />
+                            </label>
+                            <span className="pb-3 text-xs font-semibold text-muted-foreground">
+                                USD
+                            </span>
+                        </div>
+                        {budgetErrors.monthly_budget && (
+                            <p className="mt-1 text-xs text-destructive">
+                                {budgetErrors.monthly_budget}
+                            </p>
+                        )}
+                        <div className="mt-3 flex items-center justify-between text-[11px] text-muted-foreground">
+                            <span>
+                                {t('ajustes.budget_spent', {
+                                    spent: formatAmount(monthlySpent),
+                                })}
+                            </span>
+                            {monthlyBudget !== null &&
+                                monthlyBudget !== '' && (
+                                    <span
+                                        className={
+                                            monthlySpent >
+                                            Number(monthlyBudget)
+                                                ? 'font-semibold text-destructive'
+                                                : 'font-semibold text-emerald-400'
+                                        }
+                                    >
+                                        {Number(monthlyBudget) > 0
+                                            ? `${Math.min(
+                                                  (monthlySpent /
+                                                      Number(monthlyBudget)) *
+                                                      100,
+                                                  100,
+                                              ).toFixed(0)}%`
+                                            : '0%'}
+                                    </span>
+                                )}
+                        </div>
+                        <button
+                            type="submit"
+                            disabled={budgetProcessing}
+                            className="mt-3 w-full rounded-lg bg-gradient-to-br from-emerald-400 to-emerald-600 py-2.5 text-xs font-bold text-primary-foreground disabled:opacity-60"
+                        >
+                            {budgetProcessing
+                                ? t('common.saving')
+                                : t('ajustes.budget_save')}
+                        </button>
+                    </form>
+                </TrackerCard>
+
                 <TrackerCard title={t('ajustes.preferences')}>
                     <div className="divide-y divide-white/5 px-4">
                         <Link
@@ -395,7 +489,7 @@ export default function Ajustes({
                 </button>
 
                 <p className="pb-2 text-center text-[11px] text-muted-foreground/70">
-                    Spent Trackr v1.0.0
+                    Spentz Trackr v1.0.0
                 </p>
             </div>
         </div>

@@ -15,7 +15,7 @@ class ProfileController extends BaseApiController
     {
         $validated = $request->validate([
             'name' => ['sometimes', 'required', 'string', 'max:255'],
-            'email' => ['sometimes', 'required', 'string', 'email', 'max:255', Rule::unique('users', 'email')->ignore($request->user()->id)],
+            'email' => ['sometimes', 'required', 'string', 'email', 'max:255', Rule::unique('users', 'email')->ignore($request->user()?->id)],
             'default_display_currency' => ['sometimes', 'required', Rule::in(['usd', 'usdt'])],
             'tracking_type' => ['sometimes', 'required', Rule::in(['expenses', 'income', 'both'])],
         ]);

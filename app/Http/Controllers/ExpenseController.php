@@ -8,6 +8,7 @@ use App\Http\Requests\StoreExpenseRequest;
 use App\Http\Requests\UpdateExpenseRequest;
 use App\Models\Category;
 use App\Models\Expense;
+use App\Models\ExpenseItem;
 use App\Models\PaymentSource;
 use App\Models\User;
 use App\Services\ExchangeRateService;
@@ -27,7 +28,7 @@ class ExpenseController extends Controller
 
         $query = Expense::query()
             ->forUser($user->id)
-            ->with(['category', 'paymentSource', 'receipts'])
+            ->with(['category', 'paymentSource', 'receipts', 'items'])
             ->when($request->string('search')->toString(), function ($query, string $search) {
                 $query->where(function ($query) use ($search) {
                     $query->where('description', 'like', "%{$search}%")
@@ -107,6 +108,9 @@ class ExpenseController extends Controller
 
         $converted = $converter->convert($currency, $this->totalAmount($validated), $exchangeRate !== null ? (float) $exchangeRate : null);
 
+        $items = $validated['items'] ?? [];
+        $itemTotals = $this->convertItems($items, $converter, $rateService, $request->user());
+
         $expense = $request->user()->expenses()->create([
             ...$validated,
             'amount' => $this->baseAmount($validated),
@@ -114,9 +118,11 @@ class ExpenseController extends Controller
             'commission' => $this->commission($currency, $validated),
             'exchange_rate' => $currency === Currency::Ves ? $exchangeRate : null,
             'rate_provider' => $currency === Currency::Ves ? $rateProvider : null,
-            'usd_amount' => $converted['usd_amount'],
-            'usdt_amount' => $converted['usdt_amount'],
+            'usd_amount' => round($converted['usd_amount'] + $itemTotals['usd'], 2),
+            'usdt_amount' => round($converted['usdt_amount'] + $itemTotals['usdt'], 2),
         ]);
+
+        $this->syncItems($expense, $items, $converter, $rateService, $request->user());
 
         if ($request->hasFile('receipt')) {
             $this->storeReceipt($expense, $request);
@@ -145,7 +151,7 @@ class ExpenseController extends Controller
         $rateService->ensureFreshRate($user);
 
         return Inertia::render('expenses/edit', [
-            'expense' => $expense->load('receipts'),
+            'expense' => $expense->load(['receipts', 'items']),
             'categories' => $this->selectCategories($user->id),
             'sources' => $this->selectSources($user->id),
             'rate' => $rateService->rateForUser($user),
@@ -178,6 +184,9 @@ class ExpenseController extends Controller
 
         $converted = $converter->convert($currency, $this->totalAmount($validated), $exchangeRate !== null ? (float) $exchangeRate : null);
 
+        $items = $validated['items'] ?? [];
+        $itemTotals = $this->convertItems($items, $converter, $rateService, $request->user());
+
         $expense->update([
             ...$validated,
             'amount' => $this->baseAmount($validated),
@@ -185,9 +194,11 @@ class ExpenseController extends Controller
             'commission' => $this->commission($currency, $validated),
             'exchange_rate' => $currency === Currency::Ves ? $exchangeRate : null,
             'rate_provider' => $currency === Currency::Ves ? $rateProvider : null,
-            'usd_amount' => $converted['usd_amount'],
-            'usdt_amount' => $converted['usdt_amount'],
+            'usd_amount' => round($converted['usd_amount'] + $itemTotals['usd'], 2),
+            'usdt_amount' => round($converted['usdt_amount'] + $itemTotals['usdt'], 2),
         ]);
+
+        $this->syncItems($expense, $items, $converter, $rateService, $request->user());
 
         if ($request->boolean('remove_receipt')) {
             $this->deleteReceipts($expense);
@@ -245,6 +256,17 @@ class ExpenseController extends Controller
                 'color' => $expense->paymentSource->color,
             ],
             'has_receipt' => $expense->receipts->isNotEmpty(),
+            'items' => $expense->items
+                ->map(fn (ExpenseItem $item) => [
+                    'id' => $item->id,
+                    'currency' => $item->currency->value,
+                    'amount' => $item->amount,
+                    'exchange_rate' => $item->exchange_rate,
+                    'usd_amount' => $item->usd_amount,
+                    'usdt_amount' => $item->usdt_amount,
+                ])
+                ->values()
+                ->all(),
             'receipts' => $expense->receipts
                 ->map(fn ($receipt) => [
                     'id' => $receipt->id,
@@ -399,5 +421,85 @@ class ExpenseController extends Controller
             'min_commission' => $defaults->min_commission,
             'commission_rate' => $defaults->commission_rate,
         ];
+    }
+
+    /**
+     * Aggregate the USD/USDT equivalents of the mixed-currency line items.
+     *
+     * @param  array<int, array<string, mixed>>  $items
+     * @return array{usd: float, usdt: float}
+     */
+    private function convertItems(array $items, ExpenseConversionService $converter, ExchangeRateService $rateService, User $user): array
+    {
+        $usd = 0.0;
+        $usdt = 0.0;
+
+        foreach ($items as $item) {
+            $itemCurrency = Currency::from($item['currency']);
+            $exchangeRate = $item['exchange_rate'] ?? null;
+
+            if ($itemCurrency === Currency::Ves && $exchangeRate === null) {
+                $dayRate = $rateService->rateForUser($user);
+
+                if ((float) $dayRate['rate'] <= 0) {
+                    throw ValidationException::withMessages([
+                        'items' => 'No hay tasa de cambio disponible para el ítem en Bs. Regístrala en Ajustes.',
+                    ]);
+                }
+
+                $exchangeRate = (float) $dayRate['rate'];
+            }
+
+            if ($itemCurrency === Currency::Ves && (float) $exchangeRate <= 0) {
+                throw ValidationException::withMessages([
+                    'items' => 'Cada ítem en Bs debe tener una tasa de cambio mayor a 0.',
+                ]);
+            }
+
+            $convertedItem = $converter->convert(
+                $itemCurrency,
+                (float) $item['amount'],
+                $exchangeRate !== null ? (float) $exchangeRate : null,
+            );
+
+            $usd += $convertedItem['usd_amount'];
+            $usdt += $convertedItem['usdt_amount'];
+        }
+
+        return ['usd' => $usd, 'usdt' => $usdt];
+    }
+
+    /**
+     * Replace the mixed-currency line items of an expense.
+     *
+     * @param  array<int, array<string, mixed>>  $items
+     */
+    private function syncItems(Expense $expense, array $items, ExpenseConversionService $converter, ExchangeRateService $rateService, User $user): void
+    {
+        $expense->items()->delete();
+
+        foreach ($items as $item) {
+            $itemCurrency = Currency::from($item['currency']);
+            $exchangeRate = $item['exchange_rate'] ?? null;
+
+            if ($itemCurrency === Currency::Ves && ($exchangeRate === null || (float) $exchangeRate <= 0)) {
+                $dayRate = $rateService->rateForUser($user);
+                $exchangeRate = (float) $dayRate['rate'];
+            }
+
+            $convertedItem = $converter->convert(
+                $itemCurrency,
+                (float) $item['amount'],
+                $exchangeRate !== null ? (float) $exchangeRate : null,
+            );
+
+            $expense->items()->create([
+                'currency' => $itemCurrency,
+                'amount' => round((float) $item['amount'], 2),
+                'exchange_rate' => $itemCurrency === Currency::Ves ? $exchangeRate : null,
+                'usd_amount' => $convertedItem['usd_amount'],
+                'usdt_amount' => $convertedItem['usdt_amount'],
+            ]);
+        }
     }
 }

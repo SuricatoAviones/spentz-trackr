@@ -1,5 +1,6 @@
 import { useHttp } from '@inertiajs/react';
 import { useCallback, useState } from 'react';
+import { sanitizeSvg } from '@/lib/utils';
 import { qrCode, recoveryCodes, secretKey } from '@/routes/two-factor';
 
 export type UseTwoFactorAuthReturn = {
@@ -53,7 +54,7 @@ export const useTwoFactorAuth = (): UseTwoFactorAuthReturn => {
                 url: string;
             };
 
-            setQrCodeSvg(svg);
+            setQrCodeSvg(sanitizeSvg(svg));
         } catch {
             setErrors((prev) => [...prev, 'Failed to fetch QR code']);
             setQrCodeSvg(null);

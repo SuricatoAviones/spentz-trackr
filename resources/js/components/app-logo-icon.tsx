@@ -7,7 +7,7 @@ export default function AppLogoIcon(
         <img
             {...props}
             src="/images/logo.png"
-            alt="Spent Trackr"
+            alt="Spentz Trackr"
             className={`rounded-lg object-contain ${props.className ?? ''}`}
         />
     );

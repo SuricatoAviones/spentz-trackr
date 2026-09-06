@@ -109,7 +109,7 @@ export default function TrackerLayout({
                     </span>
                     <div className="min-w-0">
                         <p className="font-display text-sm leading-tight font-bold text-foreground">
-                            Spent Trackr
+                            Spentz Trackr
                         </p>
                         <p className="text-[10px] text-muted-foreground">
                             {t('shell.tracker.subtitle')}

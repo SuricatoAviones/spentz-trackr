@@ -71,6 +71,15 @@ class Expense extends Model
         return $this->hasMany(ExpenseReceipt::class);
     }
 
+    /**
+     * Additional currency portions of a mixed expense.
+     * The primary portion lives on the expense itself.
+     */
+    public function items(): HasMany
+    {
+        return $this->hasMany(ExpenseItem::class);
+    }
+
     public function scopeForUser(Builder $query, int $userId): Builder
     {
         return $query->where('user_id', $userId);

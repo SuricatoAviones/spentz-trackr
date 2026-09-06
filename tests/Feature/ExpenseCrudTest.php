@@ -479,3 +479,95 @@ test('a Bs expense recalculates the equivalents when a commission is added', fun
         ->and($expense->payment_method?->value)->toBe('transferencia')
         ->and($expense->usd_amount)->toBe('5.40');
 });
+
+test('a user can register a mixed expense with a secondary currency item', function () {
+    $this->post(route('expenses.store'), [
+        'category_id' => $this->category->id,
+        'payment_source_id' => $this->source->id,
+        'currency' => Currency::Usd->value,
+        'amount' => 10,
+        'description' => 'Compras mixtas',
+        'spent_at' => now()->toDateString(),
+        'items' => [
+            ['currency' => Currency::Ves->value, 'amount' => 140, 'exchange_rate' => 28],
+        ],
+    ])->assertRedirect();
+
+    $expense = Expense::query()->first();
+
+    expect($expense->currency)->toBe(Currency::Usd)
+        ->and($expense->usd_amount)->toBe('15.00')
+        ->and($expense->usdt_amount)->toBe('15.00')
+        ->and($expense->items)->toHaveCount(1)
+        ->and($expense->items->first()->currency)->toBe(Currency::Ves)
+        ->and($expense->items->first()->usd_amount)->toBe('5.00');
+});
+
+test('a mixed expense aggregates usd and usdt from multiple items', function () {
+    $this->post(route('expenses.store'), [
+        'category_id' => $this->category->id,
+        'payment_source_id' => $this->source->id,
+        'currency' => Currency::Usdt->value,
+        'amount' => 30,
+        'description' => 'Varios ítems',
+        'spent_at' => now()->toDateString(),
+        'items' => [
+            ['currency' => Currency::Usd->value, 'amount' => 20],
+            ['currency' => Currency::Ves->value, 'amount' => 200, 'exchange_rate' => 40],
+        ],
+    ])->assertRedirect();
+
+    $expense = Expense::query()->first();
+
+    expect($expense->usd_amount)->toBe('55.00')
+        ->and($expense->usdt_amount)->toBe('55.00')
+        ->and($expense->items)->toHaveCount(2);
+});
+
+test('updating an expense replaces its mixed items', function () {
+    $expense = Expense::factory()
+        ->for($this->user)
+        ->for($this->category)
+        ->for($this->source, 'paymentSource')
+        ->create();
+
+    $expense->items()->create([
+        'currency' => Currency::Usd,
+        'amount' => 5,
+        'usd_amount' => 5,
+        'usdt_amount' => 5,
+    ]);
+
+    $this->put(route('expenses.update', $expense), [
+        'category_id' => $this->category->id,
+        'payment_source_id' => $this->source->id,
+        'currency' => Currency::Usd->value,
+        'amount' => 12,
+        'description' => 'Actualizado mixto',
+        'spent_at' => now()->toDateString(),
+        'items' => [
+            ['currency' => Currency::Ves->value, 'amount' => 56, 'exchange_rate' => 28],
+        ],
+    ])->assertRedirect(route('expenses.show', $expense));
+
+    $expense->refresh();
+
+    expect($expense->usd_amount)->toBe('14.00')
+        ->and($expense->items)->toHaveCount(1);
+});
+
+test('a mixed ves item requires a valid exchange rate', function () {
+    $this->post(route('expenses.store'), [
+        'category_id' => $this->category->id,
+        'payment_source_id' => $this->source->id,
+        'currency' => Currency::Usd->value,
+        'amount' => 10,
+        'description' => 'Mixto sin tasa',
+        'spent_at' => now()->toDateString(),
+        'items' => [
+            ['currency' => Currency::Ves->value, 'amount' => 100, 'exchange_rate' => 0],
+        ],
+    ])->assertSessionHasErrors('items.0.exchange_rate');
+
+    expect(Expense::query()->count())->toBe(0);
+});

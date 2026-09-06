@@ -56,6 +56,17 @@ export default function EditExpense({
                     payment_source_id: expense.source.id,
                     spent_at: expense.spent_at,
                     has_receipt: expense.has_receipt,
+                    items: (expense.items ?? []).map((item) => ({
+                        currency: item.currency,
+                        amount: String(item.amount ?? ''),
+                        exchange_rate: item.exchange_rate
+                            ? String(item.exchange_rate)
+                            : null,
+                        rate_provider: null,
+                        usd_amount: item.usd_amount
+                            ? String(item.usd_amount)
+                            : null,
+                    })),
                 }}
             />
         </div>

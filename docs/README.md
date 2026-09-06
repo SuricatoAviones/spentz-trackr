@@ -17,3 +17,4 @@ Stack: Laravel 13 + Inertia + React 19 + Tailwind 4 + shadcn/ui + MySQL. Deploy 
 | [08-panel-admin.md](08-panel-admin.md) | Panel admin: módulos, rutas, auditoría y backup |
 | [09-despliegue-dokploy.md](09-despliegue-dokploy.md) | Despliegue en VPS con Dokploy (Docker + Traefik) |
 | [10-multilenguaje.md](10-multilenguaje.md) | Planificación ES/EN: decisiones, fases y alcance |
+| [11-instalador.md](11-instalador.md) | Instalación web, CLI y Docker del instalador open-source |

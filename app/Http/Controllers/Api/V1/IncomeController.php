@@ -10,6 +10,7 @@ use App\Models\Category;
 use App\Models\Income;
 use App\Services\ExchangeRateService;
 use App\Services\ExpenseConversionService;
+use Dedoc\Scramble\Attributes\QueryParameter;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -20,6 +21,12 @@ class IncomeController extends BaseApiController
     /**
      * Display a listing of the resource.
      */
+    #[QueryParameter('search', description: 'Buscar en la descripción o nota del ingreso.', type: 'string', example: 'sueldo')]
+    #[QueryParameter('currency', description: 'Filtrar por moneda del ingreso (usd, ves, usdt).', type: 'string', example: 'usd')]
+    #[QueryParameter('category_id', description: 'Filtrar por id de categoría.', type: 'integer')]
+    #[QueryParameter('from', description: 'Filtrar desde esta fecha (YYYY-MM-DD).', type: 'string', format: 'date', example: '2026-09-01')]
+    #[QueryParameter('to', description: 'Filtrar hasta esta fecha (YYYY-MM-DD).', type: 'string', format: 'date', example: '2026-09-30')]
+    #[QueryParameter('page', description: 'Número de página de resultados.', type: 'integer', default: 1)]
     public function index(Request $request): JsonResponse
     {
         $user = $request->user();

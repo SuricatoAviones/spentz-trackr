@@ -1,0 +1,29 @@
+services:
+  app:
+    environment:
+      DB_CONNECTION: pgsql
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_DATABASE: "${DB_DATABASE:-spenttrackr}"
+      DB_USERNAME: "${DB_USERNAME:-spenttrackr}"
+      DB_PASSWORD: "${DB_PASSWORD:-secret}"
+
+  postgres:
+    image: postgres:16
+    ports:
+      - "${PGSQL_PORT:-5433}:5432"
+    environment:
+      POSTGRES_DB: "${DB_DATABASE:-spenttrackr}"
+      POSTGRES_USER: "${DB_USERNAME:-spenttrackr}"
+      POSTGRES_PASSWORD: "${DB_PASSWORD:-secret}"
+    volumes:
+      - spent_postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-spenttrackr} -d ${DB_DATABASE:-spenttrackr}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+volumes:
+  spent_postgres:

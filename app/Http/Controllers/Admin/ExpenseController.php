@@ -8,6 +8,7 @@ use App\Models\Category;
 use App\Models\Expense;
 use App\Models\ExpenseReceipt;
 use App\Models\User;
+use App\Support\CsvExporter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -91,16 +92,16 @@ class ExpenseController extends Controller
                         $expense->spent_at->toDateString(),
                         $expense->user->name,
                         $expense->user->email,
-                        $expense->description,
-                        $expense->category->name,
-                        $expense->paymentSource->name,
+                        CsvExporter::cell($expense->description),
+                        CsvExporter::cell($expense->category->name),
+                        CsvExporter::cell($expense->paymentSource->name),
                         $expense->currency->value,
                         number_format((float) $expense->amount, 2, ',', '.'),
                         $expense->exchange_rate !== null ? number_format((float) $expense->exchange_rate, 4, ',', '.') : '',
-                        $expense->rate_provider ?? '',
+                        CsvExporter::cell($expense->rate_provider ?? ''),
                         number_format((float) $expense->usd_amount, 2, ',', '.'),
                         number_format((float) $expense->usdt_amount, 2, ',', '.'),
-                        $expense->note ?? '',
+                        CsvExporter::cell($expense->note ?? ''),
                     ]);
                 }
             });

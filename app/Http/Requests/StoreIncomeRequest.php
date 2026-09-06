@@ -28,7 +28,7 @@ class StoreIncomeRequest extends FormRequest
             'category_id' => [
                 'required',
                 'integer',
-                Rule::exists('categories', 'id')->where('user_id', $this->user()->id)->where('type', CategoryType::Income->value),
+                Rule::exists('categories', 'id')->where('user_id', $this->user()?->id)->where('type', CategoryType::Income->value),
             ],
             'currency' => ['required', Rule::enum(Currency::class)],
             'amount' => ['required', 'numeric', 'gt:0', 'max:9999999999.99'],

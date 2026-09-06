@@ -58,6 +58,15 @@ export type Income = {
     }[];
 };
 
+export type ExpenseItem = {
+    id: number;
+    currency: 'usd' | 'ves' | 'usdt';
+    amount: string | number;
+    exchange_rate?: string | number | null;
+    usd_amount: string | number;
+    usdt_amount: string | number;
+};
+
 export type Expense = {
     id: number;
     description: string;
@@ -85,6 +94,7 @@ export type Expense = {
         color: string;
     };
     has_receipt: boolean;
+    items?: ExpenseItem[];
     receipts?: {
         id: number;
         url: string;

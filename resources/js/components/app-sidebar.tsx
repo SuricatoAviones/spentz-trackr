@@ -6,7 +6,9 @@ import {
     History,
     Landmark,
     LayoutGrid,
+    PiggyBank,
     Receipt,
+    Repeat,
     Server,
     Shield,
     Tag,
@@ -36,6 +38,8 @@ import { index as adminRatesIndex } from '@/routes/admin/rates';
 import { index as adminSourcesIndex } from '@/routes/admin/sources';
 import { index as adminSystemIndex } from '@/routes/admin/system';
 import { index as adminUsersIndex } from '@/routes/admin/users';
+import { index as recurringPaymentsIndex } from '@/routes/recurring-payments';
+import { index as savingsGoalsIndex } from '@/routes/savings-goals';
 import type { Auth, NavItem } from '@/types';
 
 export function AppSidebar() {
@@ -47,6 +51,16 @@ export function AppSidebar() {
             title: t('shell.sidebar.dashboard'),
             href: dashboard(),
             icon: LayoutGrid,
+        },
+        {
+            title: t('shell.sidebar.savings_goals'),
+            href: savingsGoalsIndex(),
+            icon: PiggyBank,
+        },
+        {
+            title: t('shell.sidebar.recurring_payments'),
+            href: recurringPaymentsIndex(),
+            icon: Repeat,
         },
     ];
 

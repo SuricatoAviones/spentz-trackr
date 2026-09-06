@@ -44,9 +44,11 @@ export function syncI18n(props: TranslationProps): void {
     }
 
     const translations = props.translations;
+
     if (translations?.messages) {
         i18n.addResourceBundle(locale, 'messages', translations.messages, true, true);
     }
+
     if (translations?.admin) {
         i18n.addResourceBundle(locale, 'admin', translations.admin, true, true);
     }

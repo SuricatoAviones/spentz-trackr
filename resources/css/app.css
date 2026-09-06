@@ -67,7 +67,47 @@
     --color-currency-usdt: var(--currency-usdt);
 }
 
-:root,
+:root {
+    --background: #f4f6fb;
+    --foreground: #0f1a2e;
+    --card: #ffffff;
+    --card-foreground: #0f1a2e;
+    --popover: #ffffff;
+    --popover-foreground: #0f1a2e;
+    --primary: #0ea371;
+    --primary-foreground: #ffffff;
+    --secondary: #e7ecf5;
+    --secondary-foreground: #12203a;
+    --muted: #eef2f8;
+    --muted-foreground: #55627a;
+    --accent: #e7ecf5;
+    --accent-foreground: #12203a;
+    --destructive: #dc2626;
+    --destructive-foreground: #ffffff;
+    --border: #d7deeb;
+    --input: #d7deeb;
+    --ring: #0ea371;
+    --chart-1: #0ea371;
+    --chart-2: #3b82f6;
+    --chart-3: #f59e0b;
+    --chart-4: #8b5cf6;
+    --chart-5: #ec4899;
+    --radius: 0.75rem;
+    --sidebar: #eef1f8;
+    --sidebar-foreground: #12203a;
+    --sidebar-primary: #0ea371;
+    --sidebar-primary-foreground: #ffffff;
+    --sidebar-accent: #e2e8f4;
+    --sidebar-accent-foreground: #12203a;
+    --sidebar-border: #d7deeb;
+    --sidebar-ring: #0ea371;
+    --surface-low: #ffffff;
+    --surface-high: #eef2f8;
+    --currency-usd: #059669;
+    --currency-ves: #d97706;
+    --currency-usdt: #2563eb;
+}
+
 .dark {
     --background: #0b1220;
     --foreground: #e6edf7;

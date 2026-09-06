@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Models\Expense;
 use App\Models\Income;
+use Dedoc\Scramble\Attributes\QueryParameter;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -13,6 +14,7 @@ class ReportController extends BaseApiController
     /**
      * Annual report: monthly series, variations, category and source breakdown.
      */
+    #[QueryParameter('year', description: 'Año del reporte (por defecto el año actual).', type: 'integer', example: 2026)]
     public function index(Request $request): JsonResponse
     {
         $user = $request->user();
@@ -106,6 +108,7 @@ class ReportController extends BaseApiController
     /**
      * Aggregate monthly totals over the last N months.
      */
+    #[QueryParameter('months', description: 'Cantidad de meses a incluir en la tendencia (0-24).', type: 'integer', default: 12, example: 6)]
     public function monthlySummary(Request $request): JsonResponse
     {
         $user = $request->user();

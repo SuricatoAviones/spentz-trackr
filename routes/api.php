@@ -27,7 +27,7 @@ Route::middleware('throttle:api.auth')->group(function () {
     Route::post('auth/login', [AuthenticatedSessionController::class, 'store'])->name('api.v1.auth.login');
 });
 
-Route::middleware(['auth:sanctum'])->group(function () {
+Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     Route::delete('auth/logout', [AuthenticatedSessionController::class, 'destroy'])->name('api.v1.auth.logout');
     Route::get('auth/me', [AuthenticatedSessionController::class, 'me'])->name('api.v1.auth.me');
 

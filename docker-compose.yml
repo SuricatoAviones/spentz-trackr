@@ -1,0 +1,55 @@
+services:
+  app:
+    build: .
+    ports:
+      - "${APP_PORT:-8080}:80"
+    environment:
+      APP_NAME: "${APP_NAME:-Spentz Trackr}"
+      APP_ENV: "${APP_ENV:-production}"
+      APP_DEBUG: "${APP_DEBUG:-false}"
+      APP_URL: "${APP_URL:-http://localhost:${APP_PORT:-8080}}"
+      APP_KEY:
+      APP_LOCALE: "${APP_LOCALE:-es}"
+      DB_CONNECTION: mysql
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_DATABASE: "${DB_DATABASE:-spenttrackr}"
+      DB_USERNAME: "${DB_USERNAME:-spenttrackr}"
+      DB_PASSWORD: "${DB_PASSWORD:-secret}"
+      SESSION_DRIVER: database
+      CACHE_STORE: database
+      QUEUE_CONNECTION: sync
+      FILESYSTEM_DISK: public
+      ADMIN_NAME: "${ADMIN_NAME:-Administrador}"
+      ADMIN_EMAIL: "${ADMIN_EMAIL:-admin@example.com}"
+      ADMIN_PASSWORD: "${ADMIN_PASSWORD:-}"
+    volumes:
+      - spent_storage:/var/www/html/storage/app/public
+      - spent_logs:/var/www/html/storage/logs
+    depends_on:
+      mysql:
+        condition: service_healthy
+    restart: unless-stopped
+
+  mysql:
+    image: mysql:8.4
+    ports:
+      - "${MYSQL_PORT:-3307}:3306"
+    environment:
+      MYSQL_DATABASE: "${DB_DATABASE:-spenttrackr}"
+      MYSQL_USER: "${DB_USERNAME:-spenttrackr}"
+      MYSQL_PASSWORD: "${DB_PASSWORD:-secret}"
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD:-rootsecret}"
+    volumes:
+      - spent_mysql:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p${DB_PASSWORD:-secret}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+volumes:
+  spent_mysql:
+  spent_storage:
+  spent_logs:

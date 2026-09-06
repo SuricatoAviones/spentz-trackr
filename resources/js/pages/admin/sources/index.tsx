@@ -15,8 +15,8 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ICONS } from '@/lib/icons';
 import { formatAmount } from '@/lib/format';
+import { ICONS } from '@/lib/icons';
 import {
     destroy as sourcesDestroy,
     index as sourcesIndex,

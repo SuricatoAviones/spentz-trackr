@@ -77,7 +77,13 @@ class UserController extends Controller
 
     public function update(UpdateAdminUserRequest $request, User $user): RedirectResponse
     {
-        $user->update($request->validated());
+        $data = $request->validated();
+
+        $user->forceFill(collect($data)->except('is_admin')->all())->save();
+
+        if (array_key_exists('is_admin', $data)) {
+            $user->forceFill(['is_admin' => (bool) $data['is_admin']])->save();
+        }
 
         AdminAction::record('user.updated', $user);
 

@@ -2,6 +2,7 @@
 paths:
   - 'app/Http/Controllers/**'
   - app/Http/Controllers/ExpenseController.php
+  - app/Http/Controllers/InstallController.php
 ---
 
 # Controllers
@@ -14,3 +15,6 @@ Nunca quitar `ensureFreshRate($user)` de Dashboard/Ajustes/Expense create|edit: 
 
 ## Comisión en gastos Bs: regla "lo que sea mayor" y monto base aparte
 En gastos en Bs la comisión (pago móvil o transferencia) se cobra con la regla max(min_commission, monto × commission_rate%), con piso configurable en Ajustes (default 14 Bs, 0,30%, Gaceta 43.427, punto de quiebre ≈ 4.667 Bs). expenses.amount guarda SIEMPRE la base (sin comisión); commission va en su propia columna y el equivalente USD/USDT se calcula sobre amount + commission. El frontend (expense-form.tsx) precalcula max(min, monto×%) al elegir método y lo deja editable con opción "Sin comisión".
+
+## Instalador bloqueado en producción y tras instalación
+El constructor de InstallController aborta 404 en APP_ENV=production y 403 si ya existe storage/installed. Nunca permitir re-ejecutar install/execute una vez instalado (reescribiría .env y crearía un admin). El identificador de instalación se marca con storage/installed (gitignored).

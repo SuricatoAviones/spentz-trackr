@@ -19,7 +19,7 @@ class AuthenticatedSessionController extends BaseApiController
     {
         $user = $createNewUser->create($request->all());
 
-        $token = $user->createToken('spent-trackr-api');
+        $token = $user->createToken('spent-trackr-api', ['*'], now()->addDays(90));
 
         return response()->json([
             'success' => true,
@@ -55,7 +55,7 @@ class AuthenticatedSessionController extends BaseApiController
             return $this->apiError('Tu cuenta está suspendida.', 403);
         }
 
-        $token = $user->createToken($request->string('device_name', 'spent-trackr-api'));
+        $token = $user->createToken($request->string('device_name', 'spent-trackr-api'), ['*'], now()->addDays(90));
 
         return $this->apiResponse([
             'token' => $token->plainTextToken,

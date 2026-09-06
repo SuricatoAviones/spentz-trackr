@@ -43,6 +43,9 @@ test('an admin can download a JSON backup of the database', function () {
     $content = $response->streamedContent();
     expect($content)->toContain('Ana Backup');
     expect($content)->toContain('Gasto respaldado');
+    expect($content)->not->toContain('two_factor_secret');
+    expect($content)->not->toContain('remember_token');
+    expect($content)->not->toContain('"password"');
 });
 
 test('generating a backup is recorded in the audit log', function () {

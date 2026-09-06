@@ -24,6 +24,10 @@ class AjustesController extends Controller
             'rate' => $rateService->rateForUser($user),
             'commissionDefaults' => $this->commissionDefaults($user),
             'trackingType' => $user->tracking_type,
+            'monthlyBudget' => $user->monthly_budget,
+            'monthlySpent' => round((float) $user->expenses()
+                ->forPeriod(now()->startOfMonth()->toDateString(), now()->endOfMonth()->toDateString())
+                ->sum('usd_amount'), 2),
             'monthlyExpenseCount' => $user->expenses()
                 ->forPeriod(now()->startOfMonth()->toDateString(), now()->endOfMonth()->toDateString())
                 ->count(),
@@ -31,6 +35,21 @@ class AjustesController extends Controller
                 ->forPeriod(now()->startOfMonth()->toDateString(), now()->endOfMonth()->toDateString())
                 ->count(),
         ]);
+    }
+
+    public function updateMonthlyBudget(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'monthly_budget' => ['nullable', 'numeric', 'min:0', 'max:9999999999'],
+        ]);
+
+        $request->user()->update([
+            'monthly_budget' => $validated['monthly_budget'] !== null && $validated['monthly_budget'] !== ''
+                ? $validated['monthly_budget']
+                : null,
+        ]);
+
+        return back()->with('success', __('messages.budget_updated'));
     }
 
     public function updateCommissions(UpdateCommissionDefaultsRequest $request): RedirectResponse

@@ -1,9 +1,9 @@
 import { Form, Head, setLayoutProps } from '@inertiajs/react';
+import { useTranslation } from 'react-i18next';
 import {
     index as confirmOptions,
     store as confirmStore,
 } from '@/actions/Laravel/Passkeys/Http/Controllers/PasskeyConfirmationController';
-import { useTranslation } from 'react-i18next';
 import InputError from '@/components/input-error';
 import PasskeyVerify from '@/components/passkey-verify';
 import PasswordInput from '@/components/password-input';

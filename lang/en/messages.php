@@ -27,7 +27,19 @@ return [
     'income_deleted' => 'Income deleted.',
     'income_delete_blocked' => 'Cannot delete: the category has associated incomes.',
 
+    'savings_goal_created' => 'Savings goal created.',
+    'savings_goal_updated' => 'Savings goal updated.',
+    'savings_goal_deleted' => 'Savings goal deleted.',
+    'savings_contribution_added' => 'Contribution recorded.',
+    'savings_contribution_deleted' => 'Contribution removed.',
+
+    'recurring_payment_created' => 'Recurring payment created.',
+    'recurring_payment_updated' => 'Recurring payment updated.',
+    'recurring_payment_deleted' => 'Recurring payment deleted.',
+    'recurring_payment_paid' => 'Payment marked as paid.',
+
     'tracking_updated' => 'Tracking mode updated.',
+    'budget_updated' => 'Monthly budget updated.',
 
     'user_updated' => 'User updated.',
     'user_deleted' => 'User deleted.',

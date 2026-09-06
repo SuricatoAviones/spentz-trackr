@@ -11,6 +11,7 @@ use App\Models\Expense;
 use App\Models\PaymentSource;
 use App\Services\ExchangeRateService;
 use App\Services\ExpenseConversionService;
+use Dedoc\Scramble\Attributes\QueryParameter;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -21,6 +22,13 @@ class ExpenseController extends BaseApiController
     /**
      * Display a listing of the resource.
      */
+    #[QueryParameter('search', description: 'Buscar en la descripción o nota del gasto.', type: 'string', example: 'mercado')]
+    #[QueryParameter('currency', description: 'Filtrar por moneda del gasto (usd, ves, usdt).', type: 'string', example: 'usd')]
+    #[QueryParameter('category_id', description: 'Filtrar por id de categoría.', type: 'integer')]
+    #[QueryParameter('payment_source_id', description: 'Filtrar por id de origen de pago.', type: 'integer')]
+    #[QueryParameter('from', description: 'Filtrar desde esta fecha (YYYY-MM-DD).', type: 'string', format: 'date', example: '2026-09-01')]
+    #[QueryParameter('to', description: 'Filtrar hasta esta fecha (YYYY-MM-DD).', type: 'string', format: 'date', example: '2026-09-30')]
+    #[QueryParameter('page', description: 'Número de página de resultados.', type: 'integer', default: 1)]
     public function index(Request $request): JsonResponse
     {
         $user = $request->user();

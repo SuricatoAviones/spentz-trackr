@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { BookOpen, Folder, LayoutGrid, Menu, Search } from 'lucide-react';
+import { BookOpen, Folder, LayoutGrid, Menu, PiggyBank, Repeat, Search } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import AppLogo from '@/components/app-logo';
 import AppLogoIcon from '@/components/app-logo-icon';
@@ -34,6 +34,8 @@ import { useCurrentUrl } from '@/hooks/use-current-url';
 import { useInitials } from '@/hooks/use-initials';
 import { cn, toUrl } from '@/lib/utils';
 import { dashboard } from '@/routes';
+import { index as recurringPaymentsIndex } from '@/routes/recurring-payments';
+import { index as savingsGoalsIndex } from '@/routes/savings-goals';
 import type { BreadcrumbItem, NavItem } from '@/types';
 
 type Props = {
@@ -52,6 +54,16 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
             title: t('shell.sidebar.dashboard'),
             href: dashboard(),
             icon: LayoutGrid,
+        },
+        {
+            title: t('shell.sidebar.savings_goals'),
+            href: savingsGoalsIndex(),
+            icon: PiggyBank,
+        },
+        {
+            title: t('shell.sidebar.recurring_payments'),
+            href: recurringPaymentsIndex(),
+            icon: Repeat,
         },
     ];
 

@@ -1,5 +1,5 @@
 import { Link, setLayoutProps, usePage } from '@inertiajs/react';
-import { ChevronRight, RefreshCw, TrendingUp } from 'lucide-react';
+import { ChevronRight, RefreshCw, TrendingUp, Wallet } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DonutChart } from '@/components/tracker/donut-chart';
@@ -31,6 +31,7 @@ type DashboardProps = {
     month: string;
     trackingType: 'expenses' | 'income' | 'both';
     rate: RateInfo;
+    monthlyBudget?: number | null;
     totals?: {
         usd: number;
         usdt: number;
@@ -70,6 +71,7 @@ export default function Dashboard({
     month,
     trackingType,
     rate,
+    monthlyBudget,
     totals,
     incomeTotals,
     net,
@@ -134,6 +136,16 @@ export default function Dashboard({
                       income,
                   })),
               ].sort((a, b) => b.date.localeCompare(a.date));
+
+    const showExpenses = () => trackingType === 'expenses' || trackingType === 'both';
+    const activeBudget = monthlyBudget ?? 0;
+    const spentForBudget = () => (showExpenses() ? totals?.usd ?? 0 : 0);
+    const budgetPercent = () =>
+        activeBudget > 0 ? Math.min((spentForBudget() / activeBudget) * 100, 100) : 0;
+    const budgetOver = () => spentForBudget() > activeBudget;
+    const budgetRemaining = () => activeBudget - spentForBudget();
+    const ajustesUrl = () => '/ajustes';
+    const hasActiveBudget = monthlyBudget !== null && monthlyBudget !== undefined && monthlyBudget > 0;
 
     return (
         <div className="space-y-5 lg:grid lg:grid-cols-2 lg:gap-5 lg:space-y-0">
@@ -300,6 +312,71 @@ export default function Dashboard({
                         </div>
                     </div>
                 </section>
+            )}
+
+            {showExpenses() && hasActiveBudget && (
+                <TrackerCard
+                    title={t('dashboard.global_budget')}
+                    className="lg:col-span-2"
+                >
+                    <div className="px-4 pt-4 pb-4">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                            <span className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                                <Wallet className="size-4 text-emerald-400" />
+                                {formatAmount(spentForBudget())}{' '}
+                                <span className="text-xs font-medium text-muted-foreground">
+                                    /
+                                </span>{' '}
+                                {formatAmount(activeBudget)}{' '}
+                                <span className="text-xs font-medium text-muted-foreground">
+                                    USD
+                                </span>
+                            </span>
+                            <span
+                                className={`rounded-full px-2.5 py-0.5 text-[11px] font-bold tabular-nums ${
+                                    budgetOver()
+                                        ? 'bg-destructive/15 text-destructive'
+                                        : 'bg-emerald-500/15 text-emerald-400'
+                                }`}
+                            >
+                                {budgetPercent().toFixed(0)}%
+                            </span>
+                        </div>
+                        <div className="mt-3 h-2.5 overflow-hidden rounded-full bg-white/5">
+                            <div
+                                className={`h-full rounded-full transition-all ${
+                                    budgetOver()
+                                        ? 'bg-gradient-to-r from-red-500 to-red-600'
+                                        : budgetPercent() > 80
+                                          ? 'bg-gradient-to-r from-amber-400 to-amber-500'
+                                          : 'bg-gradient-to-r from-emerald-400 to-emerald-500'
+                                }`}
+                                style={{ width: `${budgetPercent()}%` }}
+                            />
+                        </div>
+                        <div className="mt-2 flex items-center justify-between">
+                            <span className="text-[11px] text-muted-foreground">
+                                {budgetRemaining() >= 0
+                                    ? t('dashboard.budget_remaining', {
+                                          amount: formatAmount(
+                                              budgetRemaining(),
+                                          ),
+                                      })
+                                    : t('dashboard.budget_over_amount', {
+                                          amount: formatAmount(
+                                              Math.abs(budgetRemaining()),
+                                          ),
+                                      })}
+                            </span>
+                            <Link
+                                href={ajustesUrl()}
+                                className="text-[11px] font-semibold text-emerald-400"
+                            >
+                                {t('dashboard.edit_global_budget')}
+                            </Link>
+                        </div>
+                    </div>
+                </TrackerCard>
             )}
 
             {categories.length > 0 && (

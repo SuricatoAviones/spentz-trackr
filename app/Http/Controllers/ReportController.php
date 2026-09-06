@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Expense;
 use App\Models\Income;
+use App\Support\CsvExporter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Inertia\Inertia;
@@ -291,16 +292,16 @@ class ReportController extends Controller
                 foreach ($expenses as $expense) {
                     fputcsv($output, [
                         $expense->spent_at->toDateString(),
-                        $expense->description,
-                        $expense->category->name,
-                        $expense->paymentSource->name,
+                        CsvExporter::cell($expense->description),
+                        CsvExporter::cell($expense->category->name),
+                        CsvExporter::cell($expense->paymentSource->name),
                         $expense->currency->value,
                         number_format((float) $expense->amount, 2, ',', '.'),
                         $expense->exchange_rate !== null ? number_format((float) $expense->exchange_rate, 4, ',', '.') : '',
-                        $expense->rate_provider ?? '',
+                        CsvExporter::cell($expense->rate_provider ?? ''),
                         number_format((float) $expense->usd_amount, 2, ',', '.'),
                         number_format((float) $expense->usdt_amount, 2, ',', '.'),
-                        $expense->note ?? '',
+                        CsvExporter::cell($expense->note ?? ''),
                     ]);
                 }
             });

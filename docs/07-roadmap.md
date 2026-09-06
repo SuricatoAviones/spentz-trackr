@@ -25,13 +25,7 @@
 - [x] Tema/color y standalone display.
 - [x] Verificación: Lighthouse PWA, instalación real, offline browsing.
 
-## Fase 4 — Pulido y despliegue
-- [ ] Despliegue en cPanel + MySQL siguiendo `06-despliegue-cpanel.md`.
-- [ ] Cron de tasas en producción.
-- [ ] Pruebas de rendimiento (índices, caché, paginación).
-- [ ] Copias de seguridad de la BD (cron de mysqldump en cPanel).
-
-## Fase 7 — API REST ✅ completada
+## Fase 4 — API REST ✅ completada
 - [x] Endpoints de autenticación con tokens Sanctum (register/login/logout/me).
 - [x] CRUD completo de gastos, ingresos, categorías y fuentes bajo `/api/v1`.
 - [x] Conversión de monedas en tiempo real (USD, VES, USDT) con tasa congelada por transacción.
@@ -39,17 +33,9 @@
 - [x] Tasas de cambio manuales y sincronización API (`/rates`, `/rates/sync`).
 - [x] Rate limiting (`api` 100/min por usuario o IP; `api.auth` 5/min por IP) y seguridad por token.
 - [x] CORS configurado para aplicaciones móviles (`config/cors.php`, `sanctum/csrf-cookie`).
-- [ ] Documentación completa OpenAPI/Swagger (referencia REST en `docs/api/api-documentation.md`; spec OpenAPI pendiente).
+- [x] Documentación OpenAPI/Swagger con Scramble (UI en `/docs/api`, spec en `/docs/api.json`; referencia REST en `docs/api/api-documentation.md`).
 
-## Ideas v2 (candidatas)
-- ~~Ingresos y balance neto~~ ✅ implementado (módulo de ingresos + neto en reportes).
-- Presupuestos mensuales por categoría con alertas (presupuesto por categoría ya existe).
-- Gastos mixtos (una transacción con dos monedas).
-- Metas de ahorro.
-- Recordatorios de pagos recurrentes.
-- Modo oscuro (idioma inglés ya implementado en Fase 6).
-
-## Fase 5 — Panel de administración (completada)
+## Fase 5 — Panel de administración ✅ completada
 - [x] Dashboard global: métricas, tendencia 12 meses, top categorías y usuarios.
 - [x] Gestión de usuarios: edición, verificación manual de email, reset de contraseña, suspensión/reactivación y eliminación.
 - [x] Gastos globales con filtros, exportación CSV y comprobantes.
@@ -58,10 +44,33 @@
 - [x] Auditoría de acciones de administradores (`admin_actions`).
 - [x] Sistema: estado del entorno y backup JSON de todas las tablas.
 
-## Fase 6 — Multilenguaje (ES/EN)
+## Fase 6 — Multilenguaje (ES/EN) ✅ completada
 Plan detallado en `10-multilenguaje.md`.
 - [x] Fase A — Infraestructura backend: middleware `SetLocale`, `lang/es|en`, ruta `/language`, shared props.
 - [x] Fase B — i18next en frontend: diccionarios, páginas de usuario, `Intl` en fechas/montos/meses.
 - [x] Fase C — Panel admin traducido.
 - [x] Fase D — Selector de idioma en sidebar y ajustes.
 - [x] Fase E — QA: consistencia de keys, revisión ES/EN, docs y suite verde.
+
+## Fase 7 — Open-source y auto-hospedaje (en curso)
+Plan detallado en `11-instalador.md`.
+- [x] Documentación OpenAPI/Swagger accesible en `/api/v1` (UI) y `/api/v1.json` (spec).
+- [x] Gate `viewApiDocs` para controlar el acceso a la documentación.
+- [x] Instalador web (`/install`): middleware `EnsureInstalled`, wizard de 4 pasos (Requisitos, Base de datos, Aplicación, Completado).
+- [x] Soporte de SQLite, MySQL y PostgreSQL en el instalador.
+- [x] Servicio compartido `App\Services\Installer`.
+- [x] Instalador CLI (`php artisan app:install`) con flags no interactivos y `--force`.
+- [x] Comando de actualización (`php artisan app:update`): git pull + dependencias + migraciones + cachés.
+- [x] Docker Compose (app + MySQL), override PostgreSQL y SQLite, `.env.docker`.
+- [x] Docs `11-instalador.md`.
+- [x] Tests del instalador (requisitos, comandos registrados, endpoint de requisitos).
+- [x] Presupuesto global mensual (límite total de gasto con barra de progreso en el dashboard).
+- [x] Modo oscuro/claro configurable en Ajustes → Apariencia.
+- [ ] Prueba E2E real de una instalación limpia (web + CLI + Docker) en entorno de staging.
+- [ ] Política de versionado y tags.
+
+## Ideas v2 (candidatas)
+- Presupuestos mensuales por categoría con alertas (presupuesto por categoría ya existe).
+- Gastos mixtos (una transacción con dos monedas).
+- Metas de ahorro.
+- Recordatorios de pagos recurrentes.

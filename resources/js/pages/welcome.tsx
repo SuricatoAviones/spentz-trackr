@@ -159,7 +159,7 @@ export default function Welcome() {
 
     return (
         <>
-            <Head title="Spent Trackr" />
+            <Head title="Spentz Trackr" />
 
             <div className="relative flex min-h-screen flex-col overflow-hidden bg-background text-foreground">
                 <div
@@ -283,7 +283,7 @@ export default function Welcome() {
                 </main>
 
                 <footer className="relative z-10 mx-auto flex w-full max-w-5xl items-center justify-between px-6 py-6 text-xs text-muted-foreground">
-                    <span>© 2026 Spent Trackr</span>
+                    <span>© 2026 Spentz Trackr</span>
                     <span>{t('welcome.rates_source')}</span>
                 </footer>
             </div>

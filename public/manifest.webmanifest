@@ -1,6 +1,6 @@
 {
-    "name": "Spent Trackr",
-    "short_name": "Spent Trackr",
+    "name": "Spentz Trackr",
+    "short_name": "Spentz Trackr",
     "description": "Controla tus gastos en USD, Bs y USDT",
     "start_url": "/",
     "display": "standalone",

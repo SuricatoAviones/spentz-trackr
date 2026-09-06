@@ -27,8 +27,19 @@ return [
     'income_deleted' => 'Ingreso eliminado.',
     'income_delete_blocked' => 'No se puede eliminar: la categoría tiene ingresos asociados.',
 
-    'tracking_updated' => 'Modo de seguimiento actualizado.',
+    'savings_goal_created' => 'Meta de ahorro creada.',
+    'savings_goal_updated' => 'Meta de ahorro actualizada.',
+    'savings_goal_deleted' => 'Meta de ahorro eliminada.',
+    'savings_contribution_added' => 'Aporte registrado.',
+    'savings_contribution_deleted' => 'Aporte eliminado.',
 
+    'recurring_payment_created' => 'Pago recurrente creado.',
+    'recurring_payment_updated' => 'Pago recurrente actualizado.',
+    'recurring_payment_deleted' => 'Pago recurrente eliminado.',
+    'recurring_payment_paid' => 'Pago registrado como pagado.',
+
+    'tracking_updated' => 'Modo de seguimiento actualizado.',
+    'budget_updated' => 'Presupuesto mensual actualizado.',
     'user_updated' => 'Usuario actualizado.',
     'user_deleted' => 'Usuario eliminado.',
     'user_already_verified' => 'El usuario ya tiene el email verificado.',
