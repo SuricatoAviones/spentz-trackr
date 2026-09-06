@@ -8,7 +8,7 @@ RUN npm run build
 FROM composer:2 AS vendor
 WORKDIR /app
 COPY composer.json composer.lock ./
-RUN composer install --no-dev --no-interaction --no-progress --optimize-autoloader
+RUN composer install --no-dev --no-interaction --no-progress --optimize-autoloader --no-scripts
 
 FROM serversideup/php:8.5-fpm-nginx
 WORKDIR /var/www/html
@@ -19,6 +19,6 @@ COPY --from=frontend /app/public/build ./public/build
 COPY --chown=www-data:www-data . .
 USER www-data
 
-RUN php artisan storage:link
+RUN php artisan package:discover --ansi && php artisan storage:link
 
 EXPOSE 80
