@@ -11,6 +11,9 @@ class EnsureInstalled
     public function handle(Request $request, Closure $next): Response
     {
         if (app()->environment('testing')) {
+            config()->set('session.driver', 'file');
+            config()->set('cache.default', 'file');
+
             return $next($request);
         }
 
@@ -19,6 +22,9 @@ class EnsureInstalled
         }
 
         if ($request->is('install') || $request->is('install/*')) {
+            config()->set('session.driver', 'file');
+            config()->set('cache.default', 'file');
+
             return $next($request);
         }
 
