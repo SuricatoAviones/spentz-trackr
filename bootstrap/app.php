@@ -27,6 +27,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $schedule->job(new SyncExchangeRates)->everyFiveMinutes();
     })
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->trustProxies(at: env('TRUSTED_PROXIES', '*'));
+
         $middleware->prepend([
             EnsureInstalled::class,
         ]);

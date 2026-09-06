@@ -33,24 +33,39 @@ tests
 .docker
 ```
 
-Y un `Dockerfile` multi-etapa (build de assets + vendor + imagen runtime). Usa la imagen `serversideup/php` (PHP 8.5 + FPM + Nginx + cron ya incluido):
+Y un `Dockerfile` multi-etapa (dependencias PHP + types Wayfinder + assets frontend + imagen runtime). Usa la imagen `serversideup/php` (PHP 8.5 + FPM + Nginx + cron ya incluido):
 
 ```dockerfile
-# --- Etapa 1: assets frontend (Vite/Inertia) ---
+# --- Etapa 1: dependencias PHP ---
+FROM composer:2 AS vendor
+WORKDIR /app
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --no-interaction --no-progress --optimize-autoloader --no-scripts
+
+# --- Etapa 2: types TypeScript de Wayfinder (la etapa frontend no tiene PHP) ---
+FROM serversideup/php:8.5-fpm-nginx AS wayfinder
+WORKDIR /var/www/html
+
+USER root
+COPY --from=vendor /app/vendor ./vendor
+COPY --chown=www-data:www-data . .
+USER www-data
+
+RUN php artisan wayfinder:generate --with-form
+
+# --- Etapa 3: assets frontend (Vite/Inertia/React) ---
 FROM node:22-alpine AS frontend
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
 COPY . .
+COPY --from=wayfinder /var/www/html/resources/js/actions ./resources/js/actions
+COPY --from=wayfinder /var/www/html/resources/js/routes ./resources/js/routes
+COPY --from=wayfinder /var/www/html/resources/js/wayfinder ./resources/js/wayfinder
+ENV SKIP_WAYFINDER=1
 RUN npm run build
 
-# --- Etapa 2: dependencias PHP ---
-FROM composer:2 AS vendor
-WORKDIR /app
-COPY composer.json composer.lock ./
-RUN composer install --no-dev --no-interaction --no-progress --optimize-autoloader
-
-# --- Etapa 3: runtime ---
+# --- Etapa 4: runtime ---
 FROM serversideup/php:8.5-fpm-nginx
 WORKDIR /var/www/html
 
@@ -60,10 +75,14 @@ COPY --from=frontend /app/public/build ./public/build
 COPY --chown=www-data:www-data . .
 USER www-data
 
-RUN php artisan storage:link
+RUN php artisan package:discover --ansi && php artisan storage:link
 
 EXPOSE 80
 ```
+
+> **¿Por qué la etapa `wayfinder`?** El plugin `@laravel/vite-plugin-wayfinder` ejecuta `php artisan wayfinder:generate --with-form` en cada build de Vite, pero `node:22-alpine` no incluye PHP. Por eso se generan los types TS en una etapa con PHP (la misma imagen del runtime), se copian a la etapa frontend y, en `vite.config.ts`, el plugin mapea su opción `command` a un no-op (`node -e 0 --`) cuando existe la variable `SKIP_WAYFINDER=1` (solo seteada en el build). En local (`npm run dev`) sigue generando los types automáticamente.
+
+> `--no-scripts` en `composer install` evita que el autoloader ejecute `artisan` en la etapa `vendor` (donde aún no se copió la app); el `package:discover` se ejecuta explícitamente luego en la etapa runtime.
 
 > Si `serversideup/php:8.5-fpm-nginx` no estuviera publicado aún, usa `8.4-fpm-nginx` (la app corre en 8.3+).
 

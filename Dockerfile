@@ -28,6 +28,7 @@ FROM serversideup/php:8.5-fpm-nginx
 WORKDIR /var/www/html
 
 USER root
+RUN install-php-extensions bcmath gd intl
 COPY --from=vendor /app/vendor ./vendor
 COPY --from=frontend /app/public/build ./public/build
 COPY --chown=www-data:www-data . .
