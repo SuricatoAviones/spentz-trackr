@@ -11,8 +11,6 @@ class EnsureInstalled
     public function handle(Request $request, Closure $next): Response
     {
         if (app()->environment('testing')) {
-            $this->forceInstallSessionConfig();
-
             return $next($request);
         }
 
