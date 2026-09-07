@@ -56,31 +56,7 @@ class InstallApp extends Command
             return self::FAILURE;
         }
 
-        $data = [
-            'db_connection' => $this->option('db-connection') ?? $this->chooseConnection(),
-            'db_host' => $this->option('db-host'),
-            'db_port' => $this->option('db-port'),
-            'db_database' => $this->option('db-database'),
-            'db_username' => $this->option('db-username'),
-            'db_password' => $this->option('db-password'),
-            'app_name' => $this->option('app-name') ?? $this->ask('Nombre de la aplicación', config('app.name', 'Spentz Trackr')),
-            'app_url' => $this->option('app-url') ?? $this->ask('URL pública de la aplicación', config('app.url')),
-            'app_locale' => $this->option('app-locale') ?? $this->choice('Idioma por defecto', ['es', 'en'], 0),
-            'timezone' => $this->option('timezone') ?? $this->ask('Zona horaria por defecto', config('app.timezone', 'UTC')),
-            'admin_name' => $this->option('admin-name') ?? $this->ask('Nombre del administrador'),
-            'admin_email' => $this->option('admin-email') ?? $this->ask('Correo del administrador'),
-            'admin_password' => $this->option('admin-password') ?? $this->secret('Contraseña del administrador (mín. 8 caracteres)'),
-        ];
-
-        if ($data['db_connection'] !== 'sqlite') {
-            $data['db_host'] = $data['db_host'] ?? $this->ask('Host de la base de datos', '127.0.0.1');
-            $data['db_port'] = $data['db_port'] ?? $this->ask('Puerto', $this->defaultPort($data['db_connection']));
-            $data['db_database'] = $data['db_database'] ?? $this->ask('Nombre de la base de datos');
-            $data['db_username'] = $data['db_username'] ?? $this->ask('Usuario', $data['db_connection'] === 'pgsql' ? 'postgres' : 'root');
-            $data['db_password'] = $data['db_password'] ?? $this->secret('Contraseña de la base de datos');
-        } else {
-            $data['db_database'] = $data['db_database'] ?? 'database.sqlite';
-        }
+        $data = $this->collectData($this->input->isInteractive());
 
         $validator = Validator::make($data, $this->rules());
 
@@ -111,6 +87,56 @@ class InstallApp extends Command
         $this->warn('Cambia la contraseña del administrador tras el primer inicio de sesión.');
 
         return self::SUCCESS;
+    }
+
+    /**
+     * Reúne la configuración de instalación: prioridad flag CLI → variable de
+     * entorno → prompt interactivo (o null en modo no interactivo/headless).
+     *
+     * @return array<string, mixed>
+     */
+    private function collectData(bool $interactive): array
+    {
+        $data = [
+            'db_connection' => $this->optionOrEnv('db-connection', 'DB_CONNECTION') ?? ($interactive ? $this->chooseConnection() : null),
+            'db_host' => $this->optionOrEnv('db-host', 'DB_HOST'),
+            'db_port' => $this->optionOrEnv('db-port', 'DB_PORT'),
+            'db_database' => $this->optionOrEnv('db-database', 'DB_DATABASE'),
+            'db_username' => $this->optionOrEnv('db-username', 'DB_USERNAME'),
+            'db_password' => $this->optionOrEnv('db-password', 'DB_PASSWORD'),
+            'app_name' => $this->optionOrEnv('app-name', 'APP_NAME') ?? ($interactive ? $this->ask('Nombre de la aplicación', config('app.name', 'Spentz Trackr')) : config('app.name', 'Spentz Trackr')),
+            'app_url' => $this->optionOrEnv('app-url', 'APP_URL') ?? ($interactive ? $this->ask('URL pública de la aplicación', config('app.url')) : config('app.url')),
+            'app_locale' => $this->optionOrEnv('app-locale', 'APP_LOCALE') ?? ($interactive ? $this->choice('Idioma por defecto', ['es', 'en'], 0) : config('app.locale', 'es')),
+            'timezone' => $this->optionOrEnv('timezone', 'TIMEZONE') ?? ($interactive ? $this->ask('Zona horaria por defecto', config('app.timezone', 'UTC')) : config('app.timezone', 'UTC')),
+            'admin_name' => $this->optionOrEnv('admin-name', 'ADMIN_NAME') ?? ($interactive ? $this->ask('Nombre del administrador') : null),
+            'admin_email' => $this->optionOrEnv('admin-email', 'ADMIN_EMAIL') ?? ($interactive ? $this->ask('Correo del administrador') : null),
+            'admin_password' => $this->optionOrEnv('admin-password', 'ADMIN_PASSWORD') ?? ($interactive ? $this->secret('Contraseña del administrador (mín. 8 caracteres)') : null),
+        ];
+
+        if ($data['db_connection'] !== 'sqlite') {
+            $data['db_host'] = $data['db_host'] ?? ($interactive ? $this->ask('Host de la base de datos', '127.0.0.1') : '127.0.0.1');
+            $data['db_port'] = $data['db_port'] ?? ($interactive ? $this->ask('Puerto', $this->defaultPort($data['db_connection'])) : $this->defaultPort($data['db_connection']));
+            $data['db_database'] = $data['db_database'] ?? ($interactive ? $this->ask('Nombre de la base de datos') : null);
+            $data['db_username'] = $data['db_username'] ?? ($interactive ? $this->ask('Usuario', $data['db_connection'] === 'pgsql' ? 'postgres' : 'root') : ($data['db_connection'] === 'pgsql' ? 'postgres' : 'root'));
+            $data['db_password'] = $data['db_password'] ?? ($interactive ? $this->secret('Contraseña de la base de datos') : null);
+        } else {
+            $data['db_database'] = $data['db_database'] ?? 'database.sqlite';
+        }
+
+        return $data;
+    }
+
+    private function optionOrEnv(string $option, string $env): ?string
+    {
+        $value = $this->option($option);
+
+        if (is_string($value) && $value !== '') {
+            return $value;
+        }
+
+        $envValue = env($env);
+
+        return is_string($envValue) && $envValue !== '' ? $envValue : null;
     }
 
     /**

@@ -70,9 +70,12 @@ FROM serversideup/php:8.5-fpm-nginx
 WORKDIR /var/www/html
 
 USER root
+RUN install-php-extensions bcmath gd intl
 COPY --from=vendor /app/vendor ./vendor
 COPY --from=frontend /app/public/build ./public/build
 COPY --chown=www-data:www-data . .
+# Instalación headless al arrancar (solo si no existe storage/installed)
+COPY --chmod=755 ./docker/entrypoint.d/ /etc/entrypoint.d/
 USER www-data
 
 RUN php artisan package:discover --ansi && php artisan storage:link
@@ -101,14 +104,19 @@ EXPOSE 80
 
 ## 4. Variables de entorno
 
-En el detalle de la app → **Environment**: (en el editor de Dokploy; `APP_KEY` la generas en el paso 6)
+En el detalle de la app → **Environment**:
 
 ```env
 APP_NAME=Spent Trackr
 APP_ENV=production
 APP_DEBUG=false
 APP_URL=https://spent.tudominio.com
-APP_KEY=
+APP_KEY=base64:... # genera con: php artisan key:generate --show
+
+APP_LOCALE=es
+TIMEZONE=America/Caracas
+# 'headless' instala y bloquea /install (Docker). 'wizard' deja el instalador web (solo cPanel).
+APP_INSTALL_MODE=headless
 
 DB_CONNECTION=mysql
 DB_HOST=mysql
@@ -124,34 +132,38 @@ FILESYSTEM_DISK=public
 
 ADMIN_NAME=Administrador
 ADMIN_EMAIL=admin@tudominio.com
-ADMIN_PASSWORD=
+ADMIN_PASSWORD=CambiaEstaClave123
 ```
 
+> **`APP_KEY` es obligatorio.** La primera instalación la genera si falta, pero el `.env` del contenedor es efímero en cada redeploy: si no fijas `APP_KEY` aquí, se regenera en cada despliegue e invalidará sesiones y valores cifrados (los tokens CSRF). Genera una con `php artisan key:generate --show` y pégala.
+>
 > **`QUEUE_CONNECTION=sync`**: el único job de la app (`SyncExchangeRates`, cada 5 min) se ejecuta inline cuando el scheduler lo dispara; no necesitas worker. Si más adelante añades jobs pesados, cambia a `database` y agrega un servicio worker (`php artisan queue:work --tries=3`).
+
+`ADMIN_*` y `DB_*` alimentan la **instalación headless**: en el primer arranque el contenedor ejecuta automáticamente `php artisan app:install --no-interaction`, que lee estas variables (ver sección 6).
 
 ## 5. Volúmenes persistentes
 
-Los comprobantes viven en `storage/app/public` (disco `public`) y deben sobrevivir a cada redeploy:
+Monta `/var/www/html/storage` completo como volumen persistente: conserva el marcador de instalación (`storage/installed`), los comprobantes (`storage/app/public`), los logs y las sesiones/colas entre despliegues; sin él, cada redeploy intentaría reinstalar la app.
 
 - En **Persistent Storage** de la app agrega un volumen con ruta de contenedor:
-  `/var/www/html/storage/app/public`
-- (Opcional) `/var/www/html/storage/logs` si quieres conservar logs entre deploys.
+  `/var/www/html/storage`
 
 El `php artisan storage:link` ya se ejecutó en el build, así que `public/storage` apunta al volumen.
 
-## 6. Comandos post-despliegue
+## 6. Instalación automática (headless)
 
-En **Terminal** del contenedor de la app (o comandos *After deploy* de Dokploy), la primera vez:
+El script `docker/entrypoint.d/99-spentz-install.sh` se ejecuta en cada arranque del contenedor y:
 
-```bash
-php artisan key:generate
-php artisan migrate --force
-php artisan storage:link
-php artisan optimize
-php artisan admin:create
-```
+1. Si existe `storage/installed`, no hace nada (la app ya está instalada).
+2. Si no existe, ejecuta `php artisan app:install --no-interaction`, que lee del entorno `DB_*`, `APP_*`/`TIMEZONE` y `ADMIN_*`: escribe `.env`, genera `APP_KEY` (si el entorno no la trae), ejecuta las migraciones, crea el administrador y marca `storage/installed`.
+3. Si la base de datos aún no responde (primera vez), reintenta hasta 30 veces con 5 s de espera (`INSTALL_DB_RETRIES` / `INSTALL_DB_RETRY_DELAY` para ajustar).
+4. Al terminar ejecuta `php artisan optimize`. Si falla definitivamente, el contenedor no arranca (se ve en los logs).
 
-- `admin:create` usa `ADMIN_NAME` / `ADMIN_EMAIL` / `ADMIN_PASSWORD` del entorno (si `ADMIN_PASSWORD` está vacío, genera una aleatoria y la imprime).
+**No hace falta correr comandos manuales.** El instalador web (`/install`) queda bloqueado con `APP_INSTALL_MODE=headless` (404).
+
+### En despliegues posteriores
+
+Un redeploy **no** re-ejecuta la instalación (persiste `storage/installed`), pero tampoco corre migraciones: tras cada deploy con cambios de BD ejecuta `php artisan migrate --force` (comandos *After deploy* de Dokploy o desde el Terminal).
 
 ## 7. Scheduler (tasa cada 5 min)
 

@@ -13,7 +13,7 @@ class InstallController extends Controller
 {
     public function __construct(private readonly Installer $installer)
     {
-        if (app()->environment('production')) {
+        if (app()->environment('production') || env('APP_INSTALL_MODE') === 'headless') {
             abort(404);
         }
 

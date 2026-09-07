@@ -32,6 +32,7 @@ RUN install-php-extensions bcmath gd intl
 COPY --from=vendor /app/vendor ./vendor
 COPY --from=frontend /app/public/build ./public/build
 COPY --chown=www-data:www-data . .
+COPY --chmod=755 ./docker/entrypoint.d/ /etc/entrypoint.d/
 USER www-data
 
 RUN php artisan package:discover --ansi && php artisan storage:link
