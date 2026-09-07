@@ -205,7 +205,10 @@ test('app:install fails gracefully when admin settings are incomplete in non-int
     ]);
 
     try {
-        $this->artisan('app:install', ['--no-interaction' => true])->assertFailed();
+        $this->artisan('app:install', ['--no-interaction' => true])
+            ->assertFailed()
+            ->expectsOutput('El campo admin password debe tener al menos 8 caracteres.')
+            ->expectsOutputToContain('ADMIN_PASSWORD recibida por entorno con 1 caracteres.');
     } finally {
         restoreInstallEnvForTest($previous);
     }

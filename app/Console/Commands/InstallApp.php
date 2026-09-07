@@ -65,6 +65,11 @@ class InstallApp extends Command
                 $this->error($error);
             }
 
+            if (! $this->input->isInteractive() && $validator->errors()->has('admin_password')) {
+                $length = mb_strlen((string) ($data['admin_password'] ?? ''));
+                $this->warn("ADMIN_PASSWORD recibida por entorno con {$length} caracteres. Si el valor contiene '#' u otros caracteres especiales, el proveedor pudo truncarlo; cítalo o evítalos.");
+            }
+
             return self::FAILURE;
         }
 
