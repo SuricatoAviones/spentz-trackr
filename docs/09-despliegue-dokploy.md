@@ -111,7 +111,8 @@ APP_NAME=Spentz Trackr
 APP_ENV=production
 APP_DEBUG=false
 APP_URL=https://spent.tudominio.com
-APP_KEY=base64:... # genera con: php artisan key:generate --show
+# APP_KEY: NO hace falta. Se genera y persiste solo en storage/app.key
+# (dentro del volumen de storage). Solo fíjala aquí si quieres controlarla tú.
 
 APP_LOCALE=es
 TIMEZONE=America/Caracas
@@ -135,7 +136,10 @@ ADMIN_EMAIL=admin@tudominio.com
 ADMIN_PASSWORD=CambiaEstaClave123
 ```
 
-> **`APP_KEY` es obligatorio.** La primera instalación la genera si falta, pero el `.env` del contenedor es efímero en cada redeploy: si no fijas `APP_KEY` aquí, se regenera en cada despliegue e invalidará sesiones y valores cifrados (los tokens CSRF). Genera una con `php artisan key:generate --show` y pégala.
+> **`APP_KEY` se resuelve sola.** El entrypoint del contenedor (`98-spentz-key.sh`) la
+> genera en `storage/app.key` en el primer arranque; como `storage/` es un volumen
+> persistente, la misma clave se reutiliza en cada redeploy y las sesiones / tokens CSRF
+> siguen válidos. Si prefieres fijarla, ponla en `APP_KEY` y ganará.
 >
 > **`QUEUE_CONNECTION=sync`**: el único job de la app (`SyncExchangeRates`, cada 5 min) se ejecuta inline cuando el scheduler lo dispara; no necesitas worker. Si más adelante añades jobs pesados, cambia a `database` y agrega un servicio worker (`php artisan queue:work --tries=3`).
 
@@ -155,7 +159,7 @@ El `php artisan storage:link` ya se ejecutó en el build, así que `public/stora
 El script `docker/entrypoint.d/99-spentz-install.sh` se ejecuta en cada arranque del contenedor y:
 
 1. Si existe `storage/installed`, no hace nada (la app ya está instalada).
-2. Si no existe, ejecuta `php artisan app:install --no-interaction`, que lee del entorno `DB_*`, `APP_*`/`TIMEZONE` y `ADMIN_*`: escribe `.env`, genera `APP_KEY` (si el entorno no la trae), ejecuta las migraciones, crea el administrador y marca `storage/installed`.
+2. Si no existe, ejecuta `php artisan app:install --no-interaction`, que lee del entorno `DB_*`, `APP_*`/`TIMEZONE` y `ADMIN_*`: escribe un `.env` listo para producción (`APP_ENV=production`, `APP_DEBUG=false`), reutiliza la `APP_KEY` de `storage/app.key`, ejecuta las migraciones, crea el administrador y marca `storage/installed`.
 3. Si la base de datos aún no responde (primera vez), reintenta hasta 30 veces con 5 s de espera (`INSTALL_DB_RETRIES` / `INSTALL_DB_RETRY_DELAY` para ajustar).
 4. Al terminar ejecuta `php artisan optimize`. Si falla definitivamente, el contenedor no arranca (se ve en los logs).
 

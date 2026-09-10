@@ -2,6 +2,7 @@
 
 use App\Console\Commands\InstallApp;
 use App\Console\Commands\UpdateApp;
+use App\Http\Middleware\EnsureInstalled;
 use App\Services\Installer;
 
 /**
@@ -132,6 +133,37 @@ test('install routes are blocked once the app is already installed', function ()
 
     $this->get('/install')->assertForbidden();
     $this->postJson('/install/execute', [])->assertForbidden();
+});
+
+test('the requirements check covers the app root so the wizard can write .env', function () {
+    $directories = app(Installer::class)->checkRequirements()['directories'];
+
+    expect($directories)->toHaveCount(3)
+        ->and(array_keys($directories))->toContain('raíz de la app (.env)');
+});
+
+test('the wizard is reachable on a fresh deploy where APP_ENV defaults to production', function () {
+    $this->app['env'] = 'production';
+
+    $this->get('/install')->assertOk();
+});
+
+test('EnsureInstalled generates and persists a missing APP_KEY to storage/app.key', function () {
+    $keyFile = storage_path('app.key');
+    @unlink($keyFile);
+    config(['app.key' => '']);
+
+    try {
+        $response = app(EnsureInstalled::class)
+            ->handle(request(), fn () => response('ok'));
+
+        expect($response->getContent())->toBe('ok')
+            ->and(is_file($keyFile))->toBeTrue()
+            ->and(config('app.key'))->toStartWith('base64:')
+            ->and(trim(file_get_contents($keyFile)))->toBe(config('app.key'));
+    } finally {
+        @unlink($keyFile);
+    }
 });
 
 test('install routes are blocked when APP_INSTALL_MODE is headless', function () {

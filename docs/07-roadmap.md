@@ -44,20 +44,26 @@ Plan en `10-multilenguaje.md`.
 - [x] Panel admin traducido; selector de idioma en sidebar y Ajustes.
 - [x] `tests/Unit/I18nDictionaryTest.php` obliga paridad de keys `es.json` ↔ `en.json`.
 
-## Fase 7 — Open-source y auto-hospedaje ✅ (en pulido)
+## Fase 7 — Open-source y auto-hospedaje ✅
 Plan en `11-instalador.md`.
 - [x] Instalador web (`/install`), CLI (`app:install`) y Docker Compose.
 - [x] Soporte SQLite / MySQL / PostgreSQL.
+- [x] **Instalación sin `.env`**: la app arranca y sirve el wizard sin ningún archivo de
+      configuración; `APP_KEY` se genera y persiste en `storage/app.key`. El wizard escribe
+      un `.env` completo de producción (`APP_ENV`, `APP_DEBUG=false`, `APP_KEY`, `DB_*`,
+      `SESSION_SECURE_COOKIE`) y respalda el anterior en `.env.backup`.
+- [x] Docker: `APP_KEY` persiste entre recreaciones de contenedor (volumen).
 - [x] `app:update`: git pull + dependencias + migraciones + cachés.
-- [x] Presupuesto mensual global y por categoría, con barras de progreso.
+- [x] `LICENSE` MIT en la raíz.
+- [x] Presupuesto mensual global y por categoría; metas de ahorro; pagos recurrentes.
 - [x] Modo claro/oscuro configurable (Ajustes → Apariencia).
-- [x] Metas de ahorro y pagos recurrentes.
 
 ## Pendiente
 - [ ] Prueba E2E de una instalación limpia (web + CLI + Docker) en staging.
 - [ ] Política de versionado y tags de release.
-- [ ] `LICENSE` en la raíz (MIT ya declarada en `composer.json`).
+- [ ] Scheduler en el contenedor Docker (hoy la tasa solo se sincroniza al cargar página).
 - [ ] Presupuesto por categoría **con alertas/notificaciones**.
+- [ ] Paso de correo (`MAIL_*`) en el wizard.
 
 ## Ideas v2 (candidatas)
 - Pagos recurrentes que generen automáticamente el gasto al vencer.

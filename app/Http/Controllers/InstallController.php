@@ -13,11 +13,12 @@ class InstallController extends Controller
 {
     public function __construct(private readonly Installer $installer)
     {
-        // Read the raw environment: the install mode is a deploy-time toggle and
-        // during a fresh install the config cache does not exist yet.
+        // The wizard must work on a fresh deploy with no .env (APP_ENV then
+        // defaults to "production"), so the only guards are: not already
+        // installed, and not running in headless/Docker mode.
         $installMode = $_SERVER['APP_INSTALL_MODE'] ?? $_ENV['APP_INSTALL_MODE'] ?? getenv('APP_INSTALL_MODE');
 
-        if (app()->environment('production') || $installMode === 'headless') {
+        if ($installMode === 'headless') {
             abort(404);
         }
 

@@ -6,7 +6,13 @@ use App\Models\User;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
+/**
+ * Shared install logic for the web wizard (`InstallController`) and the CLI
+ * (`app:install`). Produces a complete, production-ready `.env` — the operator
+ * never has to create or edit one by hand.
+ */
 class Installer
 {
     /**
@@ -19,17 +25,23 @@ class Installer
      */
     public function install(array $data): void
     {
+        $connection = (string) $data['db_connection'];
+
+        $this->applyRuntimeDatabaseConfig($connection, $data);
         $this->testDatabaseConnection($data);
 
-        $this->writeEnvFile($data);
+        $key = $this->resolveApplicationKey();
 
-        $this->generateAppKey();
+        $this->writeEnvFile($data, $key);
 
-        $this->runMigrations((string) $data['db_connection']);
-
+        $this->runMigrations($connection);
         $this->createAdminUser($data);
+        $this->linkStorage();
 
         $this->markInstalled();
+
+        // Drop any stale bootstrap cache so the fresh .env takes effect.
+        Artisan::call('optimize:clear');
     }
 
     public function isInstalled(): bool
@@ -61,8 +73,9 @@ class Installer
         ];
 
         $writableDirs = [
-            storage_path() => is_writable(storage_path()),
-            app()->bootstrapPath('cache') => is_writable(app()->bootstrapPath('cache')),
+            'raíz de la app (.env)' => is_writable(base_path()),
+            'storage/' => is_writable(storage_path()),
+            'bootstrap/cache/' => is_writable(app()->bootstrapPath('cache')),
         ];
 
         return [
@@ -84,10 +97,27 @@ class Installer
             'connection' => config('database.default'),
             'host' => config('database.connections.mysql.host') ?? '127.0.0.1',
             'port' => config('database.connections.mysql.port') ?? '3306',
-            'database' => config('database.connections.mysql.database') ?? 'spent_trackr',
+            'database' => config('database.connections.mysql.database') ?? 'spentz_trackr',
             'username' => config('database.connections.mysql.username') ?? 'root',
             'password' => '',
         ];
+    }
+
+    /**
+     * Point the given connection (and the default) at the wizard's database for
+     * the rest of this request, so migrations and the admin user land there
+     * even though `config/database.php` was loaded from the old environment.
+     *
+     * @param  array<string, mixed>  $data
+     */
+    private function applyRuntimeDatabaseConfig(string $connection, array $data): void
+    {
+        config([
+            "database.connections.{$connection}" => $this->buildDatabaseConfig($data),
+            'database.default' => $connection,
+        ]);
+
+        DB::purge($connection);
     }
 
     /**
@@ -96,20 +126,24 @@ class Installer
     private function testDatabaseConnection(array $data): void
     {
         try {
-            $config = $this->buildDatabaseConfig($data);
+            if (($data['db_connection'] ?? null) === 'sqlite') {
+                $path = database_path((string) ($data['db_database'] ?: 'database.sqlite'));
 
+                if (! file_exists($path)) {
+                    @touch($path);
+                }
+            }
+
+            $config = $this->buildDatabaseConfig($data);
             $config['prefix'] = '';
 
             $temporaryConnection = '__install_test';
 
             config(["database.connections.{$temporaryConnection}" => $config]);
 
-            $connection = DB::connection($temporaryConnection);
-
-            $connection->getPdo();
+            DB::connection($temporaryConnection)->getPdo();
 
             DB::purge($temporaryConnection);
-
             config(["database.connections.{$temporaryConnection}" => null]);
         } catch (\Throwable $e) {
             abort(500, 'No se pudo conectar a la base de datos: '.$e->getMessage());
@@ -125,7 +159,7 @@ class Installer
         return match ($data['db_connection']) {
             'sqlite' => [
                 'driver' => 'sqlite',
-                'database' => database_path($data['db_database'] ?: 'database.sqlite'),
+                'database' => database_path((string) ($data['db_database'] ?: 'database.sqlite')),
                 'prefix' => '',
                 'foreign_key_constraints' => true,
             ],
@@ -162,62 +196,110 @@ class Installer
     }
 
     /**
+     * Return a stable APP_KEY: reuse `storage/app.key` when present (this is how
+     * the key survives container recreation on Docker), otherwise generate one
+     * and persist it there. Also applies it to the running config.
+     */
+    private function resolveApplicationKey(): string
+    {
+        $keyFile = storage_path('app.key');
+        $current = (string) config('app.key');
+
+        $key = $current !== ''
+            ? $current
+            : (is_file($keyFile) ? trim((string) file_get_contents($keyFile)) : '');
+
+        if ($key === '') {
+            $key = 'base64:'.base64_encode(random_bytes(32));
+        }
+
+        @file_put_contents($keyFile, $key);
+        config()->set('app.key', $key);
+
+        return $key;
+    }
+
+    /**
      * @param  array<string, mixed>  $data
      */
-    private function writeEnvFile(array $data): void
+    private function writeEnvFile(array $data, string $appKey): void
     {
         $envPath = base_path('.env');
 
-        if (! file_exists($envPath)) {
-            copy(base_path('.env.example'), $envPath);
+        $env = is_file($envPath) ? (string) file_get_contents($envPath) : '';
+
+        if ($env === '' && is_file(base_path('.env.example'))) {
+            $env = (string) file_get_contents(base_path('.env.example'));
         }
 
-        $env = file_get_contents($envPath);
-
-        if ($env === false) {
-            abort(500, 'No se pudo leer el archivo .env.');
+        if (is_file($envPath)) {
+            @copy($envPath, base_path('.env.backup'));
         }
 
-        $replacements = [
-            'APP_NAME='.$this->envValue((string) $data['app_name']),
-            'APP_URL='.$this->envValue(rtrim((string) $data['app_url'], '/')),
-            'APP_LOCALE='.$this->envValue((string) $data['app_locale']),
-            'DB_CONNECTION='.$this->envValue((string) $data['db_connection']),
-            'DB_HOST='.$this->envValue((string) ($data['db_host'] ?? '')),
-            'DB_PORT='.$this->envValue((string) ($data['db_port'] ?? '')),
-            'DB_DATABASE='.$this->envValue((string) $data['db_database']),
-            'DB_USERNAME='.$this->envValue((string) ($data['db_username'] ?? '')),
-            'DB_PASSWORD='.$this->envValue((string) ($data['db_password'] ?? '')),
-            'SESSION_DRIVER=database',
-            'QUEUE_CONNECTION=database',
-            'CACHE_STORE=database',
+        $url = rtrim((string) $data['app_url'], '/');
+        $secureCookie = str_starts_with($url, 'https://') ? 'true' : 'false';
+
+        $values = [
+            'APP_NAME' => (string) $data['app_name'],
+            'APP_ENV' => 'production',
+            'APP_KEY' => $appKey,
+            'APP_DEBUG' => 'false',
+            'APP_URL' => $url,
+            'APP_LOCALE' => (string) $data['app_locale'],
+            'APP_TIMEZONE' => (string) ($data['timezone'] ?? 'UTC'),
+            'APP_INSTALL_MODE' => $this->currentValue($env, 'APP_INSTALL_MODE') ?: 'wizard',
+            'DB_CONNECTION' => (string) $data['db_connection'],
+            'DB_HOST' => (string) ($data['db_host'] ?? ''),
+            'DB_PORT' => (string) ($data['db_port'] ?? ''),
+            'DB_DATABASE' => (string) $data['db_database'],
+            'DB_USERNAME' => (string) ($data['db_username'] ?? ''),
+            'DB_PASSWORD' => (string) ($data['db_password'] ?? ''),
+            'SESSION_DRIVER' => 'database',
+            'SESSION_SECURE_COOKIE' => $secureCookie,
+            'QUEUE_CONNECTION' => 'database',
+            'CACHE_STORE' => 'database',
         ];
 
-        foreach ($replacements as $line) {
-            $key = explode('=', $line, 2)[0];
-
-            if (preg_match('/^'.preg_quote($key, '/').'=.*/m', $env)) {
-                $env = preg_replace('/^'.preg_quote($key, '/').'=.*/m', $line, $env);
-            } else {
-                $env .= "\n".$line;
-            }
+        foreach ($values as $key => $value) {
+            $env = $this->setEnvValue($env, $key, $value);
         }
 
-        file_put_contents($envPath, $env);
+        if (file_put_contents($envPath, rtrim($env, "\n")."\n") === false) {
+            abort(500, 'No se pudo escribir el archivo .env. Dale permisos de escritura a la carpeta de la aplicación.');
+        }
+    }
+
+    private function currentValue(string $env, string $key): ?string
+    {
+        if (preg_match('/^'.preg_quote($key, '/').'=("?)(.*)\1\s*$/m', $env, $m) === 1) {
+            return trim($m[2]);
+        }
+
+        return null;
+    }
+
+    private function setEnvValue(string $env, string $key, string $value): string
+    {
+        $line = $key.'='.$this->envValue($value);
+
+        $pattern = '/^'.preg_quote($key, '/').'=.*$/m';
+
+        if (preg_match($pattern, $env) === 1) {
+            return (string) preg_replace_callback($pattern, fn (): string => $line, $env, 1);
+        }
+
+        return rtrim($env, "\n")."\n".$line."\n";
     }
 
     private function envValue(string $value): string
     {
-        return str_contains($value, ' ') || str_contains($value, '#')
-            ? '"'.addslashes($value).'"'
-            : $value;
-    }
-
-    private function generateAppKey(): void
-    {
-        if (empty(config('app.key'))) {
-            Artisan::call('key:generate', ['--force' => true]);
+        if ($value === '') {
+            return '';
         }
+
+        return Str::contains($value, [' ', '#', '"', '='])
+            ? '"'.addcslashes($value, '"\\').'"'
+            : $value;
     }
 
     private function runMigrations(string $connection): void
@@ -226,6 +308,22 @@ class Installer
             '--database' => $connection,
             '--force' => true,
         ]);
+    }
+
+    /**
+     * Best-effort public/storage symlink for expense/income receipts. Some
+     * shared hosts disallow symlink(); the operator can run it manually or
+     * point the disk elsewhere.
+     */
+    private function linkStorage(): void
+    {
+        try {
+            if (! is_link(public_path('storage'))) {
+                Artisan::call('storage:link');
+            }
+        } catch (\Throwable) {
+            // Ignore — receipts just won't be web-served until storage:link runs.
+        }
     }
 
     /**

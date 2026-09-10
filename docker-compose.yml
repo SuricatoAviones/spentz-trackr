@@ -8,7 +8,8 @@ services:
       APP_ENV: "${APP_ENV:-production}"
       APP_DEBUG: "${APP_DEBUG:-false}"
       APP_URL: "${APP_URL:-http://localhost:${APP_PORT:-8080}}"
-      APP_KEY:
+      # APP_KEY se genera y persiste solo en storage/app.key (volumen spent_storage).
+      # Descomenta para fijarlo tú: APP_KEY: "${APP_KEY}"
       APP_LOCALE: "${APP_LOCALE:-es}"
       DB_CONNECTION: mysql
       DB_HOST: mysql

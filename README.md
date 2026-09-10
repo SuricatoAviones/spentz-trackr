@@ -1,87 +1,134 @@
+<div align="center">
+
 # Spentz Trackr
 
-**Control de gastos e ingresos multi-moneda (USD · Bs · USDT), auto-hospedable y pensado
-para Venezuela.**
+**Control de gastos e ingresos multi-moneda (USD · Bs · USDT), _open source_ y auto-hospedable.**
 
-La pregunta que responde de un vistazo: *¿cuánto gasté (y gané) este mes en USD y en
-USDT?* Cada movimiento congela su tasa de cambio al registrarse, así que los reportes
-históricos nunca se distorsionan cuando la tasa vuelve a moverse.
+Pensado para Venezuela, donde conviven tres monedas y la tasa de cambio se mueve todos los días.
 
-> Español primero (mercado principal), con interfaz completa en inglés.
+</div>
 
 ---
 
-## Características
+## ¿Qué es?
 
-- **Gastos e ingresos** en USD, Bs o USDT, con conversión automática y **tasa congelada por
-  transacción** (`exchange_rate`, `usd_amount`, `usdt_amount` se guardan al escribir).
+Spentz Trackr es una aplicación web que respondes de un vistazo:
+**¿cuánto gasté y cuánto gané este mes, en USD y en USDT?**
+
+Es **software libre** (licencia MIT): clonas el repositorio, lo instalas en tu propio
+servidor y tus datos financieros nunca salen de ahí. No hay SaaS, no hay cuenta central, no
+hay telemetría.
+
+## ¿Cómo funciona?
+
+El problema que resuelve: si registras un gasto en bolívares hoy y consultas el reporte
+dentro de tres meses, la tasa ya cambió y el "equivalente en dólares" que ves sería falso.
+
+Spentz Trackr **congela la conversión en el momento de la transacción**:
+
+```
+Gasto: 280 Bs  ·  tasa del día: 28,00 Bs/USD  ·  comisión pago móvil: 14 Bs
+        └── se guarda para siempre: exchange_rate = 28.0000
+                                    usd_amount   = (280 + 14) / 28 = 10.50
+                                    usdt_amount  = 10.50   (USDT ≈ 1:1 con USD)
+```
+
+A partir de ahí, **los reportes nunca recalculan** con la tasa actual. Un gasto de agosto
+vale lo que valía en agosto.
+
+Alrededor de esa idea:
+
+- **Tres monedas** por transacción: USD, Bs y USDT. Un gasto puede incluso ser **mixto**
+  (parte en Bs, parte en USDT) y cada porción congela su propia tasa.
 - **Tasa Bs/USD automática** desde [ve.dolarapi.com](https://ve.dolarapi.com) (BCV y
-  paralelo) cada 5 minutos, con override manual por día.
-- **Comisiones de pago móvil / transferencia** en Bs: `max(mínimo, monto × %)`,
-  configurable en Ajustes.
-- **Gastos mixtos**: una transacción con varias monedas (líneas `ExpenseItem`).
-- **Metas de ahorro** con aportes, y **pagos recurrentes** con vencimientos.
-- **Reportes**: dashboard mensual, tendencia 12 meses, desglose por categoría/origen,
-  presupuesto mensual global y por categoría, exportación **CSV** (UTF-8 con BOM).
-- **API REST** (`/api/v1`, tokens Sanctum) documentada con OpenAPI/Scramble.
-- **Panel de administración** multi-usuario: usuarios, gastos globales, tasas, auditoría y
-  backup JSON.
-- **PWA** instalable (offline básico del shell).
-- **Multiusuario** con aislamiento por `user_id`, verificación de correo, 2FA y passkeys
-  (Laravel Fortify).
-
-## Stack
-
-| Capa | Tecnología |
-|---|---|
-| Backend | Laravel 13 · PHP 8.3+ (8.5 recomendado) |
-| Frontend | Inertia v3 · React 19 · Tailwind 4 · shadcn/ui |
-| Rutas tipadas | Laravel Wayfinder |
-| Base de datos | SQLite · MySQL 8 · PostgreSQL 12+ |
-| API | Sanctum · Scramble (OpenAPI) |
-| Tests | Pest · Larastan (nivel 7) · Pint |
+  paralelo), sincronizada cada 5 minutos, con override manual por día.
+- **Comisiones de pago móvil / transferencia**: `max(mínimo, monto × %)`, configurable.
+- **Gastos, ingresos, metas de ahorro y pagos recurrentes**, con presupuesto mensual
+  global y por categoría.
+- **Reportes** con exportación CSV, **API REST** (tokens Sanctum + OpenAPI) y
+  **panel de administración** multiusuario.
+- **PWA** instalable, interfaz en **español e inglés**, 2FA y passkeys.
 
 ## Instalación
 
-Hay **tres vías**, documentadas en [`docs/11-instalador.md`](docs/11-instalador.md):
+> **No tienes que crear ni editar un `.env` a mano.** El instalador escribe toda la
+> configuración (incluida la `APP_KEY`) y deja la app lista para producción.
 
-1. **Instalador web** (`/install`) — wizard de 4 pasos para cPanel / VPS con LAMP.
-2. **CLI** — `php artisan app:install` con flags no interactivos (VPS, CI).
-3. **Docker Compose** — entorno llave en mano (app + MySQL/PostgreSQL/SQLite).
+### 1 · Instalador web — cPanel / VPS con LAMP
 
-### Desarrollo
+Sube los archivos, apunta el dominio a `public/` y abre `https://tu-dominio.com`.
+Como todavía no está instalada, te redirige al **wizard de 4 pasos**:
+
+1. **Requisitos** — versión de PHP, extensiones y permisos de escritura.
+2. **Base de datos** — SQLite, MySQL o PostgreSQL (host, usuario, contraseña).
+3. **Aplicación** — nombre, URL, idioma, zona horaria y la cuenta de administrador.
+4. **Listo** — se escribe el `.env`, se genera la clave, se migran las tablas y se crea el
+   admin. `/install` queda bloqueado.
+
+Detalle paso a paso en [`docs/06-despliegue-cpanel.md`](docs/06-despliegue-cpanel.md).
+
+### 2 · CLI — servidores sin navegador
+
+```bash
+php artisan app:install     # interactivo, o con flags --db-* / --admin-* para scripts
+```
+
+### 3 · Docker Compose — llave en mano
+
+```bash
+git clone https://github.com/SuricatoAviones/spentz-trackr.git
+cd spentz-trackr
+cp .env.docker .env         # ajusta DB_PASSWORD y ADMIN_*
+docker compose up -d --build
+```
+
+El contenedor se **instala solo** en el primer arranque (modo *headless*) y genera y
+persiste la `APP_KEY` en el volumen. App en `http://localhost:8080`.
+Variantes PostgreSQL y SQLite en [`docs/11-instalador.md`](docs/11-instalador.md);
+despliegue con Dokploy/Traefik en [`docs/09-despliegue-dokploy.md`](docs/09-despliegue-dokploy.md).
+
+### Actualizar
+
+```bash
+php artisan app:update      # git pull + dependencias + migraciones + limpieza de cachés
+```
+
+## Desarrollo
 
 ```bash
 git clone https://github.com/SuricatoAviones/spentz-trackr.git
 cd spentz-trackr
 composer install && npm install
-cp .env.example .env && php artisan key:generate
-touch database/database.sqlite && php artisan migrate
-composer run dev            # serve + queue:listen + vite (loop principal)
+php artisan app:install     # o configura el .env a mano para dev
+composer run dev            # serve + queue:listen + vite
 ```
-
-Crear un administrador: `php artisan admin:create` (lee `ADMIN_NAME`/`ADMIN_EMAIL`/
-`ADMIN_PASSWORD` del `.env`).
-
-## Comandos útiles
 
 ```bash
 php artisan test --compact                 # Pest
 composer run ci:check                      # eslint + prettier + tsc + phpstan + pint + tests
 vendor/bin/pint --dirty                    # formateo PHP
-npm run build                              # assets (necesario antes de tests de páginas Inertia)
-php artisan wayfinder:generate --with-form # regenerar helpers TS de rutas
 ```
 
-> En local puede hacer falta subir `memory_limit` en `php.ini` para correr toda la suite
-> y PHPStan; en CI (`setup-php`) es ilimitado.
+> En local puede hacer falta subir `memory_limit` en `php.ini` para correr toda la suite y
+> PHPStan; en CI es ilimitado.
+
+## Stack
+
+Laravel 13 (PHP 8.3+) · Inertia v3 · React 19 · Tailwind 4 · shadcn/ui · Wayfinder ·
+Sanctum · Scramble · Pest / Larastan / Pint. Base de datos SQLite, MySQL 8 o PostgreSQL 12+.
 
 ## Documentación
 
-El índice está en [`docs/README.md`](docs/README.md). Empezar por
-[`docs/04-arquitectura.md`](docs/04-arquitectura.md) (contiene los ADRs) antes de
-implementar features.
+Índice en [`docs/README.md`](docs/README.md). Para trabajar en el código, empieza por
+[`docs/04-arquitectura.md`](docs/04-arquitectura.md) (contiene los ADRs) y las reglas de
+`.ai/rules/`.
+
+## Contribuir
+
+Es un proyecto abierto: issues y pull requests son bienvenidos. Antes de un PR, corre
+`composer run ci:check` (debe quedar en verde). Las decisiones de arquitectura se
+documentan como ADRs en `docs/04`.
 
 ## Licencia
 
-MIT (declarada en `composer.json`).
+[MIT](LICENSE).

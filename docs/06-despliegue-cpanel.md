@@ -51,59 +51,34 @@ Laravel solo expone `public/`.
 - **Dominio principal:** en `public_html/.htaccess`, redirige a HTTPS y reescribe a
   `/spentz-trackr/public/$1`.
 
-## 6. `.env`
+## 6. Instalación con el wizard (recomendado)
 
-Renombra `.env.example` → `.env` y ajusta (el instalador web hace esto por ti):
+**No necesitas crear ni editar un `.env`.** Abre `https://app.tudominio.com` — al no estar
+instalada, redirige a `/install`. Sigue los 4 pasos (requisitos → base de datos → aplicación
+→ completado). El wizard escribe un `.env` completo y de producción (`APP_ENV=production`,
+`APP_DEBUG=false`, `APP_KEY`, `DB_*`, `SESSION_SECURE_COOKIE` según la URL), aplica las
+migraciones y crea el administrador. Al terminar, `/install` queda bloqueado.
 
-```env
-APP_NAME="Spentz Trackr"
-APP_ENV=production
-APP_DEBUG=false
-APP_URL=https://app.tudominio.com
-APP_INSTALL_MODE=wizard
+Requisitos: la **raíz de la app debe ser escribible** (para el `.env`) además de `storage/`
+y `bootstrap/cache/` — el paso de Requisitos lo verifica.
 
-DB_CONNECTION=mysql
-DB_HOST=localhost
-DB_PORT=3306
-DB_DATABASE=usuario_spentz
-DB_USERNAME=usuario_spentz
-DB_PASSWORD=*****
+> El correo (`MAIL_*` para reset de contraseña) no lo pide el wizard: si lo necesitas,
+> añade esas líneas al `.env` después de instalar y ejecuta `php artisan config:clear`.
 
-# En hosting compartido sin escritura fiable en storage/:
-SESSION_DRIVER=database
-CACHE_STORE=database
-QUEUE_CONNECTION=database
-SESSION_SECURE_COOKIE=true
-FILESYSTEM_DISK=public
+## 7. Instalación manual (sin wizard)
 
-# Correo (reset de contraseña / verificación de email)
-MAIL_MAILER=smtp
-MAIL_HOST=smtp.tudominio.com
-MAIL_PORT=465
-MAIL_ENCRYPTION=ssl
-MAIL_USERNAME=no-reply@tudominio.com
-MAIL_PASSWORD=*****
-MAIL_FROM_ADDRESS=no-reply@tudominio.com
-```
-
-## 7. Instalación
-
-**Con el wizard:** abre `https://app.tudominio.com/install` y sigue los pasos. Al terminar
-se crea `storage/installed` y `/install` queda bloqueado.
-
-**Manual (Terminal):**
+Si prefieres la CLI, o el hosting no permite escribir el `.env` por web:
 
 ```bash
 cd ~/spentz-trackr
-php artisan key:generate
+php artisan app:install     # interactivo: pregunta BD + admin, escribe el .env
 php artisan storage:link
-php artisan migrate --force
-php artisan admin:create        # lee ADMIN_NAME/EMAIL/PASSWORD del .env
-php artisan config:cache && php artisan route:cache && php artisan view:cache
+php artisan optimize
 ```
 
-**Sin Terminal:** ejecuta esos comandos una vez encadenados con `&&` desde un Cron Job y
-bórralo después (son idempotentes).
+**Sin Terminal:** encadena `php artisan app:install --no-interaction && php artisan storage:link`
+en un Cron Job (con las variables `DB_*` y `ADMIN_*` en *Environment* de cPanel) y bórralo
+después.
 
 ## 8. Cron (tasa de cambio + cola)
 
@@ -120,8 +95,9 @@ sin tasa.
 
 ## 9. Permisos
 
-`storage/` (y subcarpetas) y `bootstrap/cache/` con escritura para el usuario del proceso
-PHP (775, o 777 en hosts muy restrictivos). `public/` en 755.
+`storage/` (y subcarpetas), `bootstrap/cache/` **y la raíz de la app** (para que el wizard
+escriba el `.env`) con escritura para el usuario del proceso PHP (775, o 777 en hosts muy
+restrictivos). `public/` en 755. Tras instalar puedes volver la raíz a 755.
 
 ## 10. Verificación
 

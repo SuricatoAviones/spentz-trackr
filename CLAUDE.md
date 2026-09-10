@@ -71,7 +71,7 @@ Tests run on in-memory SQLite with `SESSION_DRIVER=array` / `QUEUE_CONNECTION=sy
 
 **Tracking features toggle:** `EnsureTrackingFeature:<feature>` middleware gates optional modules (incomes, expenses, savings goals, recurring payments) per user preference.
 
-**Installer:** `InstallController` (routes `routes/install.php`) aborts 404 in production and 403 once `storage/installed` exists. `APP_INSTALL_MODE=wizard` (cPanel, keeps `/install`) vs `headless` (Docker, installs from env, blocks `/install`).
+**Installer:** the app must boot and serve `/install` with **no `.env`** — `EnsureInstalled` middleware backfills `APP_KEY` from (or into) `storage/app.key` on every request, and forces file session/cache while uninstalled. `App\Services\Installer::install()` (shared by `InstallController` and `app:install`) applies the wizard's DB config to runtime `config()` before migrating, then writes a complete production `.env` (`APP_ENV=production`, `APP_DEBUG=false`, `APP_KEY`, `DB_*`, `SESSION_SECURE_COOKIE`), `storage:link`s, and marks `storage/installed`. `InstallController` aborts 403 once installed and 404 when `APP_INSTALL_MODE=headless` (Docker). Docker persists `APP_KEY` via `docker/entrypoint.d/98-spentz-key.sh` → `storage/app.key` (in the volume).
 
 **Middleware order:** `EnsureInstalled` is prepended globally; `SetLocale` + `HandleInertiaRequests` + `EnsureUserNotSuspended` are appended to the `web` group (so suspension check runs before route middleware, including `admin`).
 
