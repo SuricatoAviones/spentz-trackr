@@ -40,11 +40,17 @@ class SavingsContribution extends Model
     /** @use HasFactory<SavingsContributionFactory> */
     use HasFactory;
 
+    /**
+     * @return BelongsTo<SavingsGoal, $this>
+     */
     public function goal(): BelongsTo
     {
         return $this->belongsTo(SavingsGoal::class, 'savings_goal_id');
     }
 
+    /**
+     * @return BelongsTo<Income, $this>
+     */
     public function income(): BelongsTo
     {
         return $this->belongsTo(Income::class);

@@ -6,6 +6,7 @@ use App\Enums\Currency;
 use Database\Factories\SavingsGoalFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -27,6 +28,9 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $achieved_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
+ * @property-read User $user
+ * @property-read Collection<int, SavingsContribution> $contributions
+ * @property-read string|null $saved_usd aggregate helper (withSum alias)
  */
 #[Fillable([
     'user_id',
@@ -46,16 +50,26 @@ class SavingsGoal extends Model
     /** @use HasFactory<SavingsGoalFactory> */
     use HasFactory;
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * @return HasMany<SavingsContribution, $this>
+     */
     public function contributions(): HasMany
     {
         return $this->hasMany(SavingsContribution::class);
     }
 
+    /**
+     * @param  Builder<SavingsGoal>  $query
+     * @return Builder<SavingsGoal>
+     */
     public function scopeForUser(Builder $query, int $userId): Builder
     {
         return $query->where('user_id', $userId);

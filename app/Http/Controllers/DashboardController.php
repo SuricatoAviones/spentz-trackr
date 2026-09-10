@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use App\Models\Expense;
 use App\Models\Income;
+use App\Models\User;
 use App\Services\ExchangeRateService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -53,9 +54,9 @@ class DashboardController extends Controller
     }
 
     /**
-     * @return array{totals: array{usd: float, usdt: float, byCurrency: array<string, float>}, categories: array, sources: array, trend: array, budgets: array, recentExpenses: array}
+     * @return array<string, mixed>
      */
-    private function expenseDashboard(object $user, Carbon $monthStart, Carbon $monthEnd): array
+    private function expenseDashboard(User $user, Carbon $monthStart, Carbon $monthEnd): array
     {
         $monthlyExpenses = Expense::query()
             ->forUser($user->id)
@@ -153,9 +154,9 @@ class DashboardController extends Controller
     }
 
     /**
-     * @return array{incomeTotals: array{usd: float, usdt: float, byCurrency: array<string, float>}, incomeCategories: array, incomeTrend: array, recentIncomes: array}
+     * @return array<string, mixed>
      */
-    private function incomeDashboard(object $user, Carbon $monthStart, Carbon $monthEnd): array
+    private function incomeDashboard(User $user, Carbon $monthStart, Carbon $monthEnd): array
     {
         $monthlyIncomes = Income::query()
             ->forUser($user->id)
@@ -239,7 +240,7 @@ class DashboardController extends Controller
     /**
      * @return array<int, array{kind: string, date: string, expense?: array<string, mixed>, income?: array<string, mixed>}>
      */
-    private function blendedRecent(object $user): array
+    private function blendedRecent(User $user): array
     {
         $recentExpenses = Expense::query()
             ->forUser($user->id)
@@ -278,7 +279,7 @@ class DashboardController extends Controller
     /**
      * @return array<int, array{month: string, total: float}>
      */
-    private function buildTrend(object $user, string $type): array
+    private function buildTrend(User $user, string $type): array
     {
         $today = Carbon::today();
         $model = $type === 'income' ? Income::class : Expense::class;

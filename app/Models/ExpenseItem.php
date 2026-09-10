@@ -34,6 +34,9 @@ class ExpenseItem extends Model
     /** @use HasFactory<ExpenseItemFactory> */
     use HasFactory;
 
+    /**
+     * @return BelongsTo<Expense, $this>
+     */
     public function expense(): BelongsTo
     {
         return $this->belongsTo(Expense::class);

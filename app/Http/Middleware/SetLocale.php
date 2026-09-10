@@ -21,7 +21,7 @@ class SetLocale
     {
         $availableLocales = config('app.available_locales');
 
-        $locale = $request->user()?->locale
+        $locale = $request->user()->locale
             ?? $request->session()->get('locale')
             ?? config('app.locale')
             ?? $request->getPreferredLanguage($availableLocales);

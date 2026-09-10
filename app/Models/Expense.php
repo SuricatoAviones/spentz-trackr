@@ -7,6 +7,7 @@ use App\Enums\PaymentMethod;
 use Database\Factories\ExpenseFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -23,6 +24,7 @@ use Illuminate\Support\Carbon;
  * @property string|null $commission
  * @property string $amount
  * @property string|null $exchange_rate
+ * @property string|null $rate_provider
  * @property string $usd_amount
  * @property string $usdt_amount
  * @property string $description
@@ -30,6 +32,11 @@ use Illuminate\Support\Carbon;
  * @property Carbon $spent_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
+ * @property-read User $user
+ * @property-read Category $category
+ * @property-read PaymentSource $paymentSource
+ * @property-read Collection<int, ExpenseReceipt> $receipts
+ * @property-read Collection<int, ExpenseItem> $items
  */
 #[Fillable([
     'category_id',
@@ -51,21 +58,33 @@ class Expense extends Model
     /** @use HasFactory<ExpenseFactory> */
     use HasFactory;
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * @return BelongsTo<Category, $this>
+     */
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
     }
 
+    /**
+     * @return BelongsTo<PaymentSource, $this>
+     */
     public function paymentSource(): BelongsTo
     {
         return $this->belongsTo(PaymentSource::class);
     }
 
+    /**
+     * @return HasMany<ExpenseReceipt, $this>
+     */
     public function receipts(): HasMany
     {
         return $this->hasMany(ExpenseReceipt::class);
@@ -74,17 +93,27 @@ class Expense extends Model
     /**
      * Additional currency portions of a mixed expense.
      * The primary portion lives on the expense itself.
+     *
+     * @return HasMany<ExpenseItem, $this>
      */
     public function items(): HasMany
     {
         return $this->hasMany(ExpenseItem::class);
     }
 
+    /**
+     * @param  Builder<Expense>  $query
+     * @return Builder<Expense>
+     */
     public function scopeForUser(Builder $query, int $userId): Builder
     {
         return $query->where('user_id', $userId);
     }
 
+    /**
+     * @param  Builder<Expense>  $query
+     * @return Builder<Expense>
+     */
     public function scopeForPeriod(Builder $query, string $start, string $end): Builder
     {
         return $query->whereBetween('spent_at', [$start, $end]);

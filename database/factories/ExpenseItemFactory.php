@@ -36,7 +36,7 @@ class ExpenseItemFactory extends Factory
      */
     public function ves(float $exchangeRate = 28.0000): static
     {
-        return $this->state(function (array $attributes): array {
+        return $this->state(function (array $attributes) use ($exchangeRate): array {
             $amount = $attributes['amount'] ?? fake()->randomFloat(2, 100, 5000);
 
             return [

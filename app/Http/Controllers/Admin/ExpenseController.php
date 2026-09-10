@@ -10,6 +10,7 @@ use App\Models\ExpenseReceipt;
 use App\Models\User;
 use App\Support\CsvExporter;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -65,30 +66,15 @@ class ExpenseController extends Controller
 
         $filename = 'gastos_globales_'.now()->format('Y-m-d').'.csv';
 
-        return response()->streamDownload(function () use ($query): void {
-            $output = fopen('php://output', 'w');
+        $columns = [
+            'fecha', 'usuario', 'email', 'descripcion', 'categoria', 'origen', 'moneda',
+            'monto', 'tasa_bs_usd', 'tasa_fuente', 'equivalente_usd', 'equivalente_usdt', 'nota',
+        ];
 
-            fwrite($output, "\xEF\xBB\xBF");
-
-            fputcsv($output, [
-                'fecha',
-                'usuario',
-                'email',
-                'descripcion',
-                'categoria',
-                'origen',
-                'moneda',
-                'monto',
-                'tasa_bs_usd',
-                'tasa_fuente',
-                'equivalente_usd',
-                'equivalente_usdt',
-                'nota',
-            ]);
-
-            $query->chunk(500, function ($expenses) use ($output): void {
+        return CsvExporter::download($filename, $columns, function (\Closure $writeRow) use ($query): void {
+            $query->chunk(500, function (Collection $expenses) use ($writeRow): void {
                 foreach ($expenses as $expense) {
-                    fputcsv($output, [
+                    $writeRow([
                         $expense->spent_at->toDateString(),
                         $expense->user->name,
                         $expense->user->email,
@@ -105,11 +91,7 @@ class ExpenseController extends Controller
                     ]);
                 }
             });
-
-            fclose($output);
-        }, $filename, [
-            'Content-Type' => 'text/csv; charset=UTF-8',
-        ]);
+        });
     }
 
     public function receipt(ExpenseReceipt $receipt): StreamedResponse
@@ -134,6 +116,8 @@ class ExpenseController extends Controller
 
     /**
      * Build the filtered query shared by the index and the CSV export.
+     *
+     * @return Builder<Expense>
      */
     private function expenseQuery(Request $request): Builder
     {

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Models\Category;
 use App\Models\Expense;
 use App\Models\Income;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -47,7 +48,7 @@ class DashboardController extends BaseApiController
     /**
      * @return array<string, mixed>
      */
-    private function expenseData(object $user, string $monthStart, string $monthEnd): array
+    private function expenseData(User $user, string $monthStart, string $monthEnd): array
     {
         $expenses = Expense::query()
             ->forUser($user->id)
@@ -156,7 +157,7 @@ class DashboardController extends BaseApiController
     /**
      * @return array<string, mixed>
      */
-    private function incomeData(object $user, string $monthStart, string $monthEnd): array
+    private function incomeData(User $user, string $monthStart, string $monthEnd): array
     {
         $incomes = Income::query()
             ->forUser($user->id)

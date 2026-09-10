@@ -2,9 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
 use App\Models\Expense;
 use App\Models\Income;
+use App\Models\PaymentSource;
+use App\Models\User;
 use App\Support\CsvExporter;
+use Carbon\CarbonImmutable;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Inertia\Inertia;
@@ -116,15 +121,13 @@ class ReportController extends Controller
 
     /**
      * @param  class-string<Expense|Income>  $model
-     * @return Collection<int, array<string, mixed>>
+     * @return Collection<int, array{month: int, usd: float, usdt: float, byCurrency: array{usd: float, ves: float, usdt: float}}>
      */
-    private function monthlySeries(object $user, int $year, string $model)
+    private function monthlySeries(User $user, int $year, string $model): Collection
     {
-        $dateColumn = $model === Income::class ? 'received_at' : 'spent_at';
-
         return collect(range(1, 12))->map(function (int $month) use ($user, $year, $model): array {
             $start = sprintf('%04d-%02d-01', $year, $month);
-            $end = date('Y-m-t', strtotime($start));
+            $end = CarbonImmutable::parse($start)->endOfMonth()->toDateString();
 
             $records = $model::query()
                 ->forUser($user->id)
@@ -148,14 +151,14 @@ class ReportController extends Controller
     /**
      * @param  class-string<Expense|Income>  $model
      */
-    private function previousPeriodTotal(object $user, int $year, int $month, string $model, int $index): float
+    private function previousPeriodTotal(User $user, int $year, int $month, string $model, int $index): float
     {
         $prevMonth = $month === 1
             ? ['year' => $year - 1, 'month' => 12]
             : ['year' => $year, 'month' => $month - 1];
 
         $start = sprintf('%04d-%02d-01', $prevMonth['year'], $prevMonth['month']);
-        $end = date('Y-m-t', strtotime($start));
+        $end = CarbonImmutable::parse($start)->endOfMonth()->toDateString();
 
         return (float) $model::query()
             ->forUser($user->id)
@@ -174,67 +177,67 @@ class ReportController extends Controller
 
     /**
      * @param  class-string<Expense|Income>  $model
-     * @return Collection<int, array<string, mixed>>
+     * @return Collection<int, array{name: string, color: string, icon: string, total: float, percent: float}>
      */
-    private function categoryBreakdown(object $user, int $year, string $model)
+    private function categoryBreakdown(User $user, int $year, string $model): Collection
     {
-        $categories = $model::query()
+        $totals = $model::query()
             ->forUser($user->id)
             ->forPeriod("{$year}-01-01", "{$year}-12-31")
-            ->with('category')
-            ->get()
+            ->selectRaw('category_id, sum(usd_amount) as total')
             ->groupBy('category_id')
-            ->map(function ($group) {
-                $record = $group->first();
+            ->pluck('total', 'category_id');
+
+        $categories = Category::query()->whereKey($totals->keys()->all())->get(['id', 'name', 'color', 'icon']);
+        $grandTotal = (float) $totals->sum();
+
+        return $totals
+            ->map(function (mixed $rawTotal, int $categoryId) use ($categories, $grandTotal): array {
+                $category = $categories->firstWhere('id', $categoryId);
+                $total = round((float) $rawTotal, 2);
 
                 return [
-                    'name' => $record->category->name,
-                    'color' => $record->category->color,
-                    'icon' => $record->category->icon,
-                    'total' => round((float) $group->sum('usd_amount'), 2),
+                    'name' => $category instanceof Category ? $category->name : '—',
+                    'color' => $category instanceof Category ? $category->color : '#6B7280',
+                    'icon' => $category instanceof Category ? $category->icon : 'circle',
+                    'total' => $total,
+                    'percent' => $grandTotal > 0 ? round(($total / $grandTotal) * 100, 1) : 0.0,
                 ];
             })
             ->sortByDesc('total')
             ->values();
-
-        $total = (float) $categories->sum('total');
-
-        return $categories->map(fn (array $category) => [
-            ...$category,
-            'percent' => $total > 0 ? round(($category['total'] / $total) * 100, 1) : 0.0,
-        ]);
     }
 
     /**
-     * @return Collection<int, array<string, mixed>>
+     * @return Collection<int, array{name: string, color: string, icon: string, total: float, percent: float}>
      */
-    private function sourceBreakdown(object $user, int $year)
+    private function sourceBreakdown(User $user, int $year): Collection
     {
-        $sources = Expense::query()
+        $totals = Expense::query()
             ->forUser($user->id)
             ->forPeriod("{$year}-01-01", "{$year}-12-31")
-            ->with('paymentSource')
-            ->get()
+            ->selectRaw('payment_source_id, sum(usd_amount) as total')
             ->groupBy('payment_source_id')
-            ->map(function ($group) {
-                $expense = $group->first();
+            ->pluck('total', 'payment_source_id');
+
+        $sources = PaymentSource::query()->whereKey($totals->keys()->all())->get(['id', 'name', 'color', 'icon']);
+        $grandTotal = (float) $totals->sum();
+
+        return $totals
+            ->map(function (mixed $rawTotal, int $sourceId) use ($sources, $grandTotal): array {
+                $source = $sources->firstWhere('id', $sourceId);
+                $total = round((float) $rawTotal, 2);
 
                 return [
-                    'name' => $expense->paymentSource->name,
-                    'color' => $expense->paymentSource->color,
-                    'icon' => $expense->paymentSource->icon,
-                    'total' => round((float) $group->sum('usd_amount'), 2),
+                    'name' => $source instanceof PaymentSource ? $source->name : '—',
+                    'color' => $source instanceof PaymentSource ? $source->color : '#6B7280',
+                    'icon' => $source instanceof PaymentSource ? $source->icon : 'wallet',
+                    'total' => $total,
+                    'percent' => $grandTotal > 0 ? round(($total / $grandTotal) * 100, 1) : 0.0,
                 ];
             })
             ->sortByDesc('total')
             ->values();
-
-        $total = (float) $sources->sum('total');
-
-        return $sources->map(fn (array $source) => [
-            ...$source,
-            'percent' => $total > 0 ? round(($source['total'] / $total) * 100, 1) : 0.0,
-        ]);
     }
 
     public function export(Request $request): StreamedResponse
@@ -269,28 +272,15 @@ class ReportController extends Controller
 
         $filename = 'gastos_'.now()->format('Y-m').'.csv';
 
-        return response()->streamDownload(function () use ($query): void {
-            $output = fopen('php://output', 'w');
+        $columns = [
+            'fecha', 'descripcion', 'categoria', 'origen', 'moneda', 'monto',
+            'tasa_bs_usd', 'tasa_fuente', 'equivalente_usd', 'equivalente_usdt', 'nota',
+        ];
 
-            fwrite($output, "\xEF\xBB\xBF");
-
-            fputcsv($output, [
-                'fecha',
-                'descripcion',
-                'categoria',
-                'origen',
-                'moneda',
-                'monto',
-                'tasa_bs_usd',
-                'tasa_fuente',
-                'equivalente_usd',
-                'equivalente_usdt',
-                'nota',
-            ]);
-
-            $query->chunk(500, function ($expenses) use ($output): void {
+        return CsvExporter::download($filename, $columns, function (\Closure $writeRow) use ($query): void {
+            $query->chunk(500, function (EloquentCollection $expenses) use ($writeRow): void {
                 foreach ($expenses as $expense) {
-                    fputcsv($output, [
+                    $writeRow([
                         $expense->spent_at->toDateString(),
                         CsvExporter::cell($expense->description),
                         CsvExporter::cell($expense->category->name),
@@ -305,10 +295,6 @@ class ReportController extends Controller
                     ]);
                 }
             });
-
-            fclose($output);
-        }, $filename, [
-            'Content-Type' => 'text/csv; charset=UTF-8',
-        ]);
+        });
     }
 }

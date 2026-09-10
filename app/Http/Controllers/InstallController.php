@@ -13,7 +13,11 @@ class InstallController extends Controller
 {
     public function __construct(private readonly Installer $installer)
     {
-        if (app()->environment('production') || env('APP_INSTALL_MODE') === 'headless') {
+        // Read the raw environment: the install mode is a deploy-time toggle and
+        // during a fresh install the config cache does not exist yet.
+        $installMode = $_SERVER['APP_INSTALL_MODE'] ?? $_ENV['APP_INSTALL_MODE'] ?? getenv('APP_INSTALL_MODE');
+
+        if (app()->environment('production') || $installMode === 'headless') {
             abort(404);
         }
 
@@ -93,7 +97,10 @@ class InstallController extends Controller
             ], 422);
         }
 
-        $this->installer->install($validator->validated());
+        $this->installer->install(array_map(
+            static fn ($value): ?string => $value === null ? null : (string) $value,
+            $validator->validated(),
+        ));
 
         return response()->json([
             'success' => true,

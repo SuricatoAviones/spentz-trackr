@@ -80,7 +80,10 @@ class InstallApp extends Command
         $this->line('Escribiendo configuración, generando clave y migrando...');
 
         try {
-            $installer->install($validator->validated());
+            $installer->install(array_map(
+                static fn ($value): ?string => $value === null ? null : (string) $value,
+                $validator->validated(),
+            ));
         } catch (\Throwable $e) {
             $this->error('Error durante la instalación: '.$e->getMessage());
 
@@ -139,7 +142,9 @@ class InstallApp extends Command
             return $value;
         }
 
-        $envValue = env($env);
+        // Read the raw environment directly: during a fresh install the config
+        // cache does not exist yet, and this avoids env() outside config/.
+        $envValue = $_SERVER[$env] ?? $_ENV[$env] ?? getenv($env);
 
         return is_string($envValue) && $envValue !== '' ? $envValue : null;
     }
@@ -170,7 +175,7 @@ class InstallApp extends Command
     {
         $choice = $this->choice('Conexión de base de datos', ['sqlite', 'mysql', 'pgsql'], 0);
 
-        return (string) $choice;
+        return is_array($choice) ? (string) ($choice[0] ?? 'sqlite') : $choice;
     }
 
     private function defaultPort(string $connection): string

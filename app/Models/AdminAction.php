@@ -19,6 +19,8 @@ use Illuminate\Support\Carbon;
  * @property array<string, mixed>|null $details
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
+ * @property-read User|null $admin
+ * @property-read Model|null $target
  */
 #[Fillable(['admin_id', 'action', 'target_type', 'target_id', 'details'])]
 class AdminAction extends Model
@@ -26,11 +28,17 @@ class AdminAction extends Model
     /** @use HasFactory<AdminActionFactory> */
     use HasFactory;
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function admin(): BelongsTo
     {
         return $this->belongsTo(User::class, 'admin_id');
     }
 
+    /**
+     * @return MorphTo<Model, $this>
+     */
     public function target(): MorphTo
     {
         return $this->morphTo();

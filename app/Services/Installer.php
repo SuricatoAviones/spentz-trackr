@@ -10,7 +10,12 @@ use Illuminate\Support\Facades\Hash;
 class Installer
 {
     /**
-     * @param  array{db_connection: string, db_host?: string|null, db_port?: string|null, db_database: string, db_username?: string|null, db_password?: string|null, app_name: string, app_url: string, app_locale: string, timezone: string, admin_name: string, admin_email: string, admin_password: string}  $data
+     * Expected keys (all validated upstream by InstallController / InstallApp):
+     * db_connection, db_database, app_name, app_url, app_locale, timezone,
+     * admin_name, admin_email, admin_password, plus optional db_host, db_port,
+     * db_username, db_password.
+     *
+     * @param  array<string, string|null>  $data
      */
     public function install(array $data): void
     {
@@ -20,7 +25,7 @@ class Installer
 
         $this->generateAppKey();
 
-        $this->runMigrations($data['db_connection']);
+        $this->runMigrations((string) $data['db_connection']);
 
         $this->createAdminUser($data);
 
@@ -152,6 +157,7 @@ class Installer
                 'search_path' => 'public',
                 'sslmode' => 'prefer',
             ],
+            default => abort(422, 'Motor de base de datos no soportado.'),
         };
     }
 
@@ -168,16 +174,20 @@ class Installer
 
         $env = file_get_contents($envPath);
 
+        if ($env === false) {
+            abort(500, 'No se pudo leer el archivo .env.');
+        }
+
         $replacements = [
-            'APP_NAME='.$this->envValue($data['app_name']),
-            'APP_URL='.$this->envValue(rtrim($data['app_url'], '/')),
-            'APP_LOCALE='.$this->envValue($data['app_locale']),
-            'DB_CONNECTION='.$this->envValue($data['db_connection']),
-            'DB_HOST='.$this->envValue($data['db_host'] ?? ''),
-            'DB_PORT='.$this->envValue($data['db_port'] ?? ''),
-            'DB_DATABASE='.$this->envValue($data['db_database']),
-            'DB_USERNAME='.$this->envValue($data['db_username'] ?? ''),
-            'DB_PASSWORD='.$this->envValue($data['db_password'] ?? ''),
+            'APP_NAME='.$this->envValue((string) $data['app_name']),
+            'APP_URL='.$this->envValue(rtrim((string) $data['app_url'], '/')),
+            'APP_LOCALE='.$this->envValue((string) $data['app_locale']),
+            'DB_CONNECTION='.$this->envValue((string) $data['db_connection']),
+            'DB_HOST='.$this->envValue((string) ($data['db_host'] ?? '')),
+            'DB_PORT='.$this->envValue((string) ($data['db_port'] ?? '')),
+            'DB_DATABASE='.$this->envValue((string) $data['db_database']),
+            'DB_USERNAME='.$this->envValue((string) ($data['db_username'] ?? '')),
+            'DB_PASSWORD='.$this->envValue((string) ($data['db_password'] ?? '')),
             'SESSION_DRIVER=database',
             'QUEUE_CONNECTION=database',
             'CACHE_STORE=database',
@@ -226,7 +236,7 @@ class Installer
         User::query()->forceCreate([
             'name' => $data['admin_name'],
             'email' => $data['admin_email'],
-            'password' => Hash::make($data['admin_password']),
+            'password' => Hash::make((string) $data['admin_password']),
             'email_verified_at' => now(),
             'is_admin' => true,
             'tracking_type' => 'both',

@@ -23,6 +23,9 @@ class ExpenseReceipt extends Model
     /** @use HasFactory<ExpenseReceiptFactory> */
     use HasFactory;
 
+    /**
+     * @return BelongsTo<Expense, $this>
+     */
     public function expense(): BelongsTo
     {
         return $this->belongsTo(Expense::class);
