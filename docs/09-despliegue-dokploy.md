@@ -1,6 +1,6 @@
 # 09 — Despliegue en Dokploy (VPS + Docker)
 
-Guía para publicar Spent Trackr en un VPS gestionado con [Dokploy](https://dokploy.com) (PaaS self-hosted sobre Docker + Traefik). Dokploy se encarga de: build del Dockerfile, reverse proxy con dominio propio, SSL automático (Let's Encrypt), redes internas y volúmenes persistentes.
+Guía para publicar Spentz Trackr en un VPS gestionado con [Dokploy](https://dokploy.com) (PaaS self-hosted sobre Docker + Traefik). Dokploy se encarga de: build del Dockerfile, reverse proxy con dominio propio, SSL automático (Let's Encrypt), redes internas y volúmenes persistentes.
 
 ## Requisitos del VPS
 
@@ -107,7 +107,7 @@ EXPOSE 80
 En el detalle de la app → **Environment**:
 
 ```env
-APP_NAME=Spent Trackr
+APP_NAME=Spentz Trackr
 APP_ENV=production
 APP_DEBUG=false
 APP_URL=https://spent.tudominio.com

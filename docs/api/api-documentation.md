@@ -1,4 +1,4 @@
-# API REST - Spent Trackr
+# API REST - Spentz Trackr
 
 > **Interactiva (OpenAPI/Swagger):** la documentación generada con Scramble está disponible en `/api/v1` (UI interactiva con "Try it") y su spec en `/api/v1.json`. Este documento es la referencia REST detallada, mantenida a mano.
 

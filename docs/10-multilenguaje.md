@@ -1,6 +1,6 @@
 # 10 — Planificación: Multilenguaje (ES / EN)
 
-Convertir Spent Trackr en una app **español-inglés** con selector de idioma persistente. Español sigue siendo el idioma por defecto (mercado principal), Inglés como idioma completo de la interfaz.
+Convertir Spentz Trackr en una app **español-inglés** con selector de idioma persistente. Español sigue siendo el idioma por defecto (mercado principal), Inglés como idioma completo de la interfaz.
 
 ## 1. Decisiones clave
 
