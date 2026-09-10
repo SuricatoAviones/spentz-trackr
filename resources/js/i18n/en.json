@@ -39,6 +39,11 @@
         },
         "nav_menu": {
             "title": "Navigation menu"
+        },
+        "nav": {
+            "manage_section": "Manage",
+            "more": "More",
+            "menu_aria": "Open the full menu"
         }
     },
     "rates": {
