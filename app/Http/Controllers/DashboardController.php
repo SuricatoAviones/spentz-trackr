@@ -61,6 +61,7 @@ class DashboardController extends Controller
         $monthlyExpenses = Expense::query()
             ->forUser($user->id)
             ->forPeriod($monthStart->toDateString(), $monthEnd->toDateString())
+            ->with('category')
             ->get();
 
         $byCurrency = [
@@ -161,6 +162,7 @@ class DashboardController extends Controller
         $monthlyIncomes = Income::query()
             ->forUser($user->id)
             ->forPeriod($monthStart->toDateString(), $monthEnd->toDateString())
+            ->with('category')
             ->get();
 
         $byCurrency = [

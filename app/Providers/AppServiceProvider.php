@@ -35,7 +35,7 @@ class AppServiceProvider extends ServiceProvider
     }
 
     /**
-     * Expose the Swagger UI (Scramble) outside local dev, except in production.
+     * Expose the API docs (Scramble) everywhere except production.
      */
     protected function configureApiDocsAccess(): void
     {

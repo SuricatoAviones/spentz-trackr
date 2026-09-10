@@ -149,3 +149,50 @@ test('a user can delete their expense via the API', function () {
 
     expect(Expense::query()->count())->toBe(0);
 });
+
+test('a user can create a mixed-currency expense with line items via the API', function () {
+    $this->postJson(route('api.v1.expenses.store'), [
+        'category_id' => $this->category->id,
+        'payment_source_id' => $this->source->id,
+        'currency' => Currency::Usd->value,
+        'amount' => 10,
+        'description' => 'Compras mixtas',
+        'spent_at' => now()->toDateString(),
+        'items' => [
+            ['currency' => Currency::Ves->value, 'amount' => 140, 'exchange_rate' => 28],
+            ['currency' => Currency::Usd->value, 'amount' => 5],
+        ],
+    ])->assertCreated();
+
+    $expense = Expense::query()->first();
+
+    expect($expense->usd_amount)->toBe('20.00')
+        ->and($expense->usdt_amount)->toBe('20.00')
+        ->and($expense->items)->toHaveCount(2)
+        ->and($expense->items->firstWhere('currency', Currency::Ves)->usd_amount)->toBe('5.00');
+});
+
+test('updating an expense via the API replaces its line items', function () {
+    $expense = Expense::factory()->for($this->user)->for($this->category)->for($this->source)
+        ->create(['currency' => Currency::Usd, 'amount' => 10]);
+    $expense->items()->create([
+        'currency' => Currency::Usd, 'amount' => 3, 'exchange_rate' => null,
+        'usd_amount' => 3, 'usdt_amount' => 3,
+    ]);
+
+    $this->putJson(route('api.v1.expenses.update', $expense), [
+        'category_id' => $this->category->id,
+        'payment_source_id' => $this->source->id,
+        'currency' => Currency::Usd->value,
+        'amount' => 10,
+        'description' => 'Con ítems nuevos',
+        'spent_at' => now()->toDateString(),
+        'items' => [
+            ['currency' => Currency::Usd->value, 'amount' => 7],
+        ],
+    ])->assertOk()
+        ->assertJsonPath('data.expense.items.0.amount', '7.00');
+
+    expect($expense->fresh()->items)->toHaveCount(1)
+        ->and($expense->fresh()->usd_amount)->toBe('17.00');
+});

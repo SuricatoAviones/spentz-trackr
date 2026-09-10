@@ -149,7 +149,6 @@ class RecurringPaymentController extends Controller
             'currency' => $payment->currency->value,
             'usd_amount' => $payment->usd_amount,
             'frequency' => $payment->frequency->value,
-            'frequency_label' => $payment->frequency->label(),
             'next_due_date' => $payment->next_due_date?->toDateString(),
             'last_paid_at' => $payment->last_paid_at?->toDateString(),
             'category_id' => $payment->category_id,

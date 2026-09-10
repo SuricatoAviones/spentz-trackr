@@ -61,7 +61,6 @@ type RecurringPayment = {
     currency: CurrencyCode;
     usd_amount: string | number;
     frequency: FrequencyCode;
-    frequency_label: string;
     next_due_date?: string | null;
     last_paid_at?: string | null;
     category_id?: number | null;
@@ -278,7 +277,7 @@ export default function RecurringPaymentsIndex({
                                     </p>
                                     <p className="text-xs text-muted-foreground">
                                         {formatAmount(payment.usd_amount)} USD ·{' '}
-                                        {payment.frequency_label}
+                                        {t(`recurring_payments.frequency_options.${payment.frequency}`)}
                                     </p>
                                 </div>
                                 <div className="flex items-center gap-0.5">

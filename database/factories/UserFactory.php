@@ -34,6 +34,9 @@ class UserFactory extends Factory
             'two_factor_recovery_codes' => null,
             'two_factor_confirmed_at' => null,
             'tracking_type' => 'expenses',
+            'default_display_currency' => 'usd',
+            'min_commission' => 14.00,
+            'commission_rate' => 0.30,
         ];
     }
 

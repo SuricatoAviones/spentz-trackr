@@ -39,7 +39,7 @@ test('the index page exposes payments with due status and categories', function 
             ->where('payments.0.name', 'Spotify')
             ->where('payments.0.due', true)
             ->where('payments.0.usd_amount', '4.99')
-            ->where('payments.0.frequency_label', 'Mensual')
+            ->where('payments.0.frequency', 'monthly')
             ->has('categories', 1)
             ->where('categories.0.name', 'Entretenimiento')
         );
