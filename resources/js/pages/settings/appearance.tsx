@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import AppearanceTabs from '@/components/appearance-tabs';
 import Heading from '@/components/heading';
 import { LanguagePreference } from '@/components/language-preference';
-import { edit as editAppearance } from '@/routes/appearance';
 
 export default function Appearance() {
     const { t } = useTranslation();
@@ -26,12 +25,3 @@ export default function Appearance() {
         </>
     );
 }
-
-Appearance.layout = {
-    breadcrumbs: [
-        {
-            title: 'Settings',
-            href: editAppearance(),
-        },
-    ],
-};

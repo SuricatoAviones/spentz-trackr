@@ -1,4 +1,4 @@
-import { Head, router } from '@inertiajs/react';
+import { Head, router, setLayoutProps } from '@inertiajs/react';
 import {
     CheckCircle2,
     Database,
@@ -49,6 +49,11 @@ export default function AdminSystem({
     const { t } = useTranslation();
     const [generating, setGenerating] = useState(false);
 
+    setLayoutProps({
+        title: t('admin:system.title'),
+        description: t('admin:system.subtitle'),
+    });
+
     function generateBackup() {
         setGenerating(true);
         router.post(
@@ -82,16 +87,7 @@ export default function AdminSystem({
         <>
             <Head title={t('admin:system.title')} />
 
-            <div className="space-y-8 px-4 py-6 sm:px-6 lg:px-8">
-                <div>
-                    <h2 className="text-xl font-semibold tracking-tight">
-                        {t('admin:system.title')}
-                    </h2>
-                    <p className="text-sm text-muted-foreground">
-                        {t('admin:system.subtitle')}
-                    </p>
-                </div>
-
+            <div className="space-y-8">
                 <div className="grid gap-6 lg:grid-cols-2">
                     <Card>
                         <CardHeader>

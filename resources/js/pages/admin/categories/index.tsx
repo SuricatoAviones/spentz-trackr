@@ -1,4 +1,4 @@
-import { Head, router, useForm } from '@inertiajs/react';
+import { Head, router, setLayoutProps, useForm } from '@inertiajs/react';
 import { Pencil, Search, Trash2 } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -78,6 +78,11 @@ export default function AdminCategoriesIndex({
     const [editing, setEditing] = useState<AdminCategory | null>(null);
     const searchTimeout = useRef<number | null>(null);
 
+    setLayoutProps({
+        title: t('admin:categories.title'),
+        description: t('admin:categories.total', { count: categories.total }),
+    });
+
     const { data, setData, put, processing, errors } = useForm({
         name: '',
         icon: 'tag',
@@ -138,19 +143,8 @@ export default function AdminCategoriesIndex({
         <>
             <Head title={t('admin:categories.title')} />
 
-            <div className="space-y-8 px-4 py-6 sm:px-6 lg:px-8">
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                        <h2 className="text-xl font-semibold tracking-tight">
-                            {t('categories:title')}
-                        </h2>
-                        <p className="text-sm text-muted-foreground">
-                            {t('admin:categories.total', {
-                                count: categories.total,
-                            })}
-                        </p>
-                    </div>
-
+            <div className="space-y-8">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-end">
                     <form
                         className="flex gap-2"
                         onSubmit={(event) => {

@@ -1,4 +1,4 @@
-import { Head, router, useForm } from '@inertiajs/react';
+import { Head, router, setLayoutProps, useForm } from '@inertiajs/react';
 import { Pencil, Search, Trash2 } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -70,6 +70,12 @@ export default function AdminSourcesIndex({
     users: { id: number; name: string; email: string }[];
 }) {
     const { t } = useTranslation();
+
+    setLayoutProps({
+        title: t('admin:sources.title'),
+        description: t('admin:sources.total', { count: sources.total }),
+    });
+
     const [search, setSearch] = useState(filters.search ?? '');
     const [userId, setUserId] = useState(
         filters.user_id ? Number(filters.user_id) : 0,
@@ -135,19 +141,8 @@ export default function AdminSourcesIndex({
         <>
             <Head title={t('admin:sources.title')} />
 
-            <div className="space-y-8 px-4 py-6 sm:px-6 lg:px-8">
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                        <h2 className="text-xl font-semibold tracking-tight">
-                            {t('sources:title')}
-                        </h2>
-                        <p className="text-sm text-muted-foreground">
-                            {t('admin:sources.total', {
-                                count: sources.total,
-                            })}
-                        </p>
-                    </div>
-
+            <div className="space-y-8">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-end">
                     <form
                         className="flex gap-2"
                         onSubmit={(event) => {

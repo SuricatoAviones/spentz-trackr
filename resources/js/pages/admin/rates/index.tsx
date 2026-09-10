@@ -1,4 +1,4 @@
-import { Head, router, useForm } from '@inertiajs/react';
+import { Head, router, setLayoutProps, useForm } from '@inertiajs/react';
 import { RefreshCw, Users } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Badge } from '@/components/ui/badge';
@@ -58,6 +58,11 @@ export default function AdminRatesIndex({
 }) {
     const { t } = useTranslation();
 
+    setLayoutProps({
+        title: t('admin:rates.title'),
+        description: t('admin:rates.subtitle'),
+    });
+
     const sourceLabel = (source: HistoryEntry['source']): string =>
         t(`admin:rates.source_${source}`);
 
@@ -82,16 +87,7 @@ export default function AdminRatesIndex({
         <>
             <Head title={t('admin:rates.title')} />
 
-            <div className="space-y-8 px-4 py-6 sm:px-6 lg:px-8">
-                <div>
-                    <h2 className="text-xl font-semibold tracking-tight">
-                        {t('admin:rates.title')}
-                    </h2>
-                    <p className="text-sm text-muted-foreground">
-                        {t('admin:rates.subtitle')}
-                    </p>
-                </div>
-
+            <div className="space-y-8">
                 <Card>
                     <CardHeader className="flex flex-row items-start justify-between gap-4">
                         <div>

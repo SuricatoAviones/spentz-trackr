@@ -1,4 +1,4 @@
-import { Head, router } from '@inertiajs/react';
+import { Head, router, setLayoutProps } from '@inertiajs/react';
 import {
     ChevronLeft,
     ChevronRight,
@@ -81,6 +81,12 @@ export default function AdminExpensesIndex({
     categories: { id: number; name: string; user_name: string }[];
 }) {
     const { t } = useTranslation();
+
+    setLayoutProps({
+        title: t('admin:expenses.title'),
+        description: t('admin:expenses.total', { count: expenses.total }),
+    });
+
     const [search, setSearch] = useState(filters.search ?? '');
     const [userId, setUserId] = useState(
         filters.user_id ? Number(filters.user_id) : 0,
@@ -154,19 +160,8 @@ export default function AdminExpensesIndex({
         <>
             <Head title={t('admin:expenses.title')} />
 
-            <div className="space-y-8 px-4 py-6 sm:px-6 lg:px-8">
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                        <h2 className="text-xl font-semibold tracking-tight">
-                            {t('admin:users.col_expenses')}
-                        </h2>
-                        <p className="text-sm text-muted-foreground">
-                            {t('admin:expenses.total', {
-                                count: expenses.total,
-                            })}
-                        </p>
-                    </div>
-
+            <div className="space-y-8">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-end">
                     <form
                         className="flex gap-2"
                         onSubmit={(event) => {

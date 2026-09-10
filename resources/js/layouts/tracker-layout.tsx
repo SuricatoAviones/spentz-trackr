@@ -34,14 +34,29 @@ export default function TrackerLayout({
     const showExpenses = trackingType !== 'income';
     const showIncomes = trackingType !== 'expenses';
 
-    const createTarget: 'income' | 'expense' =
-        url.startsWith('/incomes') && showIncomes
-            ? 'income'
-            : url.startsWith('/expenses') && showExpenses
-              ? 'expense'
-              : showIncomes
-                ? 'income'
-                : 'expense';
+    // Quick-create shortcuts belong to the tracking experience, not to the
+    // admin panel or the account settings screens.
+    const showQuickActions =
+        !url.startsWith('/admin') && !url.startsWith('/settings');
+
+    const quickActions = [
+        showExpenses && {
+            key: 'expense' as const,
+            href: expensesCreate().url,
+            label: t('shell.tracker.new_expense'),
+            className:
+                'bg-gradient-to-br from-emerald-400 to-emerald-600 shadow-emerald-500/25',
+        },
+        showIncomes && {
+            key: 'income' as const,
+            href: incomesCreate().url,
+            label: t('shell.tracker.new_income'),
+            className:
+                'bg-gradient-to-br from-blue-400 to-blue-600 shadow-blue-500/25',
+        },
+    ].filter((action): action is Exclude<typeof action, false> =>
+        Boolean(action),
+    );
 
     function logoutUser() {
         router.post(logout().url);
@@ -146,39 +161,37 @@ export default function TrackerLayout({
                             <h1 className="truncate font-display text-lg font-bold text-foreground">
                                 {title}
                             </h1>
-                            {description !== undefined && (
+                            {description && (
                                 <p className="truncate text-xs text-muted-foreground">
                                     {description}
                                 </p>
                             )}
                         </div>
-                        <Link
-                            href={
-                                createTarget === 'income'
-                                    ? incomesCreate().url
-                                    : expensesCreate().url
-                            }
-                            className={cn(
-                                'inline-flex shrink-0 items-center justify-center rounded-xl text-primary-foreground shadow-lg transition-transform active:scale-95 lg:h-10 lg:gap-2 lg:px-4 lg:text-sm lg:font-semibold',
-                                createTarget === 'income'
-                                    ? 'bg-gradient-to-br from-blue-400 to-blue-600 shadow-blue-500/25'
-                                    : 'bg-gradient-to-br from-emerald-400 to-emerald-600 shadow-emerald-500/25',
-                            )}
-                            aria-label={
-                                createTarget === 'income'
-                                    ? t('shell.tracker.new_income')
-                                    : t('shell.tracker.new_expense')
-                            }
-                        >
-                            <span className="flex size-9 items-center justify-center lg:size-auto">
-                                <Plus className="size-4" strokeWidth={2.5} />
-                            </span>
-                            <span className="hidden lg:inline">
-                                {createTarget === 'income'
-                                    ? t('shell.tracker.new_income')
-                                    : t('shell.tracker.new_expense')}
-                            </span>
-                        </Link>
+                        {showQuickActions && quickActions.length > 0 && (
+                            <div className="flex shrink-0 items-center gap-2">
+                                {quickActions.map((action) => (
+                                    <Link
+                                        key={action.key}
+                                        href={action.href}
+                                        className={cn(
+                                            'inline-flex shrink-0 items-center justify-center rounded-xl text-primary-foreground shadow-lg transition-transform active:scale-95 lg:h-10 lg:gap-2 lg:px-4 lg:text-sm lg:font-semibold',
+                                            action.className,
+                                        )}
+                                        aria-label={action.label}
+                                    >
+                                        <span className="flex size-9 items-center justify-center lg:size-auto">
+                                            <Plus
+                                                className="size-4"
+                                                strokeWidth={2.5}
+                                            />
+                                        </span>
+                                        <span className="hidden lg:inline">
+                                            {action.label}
+                                        </span>
+                                    </Link>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 </header>
 

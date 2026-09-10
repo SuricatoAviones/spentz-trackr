@@ -1,4 +1,4 @@
-import { Head, Link, router, useForm } from '@inertiajs/react';
+import { Head, Link, router, setLayoutProps, useForm } from '@inertiajs/react';
 import {
     ArrowLeft,
     Ban,
@@ -85,6 +85,11 @@ export default function AdminUserShow({
     recentExpenses: RecentExpense[];
 }) {
     const { t } = useTranslation();
+
+    setLayoutProps({
+        title: t('admin:user_show.head_title', { name: user.name }),
+    });
+
     const { data, setData, patch, processing, errors } = useForm({
         name: user.name,
         email: user.email,
@@ -157,7 +162,7 @@ export default function AdminUserShow({
                 title={t('admin:user_show.head_title', { name: user.name })}
             />
 
-            <div className="space-y-8 px-4 py-6 sm:px-6 lg:px-8">
+            <div className="space-y-8">
                 <Button variant="ghost" size="sm" asChild>
                     <Link href={usersIndex().url}>
                         <ArrowLeft className="size-4" />{' '}

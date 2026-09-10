@@ -1,4 +1,4 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, setLayoutProps } from '@inertiajs/react';
 import {
     ArrowUpRight,
     ChevronRight,
@@ -79,6 +79,11 @@ export default function AdminDashboard({
 }) {
     const { t } = useTranslation();
 
+    setLayoutProps({
+        title: t('admin:dashboard.title'),
+        description: t('admin:dashboard.subtitle'),
+    });
+
     const statCards = [
         {
             label: t('admin:dashboard.stats_total_users'),
@@ -137,16 +142,8 @@ export default function AdminDashboard({
         <>
             <Head title={t('admin:dashboard.title')} />
 
-            <div className="space-y-8 px-4 py-6 sm:px-6 lg:px-8">
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-                    <div>
-                        <h2 className="font-display text-2xl font-bold tracking-tight">
-                            {t('admin:dashboard.title')}
-                        </h2>
-                        <p className="mt-1 text-sm text-muted-foreground">
-                            {t('admin:dashboard.subtitle')}
-                        </p>
-                    </div>
+            <div className="space-y-8">
+                <div className="flex justify-start">
                     <span className="inline-flex w-fit items-center gap-2 rounded-full bg-surface-low px-3.5 py-1.5 text-xs font-semibold text-muted-foreground">
                         <span className="size-1.5 rounded-full bg-emerald-400" />
                         {t('admin:dashboard.expenses_this_month', {

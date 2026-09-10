@@ -1,4 +1,4 @@
-import { Head, router } from '@inertiajs/react';
+import { Head, router, setLayoutProps } from '@inertiajs/react';
 import { ChevronLeft, ChevronRight, ScrollText } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Badge } from '@/components/ui/badge';
@@ -52,6 +52,11 @@ export default function AdminAuditIndex({
 }) {
     const { t } = useTranslation();
 
+    setLayoutProps({
+        title: t('admin:audit.title'),
+        description: t('admin:audit.total', { count: actions.total }),
+    });
+
     const actionLabel = (action: string): string =>
         t(ACTION_KEYS[action] ?? action);
 
@@ -76,16 +81,7 @@ export default function AdminAuditIndex({
         <>
             <Head title={t('admin:audit.title')} />
 
-            <div className="space-y-8 px-4 py-6 sm:px-6 lg:px-8">
-                <div>
-                    <h2 className="text-xl font-semibold tracking-tight">
-                        {t('admin:audit.title')}
-                    </h2>
-                    <p className="text-sm text-muted-foreground">
-                        {t('admin:audit.total', { count: actions.total })}
-                    </p>
-                </div>
-
+            <div className="space-y-8">
                 <Card>
                     <CardContent className="px-0">
                         <div className="overflow-x-auto">
