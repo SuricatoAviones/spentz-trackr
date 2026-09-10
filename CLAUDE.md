@@ -45,13 +45,17 @@ php artisan admin:create   # idempotent; reads ADMIN_NAME/EMAIL/PASSWORD from .e
 
 Tests run on in-memory SQLite with `SESSION_DRIVER=array` / `QUEUE_CONNECTION=sync` (`phpunit.xml`); dev defaults to file SQLite, prod to MySQL/PostgreSQL (driver chosen by `.env`). Two recurring test traps: (1) Symfony injects `Accept-Language: en` into every test request, so browser-locale logic resolves `en` unless you assert against the Spanish-first fallback chain; (2) avoid engine-specific SQL — `YEAR()` / `DATE()` don't exist in SQLite; use `substr(spent_at, 1, 4)` and `whereDate()` for portable MySQL/SQLite queries.
 
+**Local `memory_limit`:** `php artisan test` spawns a subprocess that ignores `-d memory_limit`, and the full suite + PHPStan need more than a 128M `php.ini`. Either raise `memory_limit` in `php.ini`, or run `php -d memory_limit=2G vendor/bin/pest` and `php -d memory_limit=1G vendor/bin/phpstan analyse` directly. CI (`shivammathur/setup-php`) is unlimited, so this is local-only.
+
 ## Architecture
 
 **Everything is wired in `bootstrap/app.php`** (Laravel 11+ style — there is no `app/Http/Kernel.php`, no `app/Console/Kernel.php`, no `ScheduleServiceProvider`). That one file registers all route files (`web`, `api`, `admin`, `install`, `settings`, `console`), the middleware stack and its order, and the scheduler (`SyncExchangeRates` → `everyFiveMinutes`).
 
 **Auth is Laravel Fortify** (not Breeze) + passkeys (`@laravel/passkeys` / `@laravel/multiplex`). Registration/reset logic lives in `app/Actions/Fortify/`; shared validation in `app/Concerns/{PasswordValidationRules,ProfileValidationRules}`. No hand-written auth controllers.
 
-**Currency conversion is frozen per transaction.** Every `Expense`/`Income` persists `exchange_rate`, `usd_amount`, and `usdt_amount` at write time (USDT treated 1:1 with USD). Reports **never** recalculate with the current rate. `ExpenseConversionService` does the math; controllers stay thin (validation in Form Requests).
+**Currency conversion is frozen per transaction.** Every `Expense`/`Income` persists `exchange_rate`, `usd_amount`, and `usdt_amount` at write time (USDT treated 1:1 with USD). Reports **never** recalculate with the current rate. `ExpenseConversionService` does the math.
+
+**Domain logic lives in Actions, shared by web + API.** `app/Actions/Expenses/{Store,Update}ExpenseAction` (and `Incomes/`) own rate resolution, Bs commission, mixed-currency `items`, freezing and receipts — the web (Inertia) and `Api/V1` controllers both call the same Action with the validated array and stay thin. JSON output goes through `app/Support/Presenters/{Expense,Income}Presenter`. Do not reintroduce this logic in a controller.
 
 **Exchange rates** come from `https://ve.dolarapi.com/v1/dolares` via `SyncExchangeRates` job on the scheduler (every 5 min). The expense form only reads the last persisted rate — never makes an inline HTTP call. In dev the scheduler doesn't run, so page-load controllers call `ensureFreshRate($user)` — do not remove it. Users can always override the rate manually.
 
