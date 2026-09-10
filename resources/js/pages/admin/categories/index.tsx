@@ -72,7 +72,9 @@ export default function AdminCategoriesIndex({
 }) {
     const { t } = useTranslation();
     const [search, setSearch] = useState(filters.search ?? '');
-    const [userId, setUserId] = useState(filters.user_id ? Number(filters.user_id) : 0);
+    const [userId, setUserId] = useState(
+        filters.user_id ? Number(filters.user_id) : 0,
+    );
     const [editing, setEditing] = useState<AdminCategory | null>(null);
     const searchTimeout = useRef<number | null>(null);
 
@@ -174,7 +176,9 @@ export default function AdminCategoriesIndex({
                                         400,
                                     );
                                 }}
-                                placeholder={t('admin:categories.search_placeholder')}
+                                placeholder={t(
+                                    'admin:categories.search_placeholder',
+                                )}
                                 className="pl-9"
                             />
                         </div>
@@ -209,7 +213,9 @@ export default function AdminCategoriesIndex({
                                 }}
                                 className="h-10 w-full rounded-lg bg-surface-low px-3 text-sm text-foreground focus:ring-2 focus:ring-emerald-500/50 focus:outline-none"
                             >
-                                <option value={0}>{t('admin:expenses.all_users')}</option>
+                                <option value={0}>
+                                    {t('admin:expenses.all_users')}
+                                </option>
                                 {users.map((user) => (
                                     <option key={user.id} value={user.id}>
                                         {user.name} ({user.email})
@@ -264,7 +270,9 @@ export default function AdminCategoriesIndex({
                                                             {category.name}
                                                             {category.is_system && (
                                                                 <Badge variant="outline">
-                                                                    {t('admin:categories.badge_system')}
+                                                                    {t(
+                                                                        'admin:categories.badge_system',
+                                                                    )}
                                                                 </Badge>
                                                             )}
                                                         </p>
@@ -305,9 +313,12 @@ export default function AdminCategoriesIndex({
                                                         onClick={() =>
                                                             openEdit(category)
                                                         }
-                                                        aria-label={t('admin:users.edit_aria', {
-                                                            name: category.name,
-                                                        })}
+                                                        aria-label={t(
+                                                            'admin:users.edit_aria',
+                                                            {
+                                                                name: category.name,
+                                                            },
+                                                        )}
                                                     >
                                                         <Pencil className="size-4" />
                                                     </Button>
@@ -321,13 +332,18 @@ export default function AdminCategoriesIndex({
                                                             !category.can_delete
                                                         }
                                                         className="text-destructive hover:text-destructive disabled:opacity-40"
-                                                        aria-label={t('admin:users.delete_aria', {
-                                                            name: category.name,
-                                                        })}
+                                                        aria-label={t(
+                                                            'admin:users.delete_aria',
+                                                            {
+                                                                name: category.name,
+                                                            },
+                                                        )}
                                                         title={
                                                             category.can_delete
                                                                 ? undefined
-                                                                : t('common:delete_blocked')
+                                                                : t(
+                                                                      'common:delete_blocked',
+                                                                  )
                                                         }
                                                     >
                                                         <Trash2 className="size-4" />
@@ -421,7 +437,9 @@ export default function AdminCategoriesIndex({
                                                     : 'hover:scale-105'
                                             }`}
                                             style={{ backgroundColor: color }}
-                                            aria-label={t('common:color_aria', { color })}
+                                            aria-label={t('common:color_aria', {
+                                                color,
+                                            })}
                                         />
                                     ))}
                                 </div>
@@ -446,7 +464,9 @@ export default function AdminCategoriesIndex({
                                     onChange={(event) =>
                                         setData('budget', event.target.value)
                                     }
-                                    placeholder={t('admin:categories.budget_optional')}
+                                    placeholder={t(
+                                        'admin:categories.budget_optional',
+                                    )}
                                 />
                                 {errors.budget && (
                                     <p className="text-xs text-destructive">

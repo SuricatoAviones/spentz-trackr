@@ -103,11 +103,7 @@ export default function AdminUsersIndex({
     }
 
     function destroy(user: AdminUser) {
-        if (
-            confirm(
-                t('admin:users.delete_confirm', { name: user.name }),
-            )
-        ) {
+        if (confirm(t('admin:users.delete_confirm', { name: user.name }))) {
             router.delete(usersDestroy({ user: user.id }).url);
         }
     }
@@ -154,7 +150,9 @@ export default function AdminUsersIndex({
                                         400,
                                     );
                                 }}
-                                placeholder={t('admin:users.search_placeholder')}
+                                placeholder={t(
+                                    'admin:users.search_placeholder',
+                                )}
                                 className="pl-9"
                             />
                         </div>
@@ -218,29 +216,39 @@ export default function AdminUsersIndex({
                                                         variant="destructive"
                                                         className="mt-1"
                                                     >
-                                                        {t('admin:users.badge_suspended')}
+                                                        {t(
+                                                            'admin:users.badge_suspended',
+                                                        )}
                                                     </Badge>
                                                 )}
                                             </td>
                                             <td className="hidden px-4 py-3 md:table-cell">
                                                 {user.is_admin ? (
                                                     <Badge variant="secondary">
-                                                        {t('admin:users.badge_admin')}
+                                                        {t(
+                                                            'admin:users.badge_admin',
+                                                        )}
                                                     </Badge>
                                                 ) : (
                                                     <Badge variant="outline">
-                                                        {t('admin:users.badge_user')}
+                                                        {t(
+                                                            'admin:users.badge_user',
+                                                        )}
                                                     </Badge>
                                                 )}
                                             </td>
                                             <td className="hidden px-4 py-3 md:table-cell">
                                                 {user.email_verified_at ? (
                                                     <Badge variant="default">
-                                                        {t('admin:users.badge_yes')}
+                                                        {t(
+                                                            'admin:users.badge_yes',
+                                                        )}
                                                     </Badge>
                                                 ) : (
                                                     <Badge variant="outline">
-                                                        {t('admin:users.badge_no')}
+                                                        {t(
+                                                            'admin:users.badge_no',
+                                                        )}
                                                     </Badge>
                                                 )}
                                             </td>
@@ -261,7 +269,10 @@ export default function AdminUsersIndex({
                                                         onClick={() =>
                                                             openEdit(user)
                                                         }
-                                                        aria-label={t('admin:users.edit_aria', { name: user.name })}
+                                                        aria-label={t(
+                                                            'admin:users.edit_aria',
+                                                            { name: user.name },
+                                                        )}
                                                     >
                                                         <Pencil className="size-4" />
                                                     </Button>
@@ -272,9 +283,12 @@ export default function AdminUsersIndex({
                                                             destroy(user)
                                                         }
                                                         className="text-destructive hover:text-destructive"
-                                                        aria-label={t('admin:users.delete_aria', {
-                                                            name: user.name,
-                                                        })}
+                                                        aria-label={t(
+                                                            'admin:users.delete_aria',
+                                                            {
+                                                                name: user.name,
+                                                            },
+                                                        )}
                                                     >
                                                         <Trash2 className="size-4" />
                                                     </Button>
@@ -318,7 +332,8 @@ export default function AdminUsersIndex({
                                         )
                                     }
                                 >
-                                    <ChevronLeft className="size-4" /> {t('admin:users.prev')}
+                                    <ChevronLeft className="size-4" />{' '}
+                                    {t('admin:users.prev')}
                                 </Button>
                             )}
                             {users.current_page < users.last_page && (

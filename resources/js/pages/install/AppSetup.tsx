@@ -4,7 +4,14 @@ import { useState } from 'react';
 import AppLogoIcon from '@/components/app-logo-icon';
 import { StepIndicator } from '@/components/install/StepIndicator';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { postJson } from '@/lib/install-http';
@@ -27,7 +34,11 @@ type AppSetupProps = {
     errors?: Record<string, string[]>;
 };
 
-export default function AppSetup({ defaults, database, errors = {} }: AppSetupProps) {
+export default function AppSetup({
+    defaults,
+    database,
+    errors = {},
+}: AppSetupProps) {
     const [form, setForm] = useState({
         app_name: defaults.app_name,
         app_url: defaults.app_url,
@@ -66,16 +77,24 @@ export default function AppSetup({ defaults, database, errors = {} }: AppSetupPr
             };
 
             if (!response.ok) {
-                const firstFieldError = Object.values(data.errors ?? {})[0]?.[0];
+                const firstFieldError = Object.values(
+                    data.errors ?? {},
+                )[0]?.[0];
 
                 throw new Error(
-                    firstFieldError ?? data.message ?? 'Ocurrió un error durante la instalación.',
+                    firstFieldError ??
+                        data.message ??
+                        'Ocurrió un error durante la instalación.',
                 );
             }
 
             window.location.href = '/install/finish';
         } catch (error) {
-            setServerError(error instanceof Error ? error.message : 'Ocurrió un error durante la instalación.');
+            setServerError(
+                error instanceof Error
+                    ? error.message
+                    : 'Ocurrió un error durante la instalación.',
+            );
             setBusy(false);
         }
     };
@@ -104,33 +123,55 @@ export default function AppSetup({ defaults, database, errors = {} }: AppSetupPr
                             <CardHeader>
                                 <CardTitle>Detalles de la aplicación</CardTitle>
                                 <CardDescription>
-                                    Estos valores se guardarán en tu archivo .env
+                                    Estos valores se guardarán en tu archivo
+                                    .env
                                 </CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-6">
                                 <div className="grid gap-4 sm:grid-cols-2">
                                     <div className="space-y-2">
-                                        <Label htmlFor="app_name">Nombre de la aplicación</Label>
+                                        <Label htmlFor="app_name">
+                                            Nombre de la aplicación
+                                        </Label>
                                         <Input
                                             id="app_name"
                                             value={form.app_name}
-                                            onChange={(e) => setForm({ ...form, app_name: e.target.value })}
+                                            onChange={(e) =>
+                                                setForm({
+                                                    ...form,
+                                                    app_name: e.target.value,
+                                                })
+                                            }
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label htmlFor="app_url">URL del sitio</Label>
+                                        <Label htmlFor="app_url">
+                                            URL del sitio
+                                        </Label>
                                         <Input
                                             id="app_url"
                                             value={form.app_url}
-                                            onChange={(e) => setForm({ ...form, app_url: e.target.value })}
+                                            onChange={(e) =>
+                                                setForm({
+                                                    ...form,
+                                                    app_url: e.target.value,
+                                                })
+                                            }
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label htmlFor="app_locale">Idioma</Label>
+                                        <Label htmlFor="app_locale">
+                                            Idioma
+                                        </Label>
                                         <select
                                             id="app_locale"
                                             value={form.app_locale}
-                                            onChange={(e) => setForm({ ...form, app_locale: e.target.value })}
+                                            onChange={(e) =>
+                                                setForm({
+                                                    ...form,
+                                                    app_locale: e.target.value,
+                                                })
+                                            }
                                             className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs"
                                         >
                                             <option value="es">Español</option>
@@ -138,11 +179,18 @@ export default function AppSetup({ defaults, database, errors = {} }: AppSetupPr
                                         </select>
                                     </div>
                                     <div className="space-y-2">
-                                        <Label htmlFor="timezone">Zona horaria</Label>
+                                        <Label htmlFor="timezone">
+                                            Zona horaria
+                                        </Label>
                                         <Input
                                             id="timezone"
                                             value={form.timezone}
-                                            onChange={(e) => setForm({ ...form, timezone: e.target.value })}
+                                            onChange={(e) =>
+                                                setForm({
+                                                    ...form,
+                                                    timezone: e.target.value,
+                                                })
+                                            }
                                         />
                                     </div>
                                 </div>
@@ -150,54 +198,95 @@ export default function AppSetup({ defaults, database, errors = {} }: AppSetupPr
                                 <div className="h-px bg-border" />
 
                                 <div>
-                                    <h2 className="text-sm font-semibold">Cuenta de administrador</h2>
+                                    <h2 className="text-sm font-semibold">
+                                        Cuenta de administrador
+                                    </h2>
                                     <p className="mb-4 text-sm text-muted-foreground">
-                                        Este será el primer usuario con acceso al panel de administración.
+                                        Este será el primer usuario con acceso
+                                        al panel de administración.
                                     </p>
                                     <div className="grid gap-4 sm:grid-cols-2">
                                         <div className="space-y-2 sm:col-span-2">
-                                            <Label htmlFor="admin_name">Nombre</Label>
+                                            <Label htmlFor="admin_name">
+                                                Nombre
+                                            </Label>
                                             <Input
                                                 id="admin_name"
                                                 value={form.admin_name}
-                                                onChange={(e) => setForm({ ...form, admin_name: e.target.value })}
+                                                onChange={(e) =>
+                                                    setForm({
+                                                        ...form,
+                                                        admin_name:
+                                                            e.target.value,
+                                                    })
+                                                }
                                             />
                                             {field('admin_name')[0] && (
-                                                <p className="text-sm text-destructive">{field('admin_name')[0]}</p>
+                                                <p className="text-sm text-destructive">
+                                                    {field('admin_name')[0]}
+                                                </p>
                                             )}
                                         </div>
                                         <div className="space-y-2 sm:col-span-2">
-                                            <Label htmlFor="admin_email">Correo electrónico</Label>
+                                            <Label htmlFor="admin_email">
+                                                Correo electrónico
+                                            </Label>
                                             <Input
                                                 id="admin_email"
                                                 type="email"
                                                 value={form.admin_email}
-                                                onChange={(e) => setForm({ ...form, admin_email: e.target.value })}
+                                                onChange={(e) =>
+                                                    setForm({
+                                                        ...form,
+                                                        admin_email:
+                                                            e.target.value,
+                                                    })
+                                                }
                                             />
                                             {field('admin_email')[0] && (
-                                                <p className="text-sm text-destructive">{field('admin_email')[0]}</p>
+                                                <p className="text-sm text-destructive">
+                                                    {field('admin_email')[0]}
+                                                </p>
                                             )}
                                         </div>
                                         <div className="space-y-2">
-                                            <Label htmlFor="admin_password">Contraseña</Label>
+                                            <Label htmlFor="admin_password">
+                                                Contraseña
+                                            </Label>
                                             <Input
                                                 id="admin_password"
                                                 type="password"
                                                 value={form.admin_password}
-                                                onChange={(e) => setForm({ ...form, admin_password: e.target.value })}
+                                                onChange={(e) =>
+                                                    setForm({
+                                                        ...form,
+                                                        admin_password:
+                                                            e.target.value,
+                                                    })
+                                                }
                                             />
                                             {field('admin_password')[0] && (
-                                                <p className="text-sm text-destructive">{field('admin_password')[0]}</p>
+                                                <p className="text-sm text-destructive">
+                                                    {field('admin_password')[0]}
+                                                </p>
                                             )}
                                         </div>
                                         <div className="space-y-2">
-                                            <Label htmlFor="admin_password_confirmation">Confirmar contraseña</Label>
+                                            <Label htmlFor="admin_password_confirmation">
+                                                Confirmar contraseña
+                                            </Label>
                                             <Input
                                                 id="admin_password_confirmation"
                                                 type="password"
-                                                value={form.admin_password_confirmation}
+                                                value={
+                                                    form.admin_password_confirmation
+                                                }
                                                 onChange={(e) =>
-                                                    setForm({ ...form, admin_password_confirmation: e.target.value })
+                                                    setForm({
+                                                        ...form,
+                                                        admin_password_confirmation:
+                                                            e.target.value,
+                                                    })
                                                 }
                                             />
                                         </div>

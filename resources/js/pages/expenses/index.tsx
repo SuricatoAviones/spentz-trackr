@@ -20,7 +20,10 @@ import {
     isToday,
     isYesterday,
 } from '@/lib/format';
-import { destroy as expensesDestroy, index as expensesIndex } from '@/routes/expenses';
+import {
+    destroy as expensesDestroy,
+    index as expensesIndex,
+} from '@/routes/expenses';
 import { exportMethod as reportsExport } from '@/routes/reports';
 import type { CategoryOption, Expense, SourceOption } from '@/types';
 
@@ -181,7 +184,10 @@ export default function ExpensesIndex({
                                 router.get(
                                     expensesIndex().url,
                                     {},
-                                    { preserveState: true, preserveScroll: true },
+                                    {
+                                        preserveState: true,
+                                        preserveScroll: true,
+                                    },
                                 );
                             }}
                             className="absolute top-1/2 right-3 -translate-y-1/2 text-muted-foreground"
@@ -319,7 +325,9 @@ export default function ExpensesIndex({
                                 }}
                                 className="h-10 w-full rounded-lg bg-surface-high px-3 text-sm text-foreground focus:ring-2 focus:ring-emerald-500/50 focus:outline-none"
                             >
-                                <option value={0}>{t('expenses.all_sources')}</option>
+                                <option value={0}>
+                                    {t('expenses.all_sources')}
+                                </option>
                                 {sources.map((source) => (
                                     <option key={source.id} value={source.id}>
                                         {source.name}
@@ -354,7 +362,9 @@ export default function ExpensesIndex({
                                         { preserveState: true },
                                     );
                                 }}
-                                aria-label={t('expenses.remove_currency_filter')}
+                                aria-label={t(
+                                    'expenses.remove_currency_filter',
+                                )}
                             >
                                 <X className="size-3" />
                             </button>
@@ -377,7 +387,9 @@ export default function ExpensesIndex({
                                         { preserveState: true },
                                     );
                                 }}
-                                aria-label={t('expenses.remove_category_filter')}
+                                aria-label={t(
+                                    'expenses.remove_category_filter',
+                                )}
                             >
                                 <X className="size-3" />
                             </button>
@@ -443,7 +455,10 @@ export default function ExpensesIndex({
                             </thead>
                             <tbody>
                                 {expenses.data.map((expense) => (
-                                    <tr key={expense.id} className="bg-surface-low">
+                                    <tr
+                                        key={expense.id}
+                                        className="bg-surface-low"
+                                    >
                                         <td className="px-4 py-3 text-xs whitespace-nowrap text-muted-foreground tabular-nums">
                                             {formatDate(expense.spent_at)}
                                         </td>
@@ -500,9 +515,13 @@ export default function ExpensesIndex({
                                                     }
                                                 }}
                                                 className="inline-flex size-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-destructive/15 hover:text-destructive"
-                                                aria-label={t('expenses.delete_aria', {
-                                                    description: expense.description,
-                                                })}
+                                                aria-label={t(
+                                                    'expenses.delete_aria',
+                                                    {
+                                                        description:
+                                                            expense.description,
+                                                    },
+                                                )}
                                             >
                                                 <Trash2 className="size-4" />
                                             </button>
@@ -517,7 +536,8 @@ export default function ExpensesIndex({
                         {Object.entries(grouped).map(([date, items]) => (
                             <div key={date}>
                                 <p className="mb-2 px-1 text-[10px] font-bold tracking-widest text-muted-foreground uppercase">
-                                    {groupLabel(date)} · {formatMonthLabel(date)}
+                                    {groupLabel(date)} ·{' '}
+                                    {formatMonthLabel(date)}
                                 </p>
                                 <div className="space-y-2.5">
                                     {items.map((expense) => (

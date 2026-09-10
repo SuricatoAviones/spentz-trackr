@@ -202,7 +202,9 @@ export default function AdminSystem({
                                     },
                                     {
                                         icon: Server,
-                                        label: t('admin:system.count_categories'),
+                                        label: t(
+                                            'admin:system.count_categories',
+                                        ),
                                         value: counts.categories,
                                     },
                                     {

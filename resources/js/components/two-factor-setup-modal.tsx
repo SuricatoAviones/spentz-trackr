@@ -267,9 +267,7 @@ export default function TwoFactorSetupModal({
         if (twoFactorEnabled) {
             return {
                 title: t('settings.two_factor_modal_enabled_title'),
-                description: t(
-                    'settings.two_factor_modal_enabled_description',
-                ),
+                description: t('settings.two_factor_modal_enabled_description'),
                 buttonText: t('settings.two_factor_modal_close'),
             };
         }
@@ -277,18 +275,14 @@ export default function TwoFactorSetupModal({
         if (showVerificationStep) {
             return {
                 title: t('settings.two_factor_modal_verify_title'),
-                description: t(
-                    'settings.two_factor_modal_verify_description',
-                ),
+                description: t('settings.two_factor_modal_verify_description'),
                 buttonText: t('settings.two_factor_modal_continue'),
             };
         }
 
         return {
             title: t('settings.two_factor_modal_enable_title'),
-            description: t(
-                'settings.two_factor_modal_enable_description',
-            ),
+            description: t('settings.two_factor_modal_enable_description'),
             buttonText: t('settings.two_factor_modal_continue'),
         };
     }, [twoFactorEnabled, showVerificationStep, t]);

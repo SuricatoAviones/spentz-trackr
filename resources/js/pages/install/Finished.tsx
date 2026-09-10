@@ -3,7 +3,13 @@ import { ArrowRight, CheckCircle2 } from 'lucide-react';
 import AppLogoIcon from '@/components/app-logo-icon';
 import { StepIndicator } from '@/components/install/StepIndicator';
 import { Button } from '@/components/ui/button';
-import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+    Card,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
 
 export default function Finished() {
     return (
@@ -32,8 +38,9 @@ export default function Finished() {
                             </div>
                             <CardTitle>Spentz Trackr está instalado</CardTitle>
                             <CardDescription>
-                                Tu cuenta de administrador fue creada correctamente. Ya puedes iniciar sesión
-                                con el correo y la contraseña que configuraste.
+                                Tu cuenta de administrador fue creada
+                                correctamente. Ya puedes iniciar sesión con el
+                                correo y la contraseña que configuraste.
                             </CardDescription>
                         </CardHeader>
                         <CardFooter>

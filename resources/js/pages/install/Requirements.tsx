@@ -3,7 +3,14 @@ import { CheckCircle2, XCircle, ArrowRight } from 'lucide-react';
 import AppLogoIcon from '@/components/app-logo-icon';
 import { StepIndicator } from '@/components/install/StepIndicator';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
 
 type RequirementsProps = {
     requirements: {
@@ -15,8 +22,12 @@ type RequirementsProps = {
 
 export default function Requirements({ requirements }: RequirementsProps) {
     const phpOk = requirements.php.status;
-    const extensionsOk = Object.values(requirements.extensions).every((ext) => ext.status);
-    const directoriesOk = Object.values(requirements.directories).every((dir) => dir.status);
+    const extensionsOk = Object.values(requirements.extensions).every(
+        (ext) => ext.status,
+    );
+    const directoriesOk = Object.values(requirements.directories).every(
+        (dir) => dir.status,
+    );
     const allOk = phpOk && extensionsOk && directoriesOk;
 
     const extensionLabels: Record<string, string> = {
@@ -32,7 +43,11 @@ export default function Requirements({ requirements }: RequirementsProps) {
         fileinfo: 'Fileinfo',
     };
 
-    const renderItem = (icon: React.ReactNode, label: string, status: boolean) => (
+    const renderItem = (
+        icon: React.ReactNode,
+        label: string,
+        status: boolean,
+    ) => (
         <li className="flex items-center justify-between rounded-md border bg-muted/40 px-3 py-2 text-sm">
             <span className="flex items-center gap-2">
                 {status ? (
@@ -71,7 +86,8 @@ export default function Requirements({ requirements }: RequirementsProps) {
                         <CardHeader>
                             <CardTitle>Requisitos del servidor</CardTitle>
                             <CardDescription>
-                                Verifica que tu servidor cumpla con los requisitos mínimos.
+                                Verifica que tu servidor cumpla con los
+                                requisitos mínimos.
                             </CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-6">
@@ -81,7 +97,9 @@ export default function Requirements({ requirements }: RequirementsProps) {
                                 </h2>
                                 <ul className="space-y-2">
                                     {renderItem(
-                                        phpOk ? <CheckCircle2 className="size-4 text-emerald-500" /> : null,
+                                        phpOk ? (
+                                            <CheckCircle2 className="size-4 text-emerald-500" />
+                                        ) : null,
                                         `PHP ${requirements.php.version}`,
                                         phpOk,
                                     )}
@@ -93,8 +111,14 @@ export default function Requirements({ requirements }: RequirementsProps) {
                                     Extensiones de PHP
                                 </h2>
                                 <ul className="space-y-2">
-                                    {Object.entries(requirements.extensions).map(([key, ext]) =>
-                                        renderItem(null, extensionLabels[key] ?? key, ext.status),
+                                    {Object.entries(
+                                        requirements.extensions,
+                                    ).map(([key, ext]) =>
+                                        renderItem(
+                                            null,
+                                            extensionLabels[key] ?? key,
+                                            ext.status,
+                                        ),
                                     )}
                                 </ul>
                             </section>
@@ -104,14 +128,26 @@ export default function Requirements({ requirements }: RequirementsProps) {
                                     Permisos de escritura
                                 </h2>
                                 <ul className="space-y-2">
-                                    {Object.entries(requirements.directories).map(([dir, item]) =>
-                                        renderItem(null, dir, 'status' in item ? item.status : false),
+                                    {Object.entries(
+                                        requirements.directories,
+                                    ).map(([dir, item]) =>
+                                        renderItem(
+                                            null,
+                                            dir,
+                                            'status' in item
+                                                ? item.status
+                                                : false,
+                                        ),
                                     )}
                                 </ul>
                             </section>
                         </CardContent>
                         <CardFooter>
-                            <Button asChild disabled={!allOk} className="w-full">
+                            <Button
+                                asChild
+                                disabled={!allOk}
+                                className="w-full"
+                            >
                                 <Link href="/install/database">
                                     Continuar
                                     <ArrowRight />

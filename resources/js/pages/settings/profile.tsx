@@ -82,7 +82,9 @@ export default function Profile({
                                     name="email"
                                     required
                                     autoComplete="username"
-                                    placeholder={t('settings.email_placeholder')}
+                                    placeholder={t(
+                                        'settings.email_placeholder',
+                                    )}
                                 />
 
                                 <InputError

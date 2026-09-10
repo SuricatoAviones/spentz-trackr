@@ -233,7 +233,9 @@ export default function AdminDashboard({
                                 <HorizontalBars
                                     data={topUsers.map((user, index) => ({
                                         name: user.name,
-                                        color: USER_PALETTE[index % USER_PALETTE.length],
+                                        color: USER_PALETTE[
+                                            index % USER_PALETTE.length
+                                        ],
                                         total: user.total,
                                         percent: user.percent,
                                     }))}
@@ -282,7 +284,9 @@ export default function AdminDashboard({
                                                     variant="secondary"
                                                     className="shrink-0"
                                                 >
-                                                    {t('admin:dashboard.admin_badge')}
+                                                    {t(
+                                                        'admin:dashboard.admin_badge',
+                                                    )}
                                                 </Badge>
                                             )}
                                         </p>
@@ -292,14 +296,20 @@ export default function AdminDashboard({
                                     </div>
                                     <div className="hidden shrink-0 text-right text-xs text-muted-foreground sm:block">
                                         <p className="font-medium text-foreground">
-                                            {t('admin:dashboard.expenses_count', {
-                                                count: user.expenses_count,
-                                            })}
+                                            {t(
+                                                'admin:dashboard.expenses_count',
+                                                {
+                                                    count: user.expenses_count,
+                                                },
+                                            )}
                                         </p>
                                         <p>
-                                            {t('admin:dashboard.registered_on', {
-                                                date: user.created_at,
-                                            })}
+                                            {t(
+                                                'admin:dashboard.registered_on',
+                                                {
+                                                    date: user.created_at,
+                                                },
+                                            )}
                                         </p>
                                     </div>
                                 </Link>

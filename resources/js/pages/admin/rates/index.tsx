@@ -62,9 +62,7 @@ export default function AdminRatesIndex({
         t(`admin:rates.source_${source}`);
 
     const providerLabel = (provider: string): string =>
-        PROVIDER_LABEL[provider]
-            ? t(PROVIDER_LABEL[provider])
-            : provider;
+        PROVIDER_LABEL[provider] ? t(PROVIDER_LABEL[provider]) : provider;
 
     const { data, setData, put, processing, errors } = useForm({
         bcv: today.bcv ? String(today.bcv) : '',
@@ -106,20 +104,13 @@ export default function AdminRatesIndex({
                                 {t('admin:rates.today_rate_desc')}
                             </CardDescription>
                         </div>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={syncRates}
-                        >
+                        <Button variant="outline" size="sm" onClick={syncRates}>
                             <RefreshCw className="size-4" />
                             {t('admin:rates.sync_dolarapi')}
                         </Button>
                     </CardHeader>
                     <CardContent>
-                        <form
-                            onSubmit={saveRates}
-                            className="space-y-4"
-                        >
+                        <form onSubmit={saveRates} className="space-y-4">
                             <div className="grid gap-4 sm:grid-cols-2">
                                 <div className="grid gap-2">
                                     <Label htmlFor="rate-bcv">BCV</Label>
@@ -133,7 +124,9 @@ export default function AdminRatesIndex({
                                         onChange={(event) =>
                                             setData('bcv', event.target.value)
                                         }
-                                        placeholder={t('admin:rates.bcv_placeholder')}
+                                        placeholder={t(
+                                            'admin:rates.bcv_placeholder',
+                                        )}
                                     />
                                     {errors.bcv && (
                                         <p className="text-xs text-destructive">
@@ -159,7 +152,9 @@ export default function AdminRatesIndex({
                                                 event.target.value,
                                             )
                                         }
-                                        placeholder={t('admin:rates.paralelo_placeholder')}
+                                        placeholder={t(
+                                            'admin:rates.paralelo_placeholder',
+                                        )}
                                     />
                                     {errors.paralelo && (
                                         <p className="text-xs text-destructive">
@@ -276,7 +271,9 @@ export default function AdminRatesIndex({
                                             <td className="hidden px-4 py-3 md:table-cell">
                                                 {entry.user_name ?? (
                                                     <span className="text-muted-foreground">
-                                                        {t('admin:rates.global')}
+                                                        {t(
+                                                            'admin:rates.global',
+                                                        )}
                                                     </span>
                                                 )}
                                             </td>

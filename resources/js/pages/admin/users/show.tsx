@@ -98,11 +98,7 @@ export default function AdminUserShow({
     });
 
     function destroy() {
-        if (
-            confirm(
-                t('admin:user_show.delete_confirm', { name: user.name }),
-            )
-        ) {
+        if (confirm(t('admin:user_show.delete_confirm', { name: user.name }))) {
             router.delete(usersDestroy({ user: user.id }).url);
         }
     }
@@ -138,9 +134,7 @@ export default function AdminUserShow({
         }
 
         if (
-            confirm(
-                t('admin:user_show.suspend_confirm', { name: user.name }),
-            )
+            confirm(t('admin:user_show.suspend_confirm', { name: user.name }))
         ) {
             router.post(
                 usersSuspend({ user: user.id }).url,
@@ -388,7 +382,10 @@ export default function AdminUserShow({
                             {t('admin:user_show.reset_password')}
                         </Button>
                         {user.suspended_at ? (
-                            <Button variant="default" onClick={toggleSuspension}>
+                            <Button
+                                variant="default"
+                                onClick={toggleSuspension}
+                            >
                                 <RotateCcw className="size-4" />{' '}
                                 {t('admin:user_show.reactivate')}
                             </Button>
@@ -450,9 +447,7 @@ export default function AdminUserShow({
                                 <Input
                                     id="admin-reset-password-confirmation"
                                     type="password"
-                                    value={
-                                        resetForm.data.password_confirmation
-                                    }
+                                    value={resetForm.data.password_confirmation}
                                     onChange={(event) =>
                                         resetForm.setData(
                                             'password_confirmation',

@@ -138,7 +138,9 @@ export default function SourcesIndex({ sources }: { sources: Source[] }) {
                             type="button"
                             onClick={() => openEdit(source)}
                             className="inline-flex size-8 items-center justify-center rounded-lg text-muted-foreground hover:text-foreground"
-                            aria-label={t('sources.edit_aria', { name: source.name })}
+                            aria-label={t('sources.edit_aria', {
+                                name: source.name,
+                            })}
                         >
                             <Pencil className="size-4" />
                         </button>
@@ -147,7 +149,9 @@ export default function SourcesIndex({ sources }: { sources: Source[] }) {
                             onClick={() => destroy(source)}
                             disabled={source.expenses_count > 0}
                             className="inline-flex size-8 items-center justify-center rounded-lg text-muted-foreground hover:text-destructive disabled:cursor-not-allowed disabled:opacity-30"
-                            aria-label={t('sources.delete_aria', { name: source.name })}
+                            aria-label={t('sources.delete_aria', {
+                                name: source.name,
+                            })}
                             title={
                                 source.expenses_count > 0
                                     ? t('common.delete_blocked')
@@ -226,7 +230,9 @@ export default function SourcesIndex({ sources }: { sources: Source[] }) {
                                                 ? 'bg-emerald-500/20 ring-2 ring-emerald-500'
                                                 : 'bg-surface-high'
                                         }`}
-                                        aria-label={t('common.icon_aria', { icon })}
+                                        aria-label={t('common.icon_aria', {
+                                            icon,
+                                        })}
                                     >
                                         <CategoryIcon
                                             icon={icon}
@@ -259,7 +265,9 @@ export default function SourcesIndex({ sources }: { sources: Source[] }) {
                                                 : ''
                                         }`}
                                         style={{ backgroundColor: color }}
-                                        aria-label={t('common.color_aria', { color })}
+                                        aria-label={t('common.color_aria', {
+                                            color,
+                                        })}
                                     />
                                 ))}
                             </div>

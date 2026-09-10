@@ -71,7 +71,9 @@ export default function AdminSourcesIndex({
 }) {
     const { t } = useTranslation();
     const [search, setSearch] = useState(filters.search ?? '');
-    const [userId, setUserId] = useState(filters.user_id ? Number(filters.user_id) : 0);
+    const [userId, setUserId] = useState(
+        filters.user_id ? Number(filters.user_id) : 0,
+    );
     const [editing, setEditing] = useState<AdminSource | null>(null);
     const searchTimeout = useRef<number | null>(null);
 
@@ -171,7 +173,9 @@ export default function AdminSourcesIndex({
                                         400,
                                     );
                                 }}
-                                placeholder={t('admin:sources.search_placeholder')}
+                                placeholder={t(
+                                    'admin:sources.search_placeholder',
+                                )}
                                 className="pl-9"
                             />
                         </div>
@@ -206,7 +210,9 @@ export default function AdminSourcesIndex({
                                 }}
                                 className="h-10 w-full rounded-lg bg-surface-low px-3 text-sm text-foreground focus:ring-2 focus:ring-emerald-500/50 focus:outline-none"
                             >
-                                <option value={0}>{t('admin:expenses.all_users')}</option>
+                                <option value={0}>
+                                    {t('admin:expenses.all_users')}
+                                </option>
                                 {users.map((user) => (
                                     <option key={user.id} value={user.id}>
                                         {user.name} ({user.email})
@@ -258,7 +264,9 @@ export default function AdminSourcesIndex({
                                                             {source.name}
                                                             {source.is_system && (
                                                                 <Badge variant="outline">
-                                                                    {t('admin:categories.badge_system')}
+                                                                    {t(
+                                                                        'admin:categories.badge_system',
+                                                                    )}
                                                                 </Badge>
                                                             )}
                                                         </p>
@@ -280,9 +288,7 @@ export default function AdminSourcesIndex({
                                                 {source.expenses_count}
                                             </td>
                                             <td className="hidden px-4 py-3 sm:table-cell">
-                                                {formatAmount(
-                                                    source.total_usd,
-                                                )}
+                                                {formatAmount(source.total_usd)}
                                             </td>
                                             <td className="px-4 py-3">
                                                 <div className="flex justify-end gap-1">
@@ -292,9 +298,12 @@ export default function AdminSourcesIndex({
                                                         onClick={() =>
                                                             openEdit(source)
                                                         }
-                                                        aria-label={t('admin:users.edit_aria', {
-                                                            name: source.name,
-                                                        })}
+                                                        aria-label={t(
+                                                            'admin:users.edit_aria',
+                                                            {
+                                                                name: source.name,
+                                                            },
+                                                        )}
                                                     >
                                                         <Pencil className="size-4" />
                                                     </Button>
@@ -308,13 +317,18 @@ export default function AdminSourcesIndex({
                                                             !source.can_delete
                                                         }
                                                         className="text-destructive hover:text-destructive disabled:opacity-40"
-                                                        aria-label={t('admin:users.delete_aria', {
-                                                            name: source.name,
-                                                        })}
+                                                        aria-label={t(
+                                                            'admin:users.delete_aria',
+                                                            {
+                                                                name: source.name,
+                                                            },
+                                                        )}
                                                         title={
                                                             source.can_delete
                                                                 ? undefined
-                                                                : t('common:delete_blocked')
+                                                                : t(
+                                                                      'common:delete_blocked',
+                                                                  )
                                                         }
                                                     >
                                                         <Trash2 className="size-4" />
@@ -341,7 +355,9 @@ export default function AdminSourcesIndex({
                 >
                     <DialogContent className="rounded-2xl sm:max-w-md">
                         <DialogHeader>
-                            <DialogTitle>{t('admin:sources.edit_title')}</DialogTitle>
+                            <DialogTitle>
+                                {t('admin:sources.edit_title')}
+                            </DialogTitle>
                             <DialogDescription>
                                 {t('admin:sources.edit_description', {
                                     name: editing?.user.name,
@@ -406,7 +422,9 @@ export default function AdminSourcesIndex({
                                                     : 'hover:scale-105'
                                             }`}
                                             style={{ backgroundColor: color }}
-                                            aria-label={t('common:color_aria', { color })}
+                                            aria-label={t('common:color_aria', {
+                                                color,
+                                            })}
                                         />
                                     ))}
                                 </div>

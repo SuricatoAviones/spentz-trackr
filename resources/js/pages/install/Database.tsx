@@ -1,10 +1,23 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { ArrowLeft, ArrowRight, Database as DatabaseIcon, Server, File as FileIcon } from 'lucide-react';
+import {
+    ArrowLeft,
+    ArrowRight,
+    Database as DatabaseIcon,
+    Server,
+    File as FileIcon,
+} from 'lucide-react';
 import { useState } from 'react';
 import AppLogoIcon from '@/components/app-logo-icon';
 import { StepIndicator } from '@/components/install/StepIndicator';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { postJson } from '@/lib/install-http';
@@ -23,10 +36,30 @@ type DatabaseProps = {
     };
 };
 
-const CONNECTIONS: { id: Connection; label: string; icon: typeof DatabaseIcon; hint: string }[] = [
-    { id: 'sqlite', label: 'SQLite', icon: FileIcon, hint: 'Recomendado para pruebas o uso personal. No requiere servidor.' },
-    { id: 'mysql', label: 'MySQL', icon: DatabaseIcon, hint: 'La opción más popular para producción.' },
-    { id: 'pgsql', label: 'PostgreSQL', icon: Server, hint: 'Base de datos avanzada de código abierto.' },
+const CONNECTIONS: {
+    id: Connection;
+    label: string;
+    icon: typeof DatabaseIcon;
+    hint: string;
+}[] = [
+    {
+        id: 'sqlite',
+        label: 'SQLite',
+        icon: FileIcon,
+        hint: 'Recomendado para pruebas o uso personal. No requiere servidor.',
+    },
+    {
+        id: 'mysql',
+        label: 'MySQL',
+        icon: DatabaseIcon,
+        hint: 'La opción más popular para producción.',
+    },
+    {
+        id: 'pgsql',
+        label: 'PostgreSQL',
+        icon: Server,
+        hint: 'Base de datos avanzada de código abierto.',
+    },
 ];
 
 export default function Database({ defaults }: DatabaseProps) {
@@ -58,12 +91,18 @@ export default function Database({ defaults }: DatabaseProps) {
                     message?: string;
                 };
 
-                throw new Error(data.message ?? 'Error al guardar la base de datos.');
+                throw new Error(
+                    data.message ?? 'Error al guardar la base de datos.',
+                );
             }
 
             router.visit('/install/app');
         } catch (error) {
-            setServerError(error instanceof Error ? error.message : 'Error al guardar la base de datos.');
+            setServerError(
+                error instanceof Error
+                    ? error.message
+                    : 'Error al guardar la base de datos.',
+            );
             setBusy(false);
         }
     };
@@ -93,28 +132,35 @@ export default function Database({ defaults }: DatabaseProps) {
                         <CardHeader>
                             <CardTitle>Motor de base de datos</CardTitle>
                             <CardDescription>
-                                Spentz Trackr funciona con SQLite, MySQL o PostgreSQL.
+                                Spentz Trackr funciona con SQLite, MySQL o
+                                PostgreSQL.
                             </CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-6">
                             <div className="grid gap-3 sm:grid-cols-3">
-                                {CONNECTIONS.map(({ id, label, icon: Icon, hint }) => (
-                                    <button
-                                        key={id}
-                                        type="button"
-                                        onClick={() => setConnection(id)}
-                                        className={cn(
-                                            'flex flex-col items-start gap-2 rounded-lg border p-4 text-left transition-colors',
-                                            connection === id
-                                                ? 'border-emerald-500 bg-emerald-500/10'
-                                                : 'border-input hover:border-muted-foreground',
-                                        )}
-                                    >
-                                        <Icon className="size-5 text-muted-foreground" />
-                                        <span className="text-sm font-semibold">{label}</span>
-                                        <span className="text-xs text-muted-foreground">{hint}</span>
-                                    </button>
-                                ))}
+                                {CONNECTIONS.map(
+                                    ({ id, label, icon: Icon, hint }) => (
+                                        <button
+                                            key={id}
+                                            type="button"
+                                            onClick={() => setConnection(id)}
+                                            className={cn(
+                                                'flex flex-col items-start gap-2 rounded-lg border p-4 text-left transition-colors',
+                                                connection === id
+                                                    ? 'border-emerald-500 bg-emerald-500/10'
+                                                    : 'border-input hover:border-muted-foreground',
+                                            )}
+                                        >
+                                            <Icon className="size-5 text-muted-foreground" />
+                                            <span className="text-sm font-semibold">
+                                                {label}
+                                            </span>
+                                            <span className="text-xs text-muted-foreground">
+                                                {hint}
+                                            </span>
+                                        </button>
+                                    ),
+                                )}
                             </div>
 
                             {needsServer && (
@@ -124,7 +170,12 @@ export default function Database({ defaults }: DatabaseProps) {
                                         <Input
                                             id="host"
                                             value={form.host}
-                                            onChange={(e) => setForm({ ...form, host: e.target.value })}
+                                            onChange={(e) =>
+                                                setForm({
+                                                    ...form,
+                                                    host: e.target.value,
+                                                })
+                                            }
                                         />
                                     </div>
                                     <div className="space-y-2">
@@ -132,32 +183,58 @@ export default function Database({ defaults }: DatabaseProps) {
                                         <Input
                                             id="port"
                                             value={form.port}
-                                            onChange={(e) => setForm({ ...form, port: e.target.value })}
+                                            onChange={(e) =>
+                                                setForm({
+                                                    ...form,
+                                                    port: e.target.value,
+                                                })
+                                            }
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label htmlFor="database">Nombre de la base de datos</Label>
+                                        <Label htmlFor="database">
+                                            Nombre de la base de datos
+                                        </Label>
                                         <Input
                                             id="database"
                                             value={form.database}
-                                            onChange={(e) => setForm({ ...form, database: e.target.value })}
+                                            onChange={(e) =>
+                                                setForm({
+                                                    ...form,
+                                                    database: e.target.value,
+                                                })
+                                            }
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label htmlFor="username">Usuario</Label>
+                                        <Label htmlFor="username">
+                                            Usuario
+                                        </Label>
                                         <Input
                                             id="username"
                                             value={form.username}
-                                            onChange={(e) => setForm({ ...form, username: e.target.value })}
+                                            onChange={(e) =>
+                                                setForm({
+                                                    ...form,
+                                                    username: e.target.value,
+                                                })
+                                            }
                                         />
                                     </div>
                                     <div className="space-y-2 sm:col-span-2">
-                                        <Label htmlFor="password">Contraseña</Label>
+                                        <Label htmlFor="password">
+                                            Contraseña
+                                        </Label>
                                         <Input
                                             id="password"
                                             type="password"
                                             value={form.password}
-                                            onChange={(e) => setForm({ ...form, password: e.target.value })}
+                                            onChange={(e) =>
+                                                setForm({
+                                                    ...form,
+                                                    password: e.target.value,
+                                                })
+                                            }
                                         />
                                     </div>
                                 </div>

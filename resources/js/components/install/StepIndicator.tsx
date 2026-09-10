@@ -17,14 +17,20 @@ export function StepIndicator({ current }: { current: number }) {
                 const done = step < current;
 
                 return (
-                    <li key={label} className="flex items-center gap-2 sm:gap-4">
+                    <li
+                        key={label}
+                        className="flex items-center gap-2 sm:gap-4"
+                    >
                         <div className="flex items-center gap-2">
                             <span
                                 className={cn(
                                     'flex size-8 items-center justify-center rounded-full text-sm font-semibold transition-colors',
                                     done && 'bg-emerald-500 text-white',
-                                    active && 'bg-emerald-500 text-white ring-4 ring-emerald-500/25',
-                                    !done && !active && 'bg-muted text-muted-foreground',
+                                    active &&
+                                        'bg-emerald-500 text-white ring-4 ring-emerald-500/25',
+                                    !done &&
+                                        !active &&
+                                        'bg-muted text-muted-foreground',
                                 )}
                             >
                                 {done ? <Check className="size-4" /> : step}
@@ -32,7 +38,9 @@ export function StepIndicator({ current }: { current: number }) {
                             <span
                                 className={cn(
                                     'text-sm font-medium',
-                                    active ? 'text-foreground' : 'text-muted-foreground',
+                                    active
+                                        ? 'text-foreground'
+                                        : 'text-muted-foreground',
                                 )}
                             >
                                 {label}

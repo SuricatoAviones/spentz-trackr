@@ -18,7 +18,12 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
-import { CURRENCY_META, formatAmount, formatDate, todayInputValue } from '@/lib/format';
+import {
+    CURRENCY_META,
+    formatAmount,
+    formatDate,
+    todayInputValue,
+} from '@/lib/format';
 import type { CurrencyCode } from '@/lib/format';
 import {
     destroy as paymentsDestroy,
@@ -51,7 +56,13 @@ const ICON_OPTIONS = [
     'heart-pulse',
 ];
 
-const FREQUENCY_OPTIONS = ['daily', 'weekly', 'monthly', 'quarterly', 'yearly'] as const;
+const FREQUENCY_OPTIONS = [
+    'daily',
+    'weekly',
+    'monthly',
+    'quarterly',
+    'yearly',
+] as const;
 type FrequencyCode = (typeof FREQUENCY_OPTIONS)[number];
 
 type RecurringPayment = {
@@ -165,12 +176,21 @@ export default function RecurringPaymentsIndex({
     }
 
     function destroyPayment(payment: RecurringPayment) {
-        if (confirm(t('recurring_payments.delete_confirm', { name: payment.name }))) {
-            router.delete(paymentsDestroy({ recurring_payment: payment.id }).url);
+        if (
+            confirm(
+                t('recurring_payments.delete_confirm', { name: payment.name }),
+            )
+        ) {
+            router.delete(
+                paymentsDestroy({ recurring_payment: payment.id }).url,
+            );
         }
     }
 
-    const currencyButtons = (selected: CurrencyCode, onChange: (currency: CurrencyCode) => void) => (
+    const currencyButtons = (
+        selected: CurrencyCode,
+        onChange: (currency: CurrencyCode) => void,
+    ) => (
         <div className="grid grid-cols-3 gap-1 rounded-lg bg-surface-high p-1">
             {(Object.keys(CURRENCY_META) as CurrencyCode[]).map((currency) => {
                 const meta = CURRENCY_META[currency];
@@ -182,7 +202,9 @@ export default function RecurringPaymentsIndex({
                         type="button"
                         onClick={() => onChange(currency)}
                         className={`rounded-md py-2 text-xs font-semibold transition-colors ${
-                            active ? 'bg-emerald-500/20 text-emerald-400' : 'text-muted-foreground'
+                            active
+                                ? 'bg-emerald-500/20 text-emerald-400'
+                                : 'text-muted-foreground'
                         }`}
                     >
                         {meta.label}
@@ -270,14 +292,19 @@ export default function RecurringPaymentsIndex({
                             }`}
                         >
                             <div className="flex items-start gap-3">
-                                <CategoryIcon icon={payment.icon} color={payment.color} />
+                                <CategoryIcon
+                                    icon={payment.icon}
+                                    color={payment.color}
+                                />
                                 <div className="min-w-0 flex-1">
                                     <p className="truncate text-sm font-semibold text-foreground">
                                         {payment.name}
                                     </p>
                                     <p className="text-xs text-muted-foreground">
                                         {formatAmount(payment.usd_amount)} USD ·{' '}
-                                        {t(`recurring_payments.frequency_options.${payment.frequency}`)}
+                                        {t(
+                                            `recurring_payments.frequency_options.${payment.frequency}`,
+                                        )}
                                     </p>
                                 </div>
                                 <div className="flex items-center gap-0.5">
@@ -289,9 +316,10 @@ export default function RecurringPaymentsIndex({
                                                     confirm(
                                                         t(
                                                             'recurring_payments.mark_paid_aria',
-                                                            { name: payment.name },
-                                                        ) +
-                                                            '?',
+                                                            {
+                                                                name: payment.name,
+                                                            },
+                                                        ) + '?',
                                                     )
                                                 ) {
                                                     router.post(
@@ -417,7 +445,9 @@ export default function RecurringPaymentsIndex({
                                 onChange={(event) =>
                                     form.setData('name', event.target.value)
                                 }
-                                placeholder={t('recurring_payments.name_placeholder')}
+                                placeholder={t(
+                                    'recurring_payments.name_placeholder',
+                                )}
                                 className="h-11 w-full rounded-lg bg-surface-high px-3 text-sm text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-emerald-500/50 focus:outline-none"
                             />
                             {form.errors.name && (
@@ -443,7 +473,10 @@ export default function RecurringPaymentsIndex({
                                     inputMode="decimal"
                                     value={form.data.amount}
                                     onChange={(event) =>
-                                        form.setData('amount', event.target.value)
+                                        form.setData(
+                                            'amount',
+                                            event.target.value,
+                                        )
                                     }
                                     placeholder={t(
                                         'recurring_payments.amount_placeholder',
@@ -460,7 +493,10 @@ export default function RecurringPaymentsIndex({
                                 <span className="mb-1.5 block text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
                                     {t('recurring_payments.currency')}
                                 </span>
-                                {currencyButtons(form.data.currency, handleCurrencyChange)}
+                                {currencyButtons(
+                                    form.data.currency,
+                                    handleCurrencyChange,
+                                )}
                                 {form.errors.currency && (
                                     <p className="mt-1 text-xs text-destructive">
                                         {form.errors.currency}
@@ -485,7 +521,10 @@ export default function RecurringPaymentsIndex({
                                     inputMode="decimal"
                                     value={form.data.exchange_rate}
                                     onChange={(event) =>
-                                        form.setData('exchange_rate', event.target.value)
+                                        form.setData(
+                                            'exchange_rate',
+                                            event.target.value,
+                                        )
                                     }
                                     className="h-11 w-full rounded-lg bg-surface-high px-3 text-sm text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-emerald-500/50 focus:outline-none"
                                 />
@@ -525,7 +564,10 @@ export default function RecurringPaymentsIndex({
                                     type="date"
                                     value={form.data.next_due_date}
                                     onChange={(event) =>
-                                        form.setData('next_due_date', event.target.value)
+                                        form.setData(
+                                            'next_due_date',
+                                            event.target.value,
+                                        )
                                     }
                                     className="h-11 w-full rounded-lg bg-surface-high px-3 text-sm text-foreground focus:ring-2 focus:ring-emerald-500/50 focus:outline-none"
                                 />
@@ -546,7 +588,10 @@ export default function RecurringPaymentsIndex({
                                     id="payment-category"
                                     value={form.data.category_id}
                                     onChange={(event) =>
-                                        form.setData('category_id', event.target.value)
+                                        form.setData(
+                                            'category_id',
+                                            event.target.value,
+                                        )
                                     }
                                     className="h-11 w-full rounded-lg bg-surface-high px-3 text-sm text-foreground focus:ring-2 focus:ring-emerald-500/50 focus:outline-none"
                                 >
@@ -554,7 +599,10 @@ export default function RecurringPaymentsIndex({
                                         {t('recurring_payments.category_none')}
                                     </option>
                                     {categories.map((category) => (
-                                        <option key={category.id} value={category.id}>
+                                        <option
+                                            key={category.id}
+                                            value={category.id}
+                                        >
                                             {category.name}
                                         </option>
                                     ))}
@@ -577,13 +625,17 @@ export default function RecurringPaymentsIndex({
                                         <button
                                             key={icon}
                                             type="button"
-                                            onClick={() => form.setData('icon', icon)}
+                                            onClick={() =>
+                                                form.setData('icon', icon)
+                                            }
                                             className={`flex size-10 items-center justify-center rounded-lg transition-colors ${
                                                 form.data.icon === icon
                                                     ? 'bg-emerald-500/20 ring-2 ring-emerald-500'
                                                     : 'bg-surface-high'
                                             }`}
-                                            aria-label={t('common.icon_aria', { icon })}
+                                            aria-label={t('common.icon_aria', {
+                                                icon,
+                                            })}
                                         >
                                             <CategoryIcon
                                                 icon={icon}
@@ -603,14 +655,18 @@ export default function RecurringPaymentsIndex({
                                         <button
                                             key={color}
                                             type="button"
-                                            onClick={() => form.setData('color', color)}
+                                            onClick={() =>
+                                                form.setData('color', color)
+                                            }
                                             className={`size-8 rounded-full transition-transform ${
                                                 form.data.color === color
                                                     ? 'scale-110 ring-2 ring-white/70'
                                                     : ''
                                             }`}
                                             style={{ backgroundColor: color }}
-                                            aria-label={t('common.color_aria', { color })}
+                                            aria-label={t('common.color_aria', {
+                                                color,
+                                            })}
                                         />
                                     ))}
                                 </div>
@@ -637,7 +693,9 @@ export default function RecurringPaymentsIndex({
                                 onChange={(event) =>
                                     form.setData('note', event.target.value)
                                 }
-                                placeholder={t('recurring_payments.note_placeholder')}
+                                placeholder={t(
+                                    'recurring_payments.note_placeholder',
+                                )}
                                 className="w-full rounded-lg bg-surface-high px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-emerald-500/50 focus:outline-none"
                             />
                         </div>

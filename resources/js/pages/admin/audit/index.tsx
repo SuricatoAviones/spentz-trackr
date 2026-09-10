@@ -58,14 +58,18 @@ export default function AdminAuditIndex({
     const formatDateTime = (value: string): string => {
         const date = new Date(value);
 
-        return date.toLocaleDateString(getLocale(), {
-            day: '2-digit',
-            month: 'short',
-            year: 'numeric',
-        }) + ' · ' + date.toLocaleTimeString(getLocale(), {
-            hour: '2-digit',
-            minute: '2-digit',
-        });
+        return (
+            date.toLocaleDateString(getLocale(), {
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric',
+            }) +
+            ' · ' +
+            date.toLocaleTimeString(getLocale(), {
+                hour: '2-digit',
+                minute: '2-digit',
+            })
+        );
     };
 
     return (
@@ -173,7 +177,8 @@ export default function AdminAuditIndex({
                                         )
                                     }
                                 >
-                                    <ChevronLeft className="size-4" /> {t('admin:users.prev')}
+                                    <ChevronLeft className="size-4" />{' '}
+                                    {t('admin:users.prev')}
                                 </Button>
                             )}
                             {actions.current_page < actions.last_page && (

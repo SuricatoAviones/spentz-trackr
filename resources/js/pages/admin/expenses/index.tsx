@@ -82,7 +82,9 @@ export default function AdminExpensesIndex({
 }) {
     const { t } = useTranslation();
     const [search, setSearch] = useState(filters.search ?? '');
-    const [userId, setUserId] = useState(filters.user_id ? Number(filters.user_id) : 0);
+    const [userId, setUserId] = useState(
+        filters.user_id ? Number(filters.user_id) : 0,
+    );
     const [categoryId, setCategoryId] = useState(
         filters.category_id ? Number(filters.category_id) : 0,
     );
@@ -191,7 +193,9 @@ export default function AdminExpensesIndex({
                                         400,
                                     );
                                 }}
-                                placeholder={t('admin:expenses.search_placeholder')}
+                                placeholder={t(
+                                    'admin:expenses.search_placeholder',
+                                )}
                                 className="pl-9"
                             />
                         </div>
@@ -357,7 +361,9 @@ export default function AdminExpensesIndex({
                                             {t('admin:expenses.filter_user')}
                                         </th>
                                         <th className="hidden px-4 py-3 font-medium lg:table-cell">
-                                            {t('admin:expenses.filter_category')}
+                                            {t(
+                                                'admin:expenses.filter_category',
+                                            )}
                                         </th>
                                         <th className="hidden px-4 py-3 font-medium lg:table-cell">
                                             {t('admin:expenses.col_source')}
@@ -434,7 +440,8 @@ export default function AdminExpensesIndex({
                                             </td>
                                             <td className="px-4 py-3">
                                                 <div className="flex justify-end">
-                                                    {expense.receipts.length > 0 && (
+                                                    {expense.receipts.length >
+                                                        0 && (
                                                         <Button
                                                             variant="ghost"
                                                             size="icon"
@@ -444,10 +451,13 @@ export default function AdminExpensesIndex({
                                                                 )
                                                             }
                                                             className="text-muted-foreground hover:text-foreground"
-                                                            aria-label={t('admin:expenses.receipts_aria', {
-                                                                description:
-                                                                    expense.description,
-                                                            })}
+                                                            aria-label={t(
+                                                                'admin:expenses.receipts_aria',
+                                                                {
+                                                                    description:
+                                                                        expense.description,
+                                                                },
+                                                            )}
                                                         >
                                                             <Paperclip className="size-4" />
                                                         </Button>
@@ -459,10 +469,13 @@ export default function AdminExpensesIndex({
                                                             destroy(expense)
                                                         }
                                                         className="text-destructive hover:text-destructive"
-                                                        aria-label={t('admin:expenses.delete_aria', {
-                                                            description:
-                                                                expense.description,
-                                                        })}
+                                                        aria-label={t(
+                                                            'admin:expenses.delete_aria',
+                                                            {
+                                                                description:
+                                                                    expense.description,
+                                                            },
+                                                        )}
                                                     >
                                                         <Trash2 className="size-4" />
                                                     </Button>
@@ -500,14 +513,14 @@ export default function AdminExpensesIndex({
                                             expensesIndex().url,
                                             {
                                                 ...filters,
-                                                page:
-                                                    expenses.current_page - 1,
+                                                page: expenses.current_page - 1,
                                             },
                                             { preserveState: true },
                                         )
                                     }
                                 >
-                                    <ChevronLeft className="size-4" /> {t('admin:users.prev')}
+                                    <ChevronLeft className="size-4" />{' '}
+                                    {t('admin:users.prev')}
                                 </Button>
                             )}
                             {expenses.current_page < expenses.last_page && (
@@ -519,8 +532,7 @@ export default function AdminExpensesIndex({
                                             expensesIndex().url,
                                             {
                                                 ...filters,
-                                                page:
-                                                    expenses.current_page + 1,
+                                                page: expenses.current_page + 1,
                                             },
                                             { preserveState: true },
                                         )
@@ -557,9 +569,11 @@ export default function AdminExpensesIndex({
                             {receiptsFor?.receipts.map((receipt) => (
                                 <a
                                     key={receipt.id}
-                                    href={receiptsShow({
-                                        receipt: receipt.id,
-                                    }).url}
+                                    href={
+                                        receiptsShow({
+                                            receipt: receipt.id,
+                                        }).url
+                                    }
                                     target="_blank"
                                     rel="noreferrer"
                                     className="flex items-center gap-3 px-4 py-3 text-sm font-medium hover:bg-accent"
