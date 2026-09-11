@@ -1,10 +1,9 @@
 # 06 — Despliegue en cPanel
 
-> **La vía recomendada es el instalador web** (`/install`, `APP_INSTALL_MODE=wizard`): sube
-> los archivos, apunta el dominio a `public/`, abre `https://tudominio.com/install` y sigue
-> el wizard de 4 pasos (requisitos → base de datos → aplicación → completado). Este
-> documento cubre el proceso completo, incluido el modo manual. Ver también
-> `11-instalador.md`.
+> La app **no tiene instalador**: se configura con un `.env` como cualquier proyecto
+> Laravel. El flujo es subir los archivos, apuntar el dominio a `public/`, crear el `.env`,
+> generar la clave, migrar y crear el administrador. Este documento cubre el proceso
+> completo.
 
 ## 1. Requisitos del hosting
 
@@ -51,33 +50,56 @@ Laravel solo expone `public/`.
 - **Dominio principal:** en `public_html/.htaccess`, redirige a HTTPS y reescribe a
   `/spentz-trackr/public/$1`.
 
-## 6. Instalación con el wizard (recomendado)
+## 6. Crear el `.env`
 
-**No necesitas crear ni editar un `.env`.** Abre `https://app.tudominio.com` — al no estar
-instalada, redirige a `/install`. Sigue los 4 pasos (requisitos → base de datos → aplicación
-→ completado). El wizard escribe un `.env` completo y de producción (`APP_ENV=production`,
-`APP_DEBUG=false`, `APP_KEY`, `DB_*`, `SESSION_SECURE_COOKIE` según la URL), aplica las
-migraciones y crea el administrador. Al terminar, `/install` queda bloqueado.
+Copia `.env.example` a `.env` y ajusta al menos estos valores:
 
-Requisitos: la **raíz de la app debe ser escribible** (para el `.env`) además de `storage/`
-y `bootstrap/cache/` — el paso de Requisitos lo verifica.
+```env
+APP_NAME="Spentz Trackr"
+APP_ENV=production
+APP_DEBUG=false
+APP_URL=https://app.tudominio.com
+APP_LOCALE=es
+APP_TIMEZONE=America/Caracas
 
-> El correo (`MAIL_*` para reset de contraseña) no lo pide el wizard: si lo necesitas,
-> añade esas líneas al `.env` después de instalar y ejecuta `php artisan config:clear`.
+DB_CONNECTION=mysql
+DB_HOST=localhost
+DB_PORT=3306
+DB_DATABASE=usuario_spenttrackr
+DB_USERNAME=usuario_spentz
+DB_PASSWORD=********
 
-## 7. Instalación manual (sin wizard)
+SESSION_DRIVER=database
+SESSION_SECURE_COOKIE=true      # true solo si el dominio tiene HTTPS
+CACHE_STORE=database
+QUEUE_CONNECTION=database
 
-Si prefieres la CLI, o el hosting no permite escribir el `.env` por web:
+# Credenciales del primer administrador (las lee `php artisan admin:create`)
+ADMIN_NAME=Administrador
+ADMIN_EMAIL=admin@tudominio.com
+ADMIN_PASSWORD=CambiaEstaClave123
+```
+
+`APP_KEY` se deja vacío: lo rellena el siguiente paso.
+
+> El correo (`MAIL_*`, necesario para el reset de contraseña) no viene configurado. Si lo
+> necesitas, añade esas líneas y ejecuta `php artisan config:clear`.
+
+## 7. Generar la clave, migrar y crear el administrador
 
 ```bash
 cd ~/spentz-trackr
-php artisan app:install     # interactivo: pregunta BD + admin, escribe el .env
+php artisan key:generate        # escribe APP_KEY en el .env
+php artisan migrate --force
+php artisan admin:create        # crea el admin con las credenciales ADMIN_* del .env
 php artisan storage:link
 php artisan optimize
 ```
 
-**Sin Terminal:** encadena `php artisan app:install --no-interaction && php artisan storage:link`
-en un Cron Job (con las variables `DB_*` y `ADMIN_*` en *Environment* de cPanel) y bórralo
+`admin:create` es idempotente, pero **reescribe la contraseña** con `ADMIN_PASSWORD` cada
+vez que se ejecuta: córrelo una sola vez y cambia la contraseña desde la app.
+
+**Sin Terminal:** encadena esos comandos en un Cron Job de una sola ejecución y bórralo
 después.
 
 ## 8. Cron (tasa de cambio + cola)
@@ -95,9 +117,9 @@ sin tasa.
 
 ## 9. Permisos
 
-`storage/` (y subcarpetas), `bootstrap/cache/` **y la raíz de la app** (para que el wizard
-escriba el `.env`) con escritura para el usuario del proceso PHP (775, o 777 en hosts muy
-restrictivos). `public/` en 755. Tras instalar puedes volver la raíz a 755.
+`storage/` (y subcarpetas) y `bootstrap/cache/` con escritura para el usuario del proceso
+PHP (775, o 777 en hosts muy restrictivos). `public/` y la raíz de la app en 755 — el `.env`
+lo creas tú por File Manager o Terminal, así que la raíz no necesita ser escribible por PHP.
 
 ## 10. Verificación
 
@@ -121,9 +143,9 @@ php artisan app:update                    # migraciones + limpia y recachea todo
 
 | Síntoma | Causa | Solución |
 |---|---|---|
-| Error 500 al abrir | `APP_KEY` vacío o permisos de `storage/` | `php artisan key:generate`; 775 a `storage/` y `bootstrap/cache` |
+| Error 500 al abrir | Falta el `.env`, `APP_KEY` vacío o permisos de `storage/` | Crear el `.env`; `php artisan key:generate`; 775 a `storage/` y `bootstrap/cache` |
 | "Unable to locate file in Vite manifest" | Falta `public/build/` | `npm run build` local y volver a subir |
 | Comprobantes no cargan | Falta `storage:link` | `php artisan storage:link` |
 | Login en bucle | `SESSION_SECURE_COOKIE=true` sin HTTPS | Activar SSL; o `false` solo para pruebas |
 | 404 tras actualizar | Cache de rutas vieja | `php artisan route:clear && php artisan route:cache` |
-| `/install` da 404 | `APP_INSTALL_MODE=headless` o ya instalado (`storage/installed`) | Cambiar a `wizard` / borrar el archivo solo si de verdad quieres reinstalar |
+| Cambios del `.env` sin efecto | Config cacheada | `php artisan config:clear && php artisan optimize` |

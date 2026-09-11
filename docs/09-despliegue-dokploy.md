@@ -74,7 +74,7 @@ RUN install-php-extensions bcmath gd intl
 COPY --from=vendor /app/vendor ./vendor
 COPY --from=frontend /app/public/build ./public/build
 COPY --chown=www-data:www-data . .
-# Instalación headless al arrancar (solo si no existe storage/installed)
+# APP_KEY persistente + migraciones al arrancar
 COPY --chmod=755 ./docker/entrypoint.d/ /etc/entrypoint.d/
 USER www-data
 
@@ -115,9 +115,7 @@ APP_URL=https://spent.tudominio.com
 # (dentro del volumen de storage). Solo fíjala aquí si quieres controlarla tú.
 
 APP_LOCALE=es
-TIMEZONE=America/Caracas
-# 'headless' instala y bloquea /install (Docker). 'wizard' deja el instalador web (solo cPanel).
-APP_INSTALL_MODE=headless
+APP_TIMEZONE=America/Caracas
 
 DB_CONNECTION=mysql
 DB_HOST=mysql
@@ -143,31 +141,47 @@ ADMIN_PASSWORD=CambiaEstaClave123
 >
 > **`QUEUE_CONNECTION=sync`**: el único job de la app (`SyncExchangeRates`, cada 5 min) se ejecuta inline cuando el scheduler lo dispara; no necesitas worker. Si más adelante añades jobs pesados, cambia a `database` y agrega un servicio worker (`php artisan queue:work --tries=3`).
 
-`ADMIN_*` y `DB_*` alimentan la **instalación headless**: en el primer arranque el contenedor ejecuta automáticamente `php artisan app:install --no-interaction`, que lee estas variables (ver sección 6).
+`DB_*` las lee Laravel directamente. `ADMIN_*` las lee `php artisan admin:create`, que ejecutas **una vez** desde el Terminal tras el primer deploy (ver sección 6).
 
 ## 5. Volúmenes persistentes
 
-Monta `/var/www/html/storage` completo como volumen persistente: conserva el marcador de instalación (`storage/installed`), los comprobantes (`storage/app/public`), los logs y las sesiones/colas entre despliegues; sin él, cada redeploy intentaría reinstalar la app.
+Monta `/var/www/html/storage` completo como volumen persistente: conserva la `APP_KEY` (`storage/app.key`), los comprobantes (`storage/app/public`), los logs y las sesiones/colas entre despliegues; sin él, cada redeploy generaría una clave nueva e invalidaría todas las sesiones.
 
 - En **Persistent Storage** de la app agrega un volumen con ruta de contenedor:
   `/var/www/html/storage`
 
 El `php artisan storage:link` ya se ejecutó en el build, así que `public/storage` apunta al volumen.
 
-## 6. Instalación automática (headless)
+## 6. Arranque del contenedor
 
-El script `docker/entrypoint.d/99-spentz-install.sh` se ejecuta en cada arranque del contenedor y:
+La app **no tiene instalador**: se configura solo con las variables de entorno de la
+sección 4. Dos scripts de entrypoint hacen el resto en **cada** arranque:
 
-1. Si existe `storage/installed`, no hace nada (la app ya está instalada).
-2. Si no existe, ejecuta `php artisan app:install --no-interaction`, que lee del entorno `DB_*`, `APP_*`/`TIMEZONE` y `ADMIN_*`: escribe un `.env` listo para producción (`APP_ENV=production`, `APP_DEBUG=false`), reutiliza la `APP_KEY` de `storage/app.key`, ejecuta las migraciones, crea el administrador y marca `storage/installed`.
-3. Si la base de datos aún no responde (primera vez), reintenta hasta 30 veces con 5 s de espera (`INSTALL_DB_RETRIES` / `INSTALL_DB_RETRY_DELAY` para ajustar).
-4. Al terminar ejecuta `php artisan optimize`. Si falla definitivamente, el contenedor no arranca (se ve en los logs).
+1. **`98-spentz-key.sh`** — si no pasaste `APP_KEY`, la genera y la persiste en
+   `storage/app.key` (volumen), y la materializa en un `.env` mínimo para que php-fpm y
+   `artisan` la vean. Si defines `APP_KEY` en el entorno, gana la tuya y el script no hace
+   nada.
+2. **`99-spentz-migrate.sh`** — ejecuta `php artisan migrate --force` (idempotente: no hace
+   nada si el esquema está al día) y luego `php artisan optimize`. Si la base de datos aún
+   no responde reintenta hasta 30 veces con 5 s de espera (`MIGRATE_DB_RETRIES` /
+   `MIGRATE_DB_RETRY_DELAY`). Si falla definitivamente, el contenedor no arranca.
 
-**No hace falta correr comandos manuales.** El instalador web (`/install`) queda bloqueado con `APP_INSTALL_MODE=headless` (404).
+### Crear el administrador (una sola vez)
+
+Tras el primer deploy, desde el **Terminal** de la app en Dokploy:
+
+```bash
+php artisan admin:create
+```
+
+Lee `ADMIN_NAME` / `ADMIN_EMAIL` / `ADMIN_PASSWORD` del entorno. **No lo corras en cada
+deploy**: reescribe la contraseña con `ADMIN_PASSWORD` cada vez, así que revertiría
+cualquier cambio de contraseña hecho desde la app. Por eso no está en el entrypoint.
 
 ### En despliegues posteriores
 
-Un redeploy **no** re-ejecuta la instalación (persiste `storage/installed`), pero tampoco corre migraciones: tras cada deploy con cambios de BD ejecuta `php artisan migrate --force` (comandos *After deploy* de Dokploy o desde el Terminal).
+Las migraciones corren solas en cada arranque, así que un redeploy con cambios de BD no
+necesita comandos manuales.
 
 ## 7. Scheduler (tasa cada 5 min)
 
@@ -190,12 +204,12 @@ scheduler:
 
 ## 8. Actualizaciones
 
-Cada push a la rama hace build + redeploy (o usa **Deploy** manual). El volumen de `storage` y la BD (recurso Database) se conservan. No olvides que un redeploy **no** ejecuta migraciones: corre `php artisan migrate --force` tras cada deploy con cambios de BD.
+Cada push a la rama hace build + redeploy (o usa **Deploy** manual). El volumen de `storage` y la BD (recurso Database) se conservan, y el entrypoint aplica las migraciones pendientes en cada arranque, así que un deploy con cambios de BD no necesita comandos manuales.
 
 ## 9. Verificación final
 
 - [ ] `https://spent.tudominio.com` carga con SSL.
-- [ ] `php artisan migrate --force` sin errores y login con un usuario creado.
+- [ ] Los logs del contenedor muestran las migraciones aplicadas sin errores y puedes iniciar sesión.
 - [ ] Crear gasto en Bs → el formulario muestra tasa BCV/paralela real.
 - [ ] `php artisan schedule:list` muestra el job cada 5 min; el log `storage/logs/laravel.log` no acumula errores de dolarapi.com.
 - [ ] Subir un comprobante → aparece en `storage/app/public/receipts` y sobrevive a un redeploy.
@@ -208,7 +222,7 @@ Cada push a la rama hace build + redeploy (o usa **Deploy** manual). El volumen 
 |---|---|
 | API dolarapi.com inaccesible desde el VPS | Fallback: tasa manual por usuario + último valor persistido |
 | Volumen de storage borrado en redeploy | Persistir `storage/app/public` (paso 5); nunca depender del filesystem efímero |
-| Migraciones olvidadas tras un deploy | Comandos *After deploy* de Dokploy o checklist manual |
+| Migraciones olvidadas tras un deploy | `99-spentz-migrate.sh` las aplica en cada arranque; si fallan, el contenedor no levanta (visible en logs) |
 | `.env` con credenciales en el repo | Dokploy inyecta variables por entorno; `.dockerignore` excluye `.env` |
 | Worker inexistente con `QUEUE_CONNECTION=database` | Usar `sync` (recomendado hoy) o servicio worker aparte |
 | Backups | El panel admin genera backup JSON (`/admin/system`); adicionalmente, snapshot periódico de la BD en Dokploy |

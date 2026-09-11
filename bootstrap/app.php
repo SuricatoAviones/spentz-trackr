@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Middleware\EnsureApiUserNotSuspended;
-use App\Http\Middleware\EnsureInstalled;
 use App\Http\Middleware\EnsureUserIsAdmin;
 use App\Http\Middleware\EnsureUserNotSuspended;
 use App\Http\Middleware\HandleAppearance;
@@ -29,10 +28,6 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $trustedProxies = $_SERVER['TRUSTED_PROXIES'] ?? $_ENV['TRUSTED_PROXIES'] ?? '*';
         $middleware->trustProxies(at: is_string($trustedProxies) ? $trustedProxies : '*');
-
-        $middleware->prepend([
-            EnsureInstalled::class,
-        ]);
 
         $middleware->encryptCookies(except: ['appearance', 'sidebar_state']);
 

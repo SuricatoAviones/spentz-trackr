@@ -34,7 +34,7 @@ Docker) con su base de datos.
 | Saldos por cuenta | No | El origen es una etiqueta; no se calculan saldos |
 | Presupuestos | Global mensual **y** por categoría | Barras de progreso en el dashboard; sin alertas todavía |
 | Idioma | ES/EN con selector persistente | Español por defecto; preferencia por usuario, sesión y navegador |
-| Despliegue | cPanel, VPS o Docker | Instalador web / CLI / Compose |
+| Despliegue | cPanel, VPS o Docker | Configuración por `.env` + Compose |
 
 ## Monedas soportadas
 

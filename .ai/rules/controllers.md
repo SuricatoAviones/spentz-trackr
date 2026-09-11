@@ -2,7 +2,6 @@
 paths:
   - 'app/Http/Controllers/**'
   - app/Http/Controllers/ExpenseController.php
-  - app/Http/Controllers/InstallController.php
 ---
 
 # Controllers
@@ -25,11 +24,12 @@ Nunca quitar `ensureFreshRate($user)` de Dashboard/Ajustes/Expense create|edit: 
 ## Comisión en gastos Bs: regla "lo que sea mayor" y monto base aparte
 En gastos en Bs la comisión (pago móvil o transferencia) se cobra con la regla max(min_commission, monto × commission_rate%), con piso configurable en Ajustes (default 14 Bs, 0,30%, Gaceta 43.427, punto de quiebre ≈ 4.667 Bs). expenses.amount guarda SIEMPRE la base (sin comisión); commission va en su propia columna y el equivalente USD/USDT se calcula sobre amount + commission. El frontend (expense-form.tsx) precalcula max(min, monto×%) al elegir método y lo deja editable con opción "Sin comisión".
 
-## Instalador: arranca sin .env, bloqueado tras instalar / en headless
-El wizard debe funcionar en un deploy nuevo SIN `.env` (APP_ENV cae a "production"), así
-que `InstallController` NO aborta por entorno: solo 404 si `APP_INSTALL_MODE=headless` y
-403 si ya existe `storage/installed` (gitignored). Nunca permitir re-ejecutar
-`install/execute` una vez instalado (reescribiría `.env` y crearía un admin). La `APP_KEY`
-la garantiza el middleware `EnsureInstalled` desde `storage/app.key` — no depender de que
-`.env` exista ni sea escribible en boot. `Installer::install()` aplica la config de BD a
-`config()` en runtime antes de migrar (si no, migra contra la BD del entorno viejo).
+## Sin instalador: la app se configura por .env (ADR-008)
+No existe wizard `/install`, ni `InstallController`, ni `App\Services\Installer`, ni el
+middleware `EnsureInstalled`, ni el comando `app:install` — se eliminaron a propósito y no
+deben reintroducirse. La app **no arranca sin `APP_KEY`**: el despliegue es el flujo
+estándar de Laravel (`.env` a mano → `key:generate` → `migrate --force` → `admin:create` →
+`storage:link`). En Docker lo cubren `docker/entrypoint.d/98-spentz-key.sh` (genera y
+persiste la clave en `storage/app.key`, dentro del volumen) y `99-spentz-migrate.sh`
+(migra + `optimize` en cada arranque). `admin:create` NO va en el entrypoint: reescribe la
+contraseña con `ADMIN_PASSWORD` en cada ejecución.

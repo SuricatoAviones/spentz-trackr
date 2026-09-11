@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-**Spentz Trackr** — self-hostable, multi-currency personal finance tracker (USD / Bs / USDT) aimed at Venezuela. Laravel 13 (PHP 8.3+) + Inertia v3 + React 19 + Tailwind 4 + shadcn/ui. Ships a web/CLI/Docker installer. Product docs (Spanish) live in `docs/` — `docs/README.md` is the index; **read `docs/04-arquitectura.md` before implementing new features** (contains the ADRs).
+**Spentz Trackr** — self-hostable, multi-currency personal finance tracker (USD / Bs / USDT) aimed at Venezuela. Laravel 13 (PHP 8.3+) + Inertia v3 + React 19 + Tailwind 4 + shadcn/ui. Deployed via a hand-written `.env` (no installer — see ADR-008). Product docs (Spanish) live in `docs/` — `docs/README.md` is the index; **read `docs/04-arquitectura.md` before implementing new features** (contains the ADRs).
 
 ## Rules system — read before editing (`.ai/rules/`)
 
@@ -37,10 +37,9 @@ npm run types:check                       # tsc --noEmit
 composer run types:check                  # phpstan (larastan) level 7
 composer run ci:check                     # full gate: eslint + prettier + tsc + phpstan + pint + phpunit
 
-# Installer / admin (also see docs/11-instalador.md)
-php artisan app:install    # headless install (--db-*, --admin-*, --force flags)
-php artisan app:update
-php artisan admin:create   # idempotent; reads ADMIN_NAME/EMAIL/PASSWORD from .env
+# Deploy / admin (see docs/06-despliegue-cpanel.md, docs/09-despliegue-dokploy.md)
+php artisan app:update     # git pull + deps + migrate + cache clear
+php artisan admin:create   # reads ADMIN_NAME/EMAIL/PASSWORD from .env; RESETS the password every run
 ```
 
 Tests run on in-memory SQLite with `SESSION_DRIVER=array` / `QUEUE_CONNECTION=sync` (`phpunit.xml`); dev defaults to file SQLite, prod to MySQL/PostgreSQL (driver chosen by `.env`). Two recurring test traps: (1) Symfony injects `Accept-Language: en` into every test request, so browser-locale logic resolves `en` unless you assert against the Spanish-first fallback chain; (2) avoid engine-specific SQL — `YEAR()` / `DATE()` don't exist in SQLite; use `substr(spent_at, 1, 4)` and `whereDate()` for portable MySQL/SQLite queries.
@@ -49,7 +48,7 @@ Tests run on in-memory SQLite with `SESSION_DRIVER=array` / `QUEUE_CONNECTION=sy
 
 ## Architecture
 
-**Everything is wired in `bootstrap/app.php`** (Laravel 11+ style — there is no `app/Http/Kernel.php`, no `app/Console/Kernel.php`, no `ScheduleServiceProvider`). That one file registers all route files (`web`, `api`, `admin`, `install`, `settings`, `console`), the middleware stack and its order, and the scheduler (`SyncExchangeRates` → `everyFiveMinutes`).
+**Everything is wired in `bootstrap/app.php`** (Laravel 11+ style — there is no `app/Http/Kernel.php`, no `app/Console/Kernel.php`, no `ScheduleServiceProvider`). That one file registers all route files (`web`, `api`, `admin`, `settings`, `console`), the middleware stack and its order, and the scheduler (`SyncExchangeRates` → `everyFiveMinutes`).
 
 **Auth is Laravel Fortify** (not Breeze) + passkeys (`@laravel/passkeys` / `@laravel/multiplex`). Registration/reset logic lives in `app/Actions/Fortify/`; shared validation in `app/Concerns/{PasswordValidationRules,ProfileValidationRules}`. No hand-written auth controllers.
 
@@ -71,9 +70,9 @@ Tests run on in-memory SQLite with `SESSION_DRIVER=array` / `QUEUE_CONNECTION=sy
 
 **Tracking features toggle:** `EnsureTrackingFeature:<feature>` middleware gates optional modules (incomes, expenses, savings goals, recurring payments) per user preference.
 
-**Installer:** the app must boot and serve `/install` with **no `.env`** — `EnsureInstalled` middleware backfills `APP_KEY` from (or into) `storage/app.key` on every request, and forces file session/cache while uninstalled. `App\Services\Installer::install()` (shared by `InstallController` and `app:install`) applies the wizard's DB config to runtime `config()` before migrating, then writes a complete production `.env` (`APP_ENV=production`, `APP_DEBUG=false`, `APP_KEY`, `DB_*`, `SESSION_SECURE_COOKIE`), `storage:link`s, and marks `storage/installed`. `InstallController` aborts 403 once installed and 404 when `APP_INSTALL_MODE=headless` (Docker). Docker persists `APP_KEY` via `docker/entrypoint.d/98-spentz-key.sh` → `storage/app.key` (in the volume).
+**No installer (ADR-008):** there is no `/install` wizard, no `app:install`, and no `EnsureInstalled` middleware — do not reintroduce them. The app is configured by a hand-written `.env` and **will not boot without `APP_KEY`**. Deploy = `key:generate` → `migrate --force` → `admin:create` → `storage:link`. On Docker, `docker/entrypoint.d/98-spentz-key.sh` generates/persists `APP_KEY` in `storage/app.key` (in the volume) and materialises a minimal `.env`, and `99-spentz-migrate.sh` runs `migrate --force` + `optimize` on every boot. `admin:create` is deliberately **not** in the entrypoint: it rewrites the password from `ADMIN_PASSWORD` on every run.
 
-**Middleware order:** `EnsureInstalled` is prepended globally; `SetLocale` + `HandleInertiaRequests` + `EnsureUserNotSuspended` are appended to the `web` group (so suspension check runs before route middleware, including `admin`).
+**Middleware order:** `SetLocale` + `HandleInertiaRequests` + `EnsureUserNotSuspended` are appended to the `web` group (so suspension check runs before route middleware, including `admin`).
 
 **i18n (ES/EN):** backend uses Laravel `lang/{es,en}` + `__()`; frontend uses `react-i18next` with `resources/js/i18n/{es,en}.json` shipped via Inertia shared props (`translations`) — no extra request. Locale resolution: user → session → `APP_LOCALE` (es) → browser. `es.json` and `en.json` must stay key-identical — `tests/Unit/I18nDictionaryTest.php` enforces it. App is Spanish-first.
 

@@ -51,41 +51,39 @@ Alrededor de esa idea:
 
 ## Instalación
 
-> **No tienes que crear ni editar un `.env` a mano.** El instalador escribe toda la
-> configuración (incluida la `APP_KEY`) y deja la app lista para producción.
+Spentz Trackr **no tiene instalador**: se configura con un `.env`, como cualquier proyecto
+Laravel. Soporta SQLite, MySQL y PostgreSQL.
 
-### 1 · Instalador web — cPanel / VPS con LAMP
-
-Sube los archivos, apunta el dominio a `public/` y abre `https://tu-dominio.com`.
-Como todavía no está instalada, te redirige al **wizard de 4 pasos**:
-
-1. **Requisitos** — versión de PHP, extensiones y permisos de escritura.
-2. **Base de datos** — SQLite, MySQL o PostgreSQL (host, usuario, contraseña).
-3. **Aplicación** — nombre, URL, idioma, zona horaria y la cuenta de administrador.
-4. **Listo** — se escribe el `.env`, se genera la clave, se migran las tablas y se crea el
-   admin. `/install` queda bloqueado.
-
-Detalle paso a paso en [`docs/06-despliegue-cpanel.md`](docs/06-despliegue-cpanel.md).
-
-### 2 · CLI — servidores sin navegador
-
-```bash
-php artisan app:install     # interactivo, o con flags --db-* / --admin-* para scripts
-```
-
-### 3 · Docker Compose — llave en mano
+### 1 · Docker Compose — la vía más rápida
 
 ```bash
 git clone https://github.com/SuricatoAviones/spentz-trackr.git
 cd spentz-trackr
 cp .env.docker .env         # ajusta DB_PASSWORD y ADMIN_*
 docker compose up -d --build
+docker compose exec app php artisan admin:create   # una sola vez
 ```
 
-El contenedor se **instala solo** en el primer arranque (modo *headless*) y genera y
-persiste la `APP_KEY` en el volumen. App en `http://localhost:8080`.
-Variantes PostgreSQL y SQLite en [`docs/11-instalador.md`](docs/11-instalador.md);
-despliegue con Dokploy/Traefik en [`docs/09-despliegue-dokploy.md`](docs/09-despliegue-dokploy.md).
+La `APP_KEY` se genera y persiste sola en el volumen, y las migraciones corren en cada
+arranque. App en `http://localhost:8080`. Variantes PostgreSQL y SQLite en
+`docker-compose.pgsql.yml` / `docker-compose.sqlite.yml`; despliegue con Dokploy/Traefik en
+[`docs/09-despliegue-dokploy.md`](docs/09-despliegue-dokploy.md).
+
+### 2 · cPanel / VPS con LAMP
+
+Sube los archivos, apunta el dominio a `public/` y desde la raíz de la app:
+
+```bash
+cp .env.example .env        # ajusta APP_URL, DB_* y ADMIN_*
+php artisan key:generate
+php artisan migrate --force
+php artisan admin:create    # crea el admin con las credenciales ADMIN_* del .env
+php artisan storage:link
+php artisan optimize
+```
+
+Detalle paso a paso (permisos, cron, dominio, problemas frecuentes) en
+[`docs/06-despliegue-cpanel.md`](docs/06-despliegue-cpanel.md).
 
 ### Actualizar
 
@@ -99,7 +97,8 @@ php artisan app:update      # git pull + dependencias + migraciones + limpieza d
 git clone https://github.com/SuricatoAviones/spentz-trackr.git
 cd spentz-trackr
 composer install && npm install
-php artisan app:install     # o configura el .env a mano para dev
+cp .env.example .env && php artisan key:generate
+php artisan migrate         # SQLite por defecto (database/database.sqlite)
 composer run dev            # serve + queue:listen + vite
 ```
 

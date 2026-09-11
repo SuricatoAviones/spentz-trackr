@@ -14,7 +14,7 @@
 | API | Sanctum (tokens, 90 días) + Scramble (OpenAPI) | `/api/v1` |
 | Charts | Componentes SVG propios (`resources/js/components/tracker/*`) | Sin librería |
 | Tests | Pest + Larastan (nivel 7) + Pint | Obligatorios por cambio |
-| Despliegue | cPanel / VPS / Docker | Ver `06`, `09`, `11` |
+| Despliegue | cPanel / VPS / Docker | Ver `06`, `09` |
 
 ## Wiring: todo en `bootstrap/app.php`
 
@@ -22,14 +22,13 @@ Laravel 11+ — no hay `app/Http/Kernel.php` ni `app/Console/Kernel.php`. `boots
 registra:
 
 - **Rutas**: `web.php`, `api.php` (prefijo `api/v1`), `console.php`; `web.php` a su vez
-  hace `require` de `settings.php`, `admin.php`, `install.php`.
+  hace `require` de `settings.php` y `admin.php`.
 - **Scheduler**: `SyncExchangeRates` job → `everyFiveMinutes()`.
 - **Middleware y su orden** (ver abajo).
 - **Excepciones**: respuestas JSON para `api/*` o `expectsJson()`.
 
 ### Orden de middleware
 
-- `EnsureInstalled` se antepone **global**.
 - Grupo `web` (append): `HandleAppearance` → `SetLocale` → `HandleInertiaRequests` →
   `AddLinkHeadersForPreloadedAssets` → `EnsureUserNotSuspended` (la suspensión se comprueba
   **antes** del middleware de ruta, incluido `admin`).
@@ -53,8 +52,7 @@ app/
 │       └── Concerns/PersistsIncome.php
 ├── Services/
 │   ├── ExpenseConversionService.php            # convert(currency, amount, rate) → {usd, usdt}
-│   ├── ExchangeRateService.php                 # rateForUser / ratesForUser / ensureFreshRate / syncFromApi
-│   └── Installer.php
+│   └── ExchangeRateService.php                 # rateForUser / ratesForUser / ensureFreshRate / syncFromApi
 ├── Support/
 │   ├── CsvExporter.php                         # streaming CSV (BOM) + guard anti-inyección
 │   └── Presenters/{ExpensePresenter,IncomePresenter}.php  # forma JSON única web + API
@@ -169,10 +167,18 @@ conversión + comisión + items + recibos. Los controllers web (Inertia) y API (
 llaman con el array validado; los `Presenter` unifican la salida. Elimina la duplicación
 histórica entre `Controllers\*` y `Controllers\Api\V1\*`.
 
-### ADR-008 — Instalador dual-mode (`APP_INSTALL_MODE`)
-`wizard` (cPanel/VPS) mantiene `/install`; `headless` (Docker/Dokploy) instala desde
-variables de entorno y bloquea `/install`. `InstallController` aborta 404 en producción y
-403 si existe `storage/installed`. Detalle en `11-instalador.md`.
+### ADR-008 — Sin instalador: configuración por `.env` (revierte el instalador dual-mode)
+La app tuvo un instalador auto-hospedable (wizard `/install`, `app:install` y arranque
+headless en Docker) gobernado por `APP_INSTALL_MODE`. **Se eliminó por completo.** El
+despliegue es ahora el flujo estándar de Laravel: crear el `.env` a mano (o inyectar
+variables de entorno), `php artisan key:generate`, `php artisan migrate --force` y
+`php artisan admin:create`.
+
+Consecuencia deliberada: **la app ya no arranca sin `APP_KEY`**. Antes el middleware
+`EnsureInstalled` la rellenaba en caliente desde `storage/app.key` para que el wizard
+funcionase sin configuración; ese middleware ya no existe. En Docker la clave la sigue
+resolviendo `docker/entrypoint.d/98-spentz-key.sh` (la persiste en `storage/app.key`,
+dentro del volumen, y la materializa en un `.env` mínimo).
 
 ### ADR-009 — API REST con tokens Sanctum
 Tokens de acceso personal con expiración (90 días), `throttle:api` (100/min) y

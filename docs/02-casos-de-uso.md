@@ -8,7 +8,7 @@
 | **Administrador** | Usuario con `is_admin`. Accede a `/admin` y cruza datos de todos los usuarios (sin scoping). No puede eliminarse ni suspenderse a sí mismo. |
 | **Consumidor API** | Cliente externo autenticado con un token Sanctum (`/api/v1`). |
 | **Sistema (scheduler)** | Proceso programado que sincroniza la tasa Bs/USD. |
-| **Instalador** | Quien despliega la instancia (wizard web, CLI o Docker). |
+| **Operador** | Quien despliega y mantiene la instancia (`.env`, migraciones, `admin:create`). |
 
 ## Diagrama
 
