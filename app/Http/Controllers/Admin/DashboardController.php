@@ -58,7 +58,7 @@ class DashboardController extends Controller
             $total = round((float) $rawTotal, 2);
 
             return [
-                'name' => $category instanceof Category ? $category->name : 'Sin categoría',
+                'name' => $category instanceof Category ? $category->name : __('admin.uncategorized'),
                 'color' => $category instanceof Category ? $category->color : '#6B7280',
                 'total' => $total,
                 'percent' => $totalUsd > 0 ? round(($total / $totalUsd) * 100, 1) : 0.0,

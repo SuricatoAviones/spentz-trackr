@@ -35,10 +35,10 @@ class UpdateAdminRateRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'bcv.gt' => 'La tasa BCV debe ser mayor a 0.',
-            'paralelo.gt' => 'La tasa paralela debe ser mayor a 0.',
-            'bcv.required_without' => 'Indica al menos la tasa BCV o la paralela.',
-            'paralelo.required_without' => 'Indica al menos la tasa BCV o la paralela.',
+            'bcv.gt' => __('validation.app.bcv_rate_gt'),
+            'paralelo.gt' => __('validation.app.paralelo_rate_gt'),
+            'bcv.required_without' => __('validation.app.rate_required_without'),
+            'paralelo.required_without' => __('validation.app.rate_required_without'),
         ];
     }
 }

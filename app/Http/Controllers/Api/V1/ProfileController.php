@@ -22,7 +22,7 @@ class ProfileController extends BaseApiController
 
         $request->user()->update($validated);
 
-        return $this->apiResponse(null, 'Perfil actualizado correctamente');
+        return $this->apiResponse(null, __('messages.api_profile_updated'));
     }
 
     /**
@@ -38,6 +38,6 @@ class ProfileController extends BaseApiController
 
         return $this->apiResponse([
             'locale' => $request->user()->locale,
-        ], 'Idioma actualizado correctamente');
+        ], __('messages.api_locale_updated'));
     }
 }

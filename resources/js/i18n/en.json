@@ -264,7 +264,9 @@
         "update": "UPDATE",
         "create": "CREATE",
         "delete": "Delete",
-        "delete_blocked": "Cannot delete: it has associated expenses"
+        "delete_blocked": "Cannot delete: it has associated expenses",
+        "close": "Close",
+        "loading": "Loading"
     },
     "categories": {
         "title": "Categories",

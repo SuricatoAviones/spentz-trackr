@@ -23,7 +23,7 @@ class EnsureUserNotSuspended
             $request->session()->invalidate();
             $request->session()->regenerateToken();
 
-            abort(403, 'Tu cuenta está suspendida.');
+            abort(403, __('messages.account_suspended'));
         }
 
         return $next($request);

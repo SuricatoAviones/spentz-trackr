@@ -100,7 +100,7 @@ trait PersistsExpense
 
                 if ((float) $dayRate['rate'] <= 0) {
                     throw ValidationException::withMessages([
-                        'items' => 'No hay tasa de cambio disponible para el ítem en Bs. Regístrala en Ajustes.',
+                        'items' => __('validation.app.no_rate_available_item'),
                     ]);
                 }
 
@@ -109,7 +109,7 @@ trait PersistsExpense
 
             if ($itemCurrency === Currency::Ves && (float) $exchangeRate <= 0) {
                 throw ValidationException::withMessages([
-                    'items' => 'Cada ítem en Bs debe tener una tasa de cambio mayor a 0.',
+                    'items' => __('validation.app.item_rate_gt'),
                 ]);
             }
 

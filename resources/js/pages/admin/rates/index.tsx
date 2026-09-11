@@ -42,8 +42,8 @@ type HistoryEntry = {
 
 const PROVIDER_LABEL: Record<string, string> = {
     bcv: 'BCV',
-    paralelo: 'rates:provider_paralelo',
-    user: 'rates:provider_manual',
+    paralelo: 'rates.provider_paralelo',
+    user: 'rates.provider_manual',
     dolarapi: 'dolarapi',
 };
 
@@ -59,12 +59,12 @@ export default function AdminRatesIndex({
     const { t } = useTranslation();
 
     setLayoutProps({
-        title: t('admin:rates.title'),
-        description: t('admin:rates.subtitle'),
+        title: t('admin.rates.title'),
+        description: t('admin.rates.subtitle'),
     });
 
     const sourceLabel = (source: HistoryEntry['source']): string =>
-        t(`admin:rates.source_${source}`);
+        t(`admin.rates.source_${source}`);
 
     const providerLabel = (provider: string): string =>
         PROVIDER_LABEL[provider] ? t(PROVIDER_LABEL[provider]) : provider;
@@ -85,24 +85,24 @@ export default function AdminRatesIndex({
 
     return (
         <>
-            <Head title={t('admin:rates.title')} />
+            <Head title={t('admin.rates.title')} />
 
             <div className="space-y-8">
                 <Card>
                     <CardHeader className="flex flex-row items-start justify-between gap-4">
                         <div>
                             <CardTitle className="text-base">
-                                {t('admin:rates.today_rate', {
+                                {t('admin.rates.today_rate', {
                                     date: today.date,
                                 })}
                             </CardTitle>
                             <CardDescription>
-                                {t('admin:rates.today_rate_desc')}
+                                {t('admin.rates.today_rate_desc')}
                             </CardDescription>
                         </div>
                         <Button variant="outline" size="sm" onClick={syncRates}>
                             <RefreshCw className="size-4" />
-                            {t('admin:rates.sync_dolarapi')}
+                            {t('admin.rates.sync_dolarapi')}
                         </Button>
                     </CardHeader>
                     <CardContent>
@@ -121,7 +121,7 @@ export default function AdminRatesIndex({
                                             setData('bcv', event.target.value)
                                         }
                                         placeholder={t(
-                                            'admin:rates.bcv_placeholder',
+                                            'admin.rates.bcv_placeholder',
                                         )}
                                     />
                                     {errors.bcv && (
@@ -149,7 +149,7 @@ export default function AdminRatesIndex({
                                             )
                                         }
                                         placeholder={t(
-                                            'admin:rates.paralelo_placeholder',
+                                            'admin.rates.paralelo_placeholder',
                                         )}
                                     />
                                     {errors.paralelo && (
@@ -162,8 +162,8 @@ export default function AdminRatesIndex({
 
                             <Button type="submit" disabled={processing}>
                                 {processing
-                                    ? t('common:saving')
-                                    : t('admin:rates.save_rates')}
+                                    ? t('common.saving')
+                                    : t('admin.rates.save_rates')}
                             </Button>
                         </form>
                     </CardContent>
@@ -173,16 +173,16 @@ export default function AdminRatesIndex({
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2 text-base">
                             <Users className="size-4" />
-                            {t('admin:rates.manual_today')}
+                            {t('admin.rates.manual_today')}
                         </CardTitle>
                         <CardDescription>
-                            {t('admin:rates.manual_today_desc')}
+                            {t('admin.rates.manual_today_desc')}
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="px-2">
                         {manualToday.length === 0 ? (
                             <p className="px-4 py-8 text-center text-sm text-muted-foreground">
-                                {t('admin:rates.no_manual_today')}
+                                {t('admin.rates.no_manual_today')}
                             </p>
                         ) : (
                             <div className="divide-y">
@@ -212,10 +212,10 @@ export default function AdminRatesIndex({
                 <Card>
                     <CardHeader>
                         <CardTitle className="text-base">
-                            {t('admin:rates.recent_history')}
+                            {t('admin.rates.recent_history')}
                         </CardTitle>
                         <CardDescription>
-                            {t('admin:rates.recent_history_desc')}
+                            {t('admin.rates.recent_history_desc')}
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="px-0">
@@ -224,19 +224,19 @@ export default function AdminRatesIndex({
                                 <thead>
                                     <tr className="border-b text-left text-xs tracking-wider text-muted-foreground uppercase">
                                         <th className="px-4 py-3 font-medium">
-                                            {t('admin:expenses.col_date')}
+                                            {t('admin.expenses.col_date')}
                                         </th>
                                         <th className="px-4 py-3 font-medium">
-                                            {t('admin:expenses.col_source')}
+                                            {t('admin.expenses.col_source')}
                                         </th>
                                         <th className="px-4 py-3 font-medium">
-                                            {t('admin:rates.provider_col')}
+                                            {t('admin.rates.provider_col')}
                                         </th>
                                         <th className="hidden px-4 py-3 font-medium md:table-cell">
-                                            {t('admin:expenses.filter_user')}
+                                            {t('admin.expenses.filter_user')}
                                         </th>
                                         <th className="px-4 py-3 text-right font-medium">
-                                            {t('admin:rates.rate_col')}
+                                            {t('admin.rates.rate_col')}
                                         </th>
                                     </tr>
                                 </thead>
@@ -268,7 +268,7 @@ export default function AdminRatesIndex({
                                                 {entry.user_name ?? (
                                                     <span className="text-muted-foreground">
                                                         {t(
-                                                            'admin:rates.global',
+                                                            'admin.rates.global',
                                                         )}
                                                     </span>
                                                 )}
@@ -284,7 +284,7 @@ export default function AdminRatesIndex({
 
                         {history.length === 0 && (
                             <p className="px-4 py-12 text-center text-sm text-muted-foreground">
-                                {t('admin:rates.no_rates')}
+                                {t('admin.rates.no_rates')}
                             </p>
                         )}
                     </CardContent>

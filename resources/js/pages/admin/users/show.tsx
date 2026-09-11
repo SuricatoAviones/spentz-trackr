@@ -87,7 +87,7 @@ export default function AdminUserShow({
     const { t } = useTranslation();
 
     setLayoutProps({
-        title: t('admin:user_show.head_title', { name: user.name }),
+        title: t('admin.user_show.head_title', { name: user.name }),
     });
 
     const { data, setData, patch, processing, errors } = useForm({
@@ -103,7 +103,7 @@ export default function AdminUserShow({
     });
 
     function destroy() {
-        if (confirm(t('admin:user_show.delete_confirm', { name: user.name }))) {
+        if (confirm(t('admin.user_show.delete_confirm', { name: user.name }))) {
             router.delete(usersDestroy({ user: user.id }).url);
         }
     }
@@ -139,7 +139,7 @@ export default function AdminUserShow({
         }
 
         if (
-            confirm(t('admin:user_show.suspend_confirm', { name: user.name }))
+            confirm(t('admin.user_show.suspend_confirm', { name: user.name }))
         ) {
             router.post(
                 usersSuspend({ user: user.id }).url,
@@ -159,14 +159,14 @@ export default function AdminUserShow({
     return (
         <>
             <Head
-                title={t('admin:user_show.head_title', { name: user.name })}
+                title={t('admin.user_show.head_title', { name: user.name })}
             />
 
             <div className="space-y-8">
                 <Button variant="ghost" size="sm" asChild>
                     <Link href={usersIndex().url}>
                         <ArrowLeft className="size-4" />{' '}
-                        {t('admin:user_show.back_to_users')}
+                        {t('admin.user_show.back_to_users')}
                     </Link>
                 </Button>
 
@@ -183,27 +183,27 @@ export default function AdminUserShow({
                             </h2>
                             {user.is_admin && (
                                 <Badge variant="secondary">
-                                    {t('admin:users.badge_admin')}
+                                    {t('admin.users.badge_admin')}
                                 </Badge>
                             )}
                             {user.email_verified_at ? (
                                 <Badge variant="default">
-                                    {t('admin:user_show.badge_verified')}
+                                    {t('admin.user_show.badge_verified')}
                                 </Badge>
                             ) : (
                                 <Badge variant="outline">
-                                    {t('admin:user_show.badge_unverified')}
+                                    {t('admin.user_show.badge_unverified')}
                                 </Badge>
                             )}
                             {user.suspended_at && (
                                 <Badge variant="destructive">
-                                    {t('admin:users.badge_suspended')}
+                                    {t('admin.users.badge_suspended')}
                                 </Badge>
                             )}
                         </div>
                         <p className="text-sm text-muted-foreground">
                             {user.email} ·{' '}
-                            {t('admin:user_show.registered_on', {
+                            {t('admin.user_show.registered_on', {
                                 date: formatDate(user.created_at),
                             })}
                         </p>
@@ -214,7 +214,7 @@ export default function AdminUserShow({
                     <Card>
                         <CardHeader>
                             <CardTitle className="text-sm font-medium text-muted-foreground">
-                                {t('admin:users.col_expenses')}
+                                {t('admin.users.col_expenses')}
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
@@ -226,7 +226,7 @@ export default function AdminUserShow({
                     <Card>
                         <CardHeader>
                             <CardTitle className="text-sm font-medium text-muted-foreground">
-                                {t('admin:users.col_total_usd')}
+                                {t('admin.users.col_total_usd')}
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
@@ -238,7 +238,7 @@ export default function AdminUserShow({
                     <Card>
                         <CardHeader>
                             <CardTitle className="text-sm font-medium text-muted-foreground">
-                                {t('admin:user_show.stat_categories')}
+                                {t('admin.user_show.stat_categories')}
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
@@ -250,7 +250,7 @@ export default function AdminUserShow({
                     <Card>
                         <CardHeader>
                             <CardTitle className="text-sm font-medium text-muted-foreground">
-                                {t('admin:user_show.stat_sources')}
+                                {t('admin.user_show.stat_sources')}
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
@@ -265,10 +265,10 @@ export default function AdminUserShow({
                     <Card>
                         <CardHeader>
                             <CardTitle className="text-base">
-                                {t('admin:user_show.edit_account')}
+                                {t('admin.user_show.edit_account')}
                             </CardTitle>
                             <CardDescription>
-                                {t('admin:user_show.edit_account_desc')}
+                                {t('admin.user_show.edit_account_desc')}
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
@@ -284,7 +284,7 @@ export default function AdminUserShow({
                             >
                                 <div className="grid gap-2">
                                     <Label htmlFor="admin-edit-name">
-                                        {t('common:name')}
+                                        {t('common.name')}
                                     </Label>
                                     <Input
                                         id="admin-edit-name"
@@ -303,7 +303,7 @@ export default function AdminUserShow({
 
                                 <div className="grid gap-2">
                                     <Label htmlFor="admin-edit-email">
-                                        {t('settings:email_label')}
+                                        {t('settings.email_label')}
                                     </Label>
                                     <Input
                                         id="admin-edit-email"
@@ -332,14 +332,14 @@ export default function AdminUserShow({
                                         }
                                     />
                                     <span className="text-sm">
-                                        {t('admin:users.admin_role')}
+                                        {t('admin.users.admin_role')}
                                     </span>
                                 </label>
 
                                 <Button type="submit" disabled={processing}>
                                     {processing
-                                        ? t('common:saving')
-                                        : t('admin:users.save_changes')}
+                                        ? t('common.saving')
+                                        : t('admin.users.save_changes')}
                                 </Button>
                             </form>
                         </CardContent>
@@ -348,16 +348,16 @@ export default function AdminUserShow({
                     <Card className="border-destructive/40">
                         <CardHeader>
                             <CardTitle className="text-base text-destructive">
-                                {t('admin:user_show.danger_zone')}
+                                {t('admin.user_show.danger_zone')}
                             </CardTitle>
                             <CardDescription>
-                                {t('admin:user_show.danger_zone_desc')}
+                                {t('admin.user_show.danger_zone_desc')}
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
                             <Button variant="destructive" onClick={destroy}>
                                 <Trash2 className="size-4" />{' '}
-                                {t('admin:user_show.delete_user')}
+                                {t('admin.user_show.delete_user')}
                             </Button>
                         </CardContent>
                     </Card>
@@ -366,17 +366,17 @@ export default function AdminUserShow({
                 <Card>
                     <CardHeader>
                         <CardTitle className="text-base">
-                            {t('admin:user_show.account_actions')}
+                            {t('admin.user_show.account_actions')}
                         </CardTitle>
                         <CardDescription>
-                            {t('admin:user_show.account_actions_desc')}
+                            {t('admin.user_show.account_actions_desc')}
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="flex flex-wrap gap-3">
                         {!user.email_verified_at && (
                             <Button variant="outline" onClick={verifyEmail}>
                                 <MailCheck className="size-4" />{' '}
-                                {t('admin:user_show.mark_verified')}
+                                {t('admin.user_show.mark_verified')}
                             </Button>
                         )}
                         <Button
@@ -384,7 +384,7 @@ export default function AdminUserShow({
                             onClick={() => setResetOpen(true)}
                         >
                             <KeyRound className="size-4" />{' '}
-                            {t('admin:user_show.reset_password')}
+                            {t('admin.user_show.reset_password')}
                         </Button>
                         {user.suspended_at ? (
                             <Button
@@ -392,7 +392,7 @@ export default function AdminUserShow({
                                 onClick={toggleSuspension}
                             >
                                 <RotateCcw className="size-4" />{' '}
-                                {t('admin:user_show.reactivate')}
+                                {t('admin.user_show.reactivate')}
                             </Button>
                         ) : (
                             <Button
@@ -400,7 +400,7 @@ export default function AdminUserShow({
                                 onClick={toggleSuspension}
                             >
                                 <Ban className="size-4" />{' '}
-                                {t('admin:user_show.suspend')}
+                                {t('admin.user_show.suspend')}
                             </Button>
                         )}
                     </CardContent>
@@ -410,10 +410,10 @@ export default function AdminUserShow({
                     <DialogContent className="rounded-2xl sm:max-w-md">
                         <DialogHeader>
                             <DialogTitle>
-                                {t('admin:user_show.reset_password')}
+                                {t('admin.user_show.reset_password')}
                             </DialogTitle>
                             <DialogDescription>
-                                {t('admin:user_show.reset_description', {
+                                {t('admin.user_show.reset_description', {
                                     name: user.name,
                                 })}
                             </DialogDescription>
@@ -424,7 +424,7 @@ export default function AdminUserShow({
                         >
                             <div className="grid gap-2">
                                 <Label htmlFor="admin-reset-password">
-                                    {t('settings:new_password')}
+                                    {t('settings.new_password')}
                                 </Label>
                                 <Input
                                     id="admin-reset-password"
@@ -447,7 +447,7 @@ export default function AdminUserShow({
 
                             <div className="grid gap-2">
                                 <Label htmlFor="admin-reset-password-confirmation">
-                                    {t('settings:confirm_password')}
+                                    {t('settings.confirm_password')}
                                 </Label>
                                 <Input
                                     id="admin-reset-password-confirmation"
@@ -469,15 +469,15 @@ export default function AdminUserShow({
                                     variant="ghost"
                                     onClick={() => setResetOpen(false)}
                                 >
-                                    {t('settings:cancel')}
+                                    {t('settings.cancel')}
                                 </Button>
                                 <Button
                                     type="submit"
                                     disabled={resetForm.processing}
                                 >
                                     {resetForm.processing
-                                        ? t('common:saving')
-                                        : t('admin:user_show.reset_password')}
+                                        ? t('common.saving')
+                                        : t('admin.user_show.reset_password')}
                                 </Button>
                             </div>
                         </form>
@@ -487,13 +487,13 @@ export default function AdminUserShow({
                 <Card>
                     <CardHeader>
                         <CardTitle className="text-base">
-                            {t('admin:user_show.recent_expenses')}
+                            {t('admin.user_show.recent_expenses')}
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="px-2">
                         {recentExpenses.length === 0 ? (
                             <p className="px-4 py-8 text-center text-sm text-muted-foreground">
-                                {t('admin:user_show.no_expenses')}
+                                {t('admin.user_show.no_expenses')}
                             </p>
                         ) : (
                             <div className="divide-y">

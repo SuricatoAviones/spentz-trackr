@@ -83,8 +83,8 @@ export default function AdminExpensesIndex({
     const { t } = useTranslation();
 
     setLayoutProps({
-        title: t('admin:expenses.title'),
-        description: t('admin:expenses.total', { count: expenses.total }),
+        title: t('admin.expenses.title'),
+        description: t('admin.expenses.total', { count: expenses.total }),
     });
 
     const [search, setSearch] = useState(filters.search ?? '');
@@ -127,7 +127,7 @@ export default function AdminExpensesIndex({
     function destroy(expense: AdminExpense) {
         if (
             confirm(
-                t('admin:expenses.delete_confirm', {
+                t('admin.expenses.delete_confirm', {
                     description: expense.description,
                     user: expense.user.name,
                 }),
@@ -158,7 +158,7 @@ export default function AdminExpensesIndex({
 
     return (
         <>
-            <Head title={t('admin:expenses.title')} />
+            <Head title={t('admin.expenses.title')} />
 
             <div className="space-y-8">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-end">
@@ -189,22 +189,22 @@ export default function AdminExpensesIndex({
                                     );
                                 }}
                                 placeholder={t(
-                                    'admin:expenses.search_placeholder',
+                                    'admin.expenses.search_placeholder',
                                 )}
                                 className="pl-9"
                             />
                         </div>
                         <Button type="submit">
-                            {t('admin:users.search_button')}
+                            {t('admin.users.search_button')}
                         </Button>
                         <Button variant="outline" asChild>
                             <a
                                 href={exportUrl}
-                                aria-label={t('admin:expenses.export_aria')}
-                                title={t('admin:expenses.export_title')}
+                                aria-label={t('admin.expenses.export_aria')}
+                                title={t('admin.expenses.export_title')}
                             >
                                 <Download className="size-4" />
-                                {t('admin:expenses.export')}
+                                {t('admin.expenses.export')}
                             </a>
                         </Button>
                     </form>
@@ -214,7 +214,7 @@ export default function AdminExpensesIndex({
                     <CardContent className="grid gap-4 p-5 sm:grid-cols-2 lg:grid-cols-5">
                         <label className="block">
                             <span className="mb-1 block text-[10px] font-semibold tracking-wider text-muted-foreground uppercase">
-                                {t('admin:expenses.filter_user')}
+                                {t('admin.expenses.filter_user')}
                             </span>
                             <select
                                 value={userId}
@@ -226,7 +226,7 @@ export default function AdminExpensesIndex({
                                 className="h-10 w-full rounded-lg bg-surface-low px-3 text-sm text-foreground focus:ring-2 focus:ring-emerald-500/50 focus:outline-none"
                             >
                                 <option value={0}>
-                                    {t('admin:expenses.all_users')}
+                                    {t('admin.expenses.all_users')}
                                 </option>
                                 {users.map((user) => (
                                     <option key={user.id} value={user.id}>
@@ -238,7 +238,7 @@ export default function AdminExpensesIndex({
 
                         <label className="block">
                             <span className="mb-1 block text-[10px] font-semibold tracking-wider text-muted-foreground uppercase">
-                                {t('admin:expenses.filter_currency')}
+                                {t('admin.expenses.filter_currency')}
                             </span>
                             <select
                                 value={currency}
@@ -250,7 +250,7 @@ export default function AdminExpensesIndex({
                                 className="h-10 w-full rounded-lg bg-surface-low px-3 text-sm text-foreground focus:ring-2 focus:ring-emerald-500/50 focus:outline-none"
                             >
                                 <option value="">
-                                    {t('admin:expenses.all_currencies')}
+                                    {t('admin.expenses.all_currencies')}
                                 </option>
                                 <option value="usd">USD</option>
                                 <option value="ves">Bs</option>
@@ -260,7 +260,7 @@ export default function AdminExpensesIndex({
 
                         <label className="block">
                             <span className="mb-1 block text-[10px] font-semibold tracking-wider text-muted-foreground uppercase">
-                                {t('admin:expenses.filter_category')}
+                                {t('admin.expenses.filter_category')}
                             </span>
                             <select
                                 value={categoryId}
@@ -272,7 +272,7 @@ export default function AdminExpensesIndex({
                                 className="h-10 w-full rounded-lg bg-surface-low px-3 text-sm text-foreground focus:ring-2 focus:ring-emerald-500/50 focus:outline-none"
                             >
                                 <option value={0}>
-                                    {t('admin:expenses.all_categories')}
+                                    {t('admin.expenses.all_categories')}
                                 </option>
                                 {categories.map((category) => (
                                     <option
@@ -287,7 +287,7 @@ export default function AdminExpensesIndex({
 
                         <label className="block">
                             <span className="mb-1 block text-[10px] font-semibold tracking-wider text-muted-foreground uppercase">
-                                {t('admin:expenses.filter_from')}
+                                {t('admin.expenses.filter_from')}
                             </span>
                             <Input
                                 type="date"
@@ -303,7 +303,7 @@ export default function AdminExpensesIndex({
 
                         <label className="block">
                             <span className="mb-1 block text-[10px] font-semibold tracking-wider text-muted-foreground uppercase">
-                                {t('admin:expenses.filter_to')}
+                                {t('admin.expenses.filter_to')}
                             </span>
                             <Input
                                 type="date"
@@ -337,7 +337,7 @@ export default function AdminExpensesIndex({
                                 }}
                                 className="text-xs font-medium text-muted-foreground hover:text-foreground sm:col-span-2 lg:col-span-5"
                             >
-                                {t('admin:expenses.clear_filters')}
+                                {t('admin.expenses.clear_filters')}
                             </button>
                         )}
                     </CardContent>
@@ -350,30 +350,30 @@ export default function AdminExpensesIndex({
                                 <thead>
                                     <tr className="border-b text-left text-xs tracking-wider text-muted-foreground uppercase">
                                         <th className="px-4 py-3 font-medium">
-                                            {t('admin:expenses.col_expense')}
+                                            {t('admin.expenses.col_expense')}
                                         </th>
                                         <th className="hidden px-4 py-3 font-medium md:table-cell">
-                                            {t('admin:expenses.filter_user')}
+                                            {t('admin.expenses.filter_user')}
                                         </th>
                                         <th className="hidden px-4 py-3 font-medium lg:table-cell">
                                             {t(
-                                                'admin:expenses.filter_category',
+                                                'admin.expenses.filter_category',
                                             )}
                                         </th>
                                         <th className="hidden px-4 py-3 font-medium lg:table-cell">
-                                            {t('admin:expenses.col_source')}
+                                            {t('admin.expenses.col_source')}
                                         </th>
                                         <th className="hidden px-4 py-3 font-medium sm:table-cell">
-                                            {t('admin:expenses.col_amount')}
+                                            {t('admin.expenses.col_amount')}
                                         </th>
                                         <th className="hidden px-4 py-3 font-medium sm:table-cell">
                                             USD
                                         </th>
                                         <th className="hidden px-4 py-3 font-medium md:table-cell">
-                                            {t('admin:expenses.col_date')}
+                                            {t('admin.expenses.col_date')}
                                         </th>
                                         <th className="px-4 py-3 text-right font-medium">
-                                            {t('admin:users.col_actions')}
+                                            {t('admin.users.col_actions')}
                                         </th>
                                     </tr>
                                 </thead>
@@ -447,7 +447,7 @@ export default function AdminExpensesIndex({
                                                             }
                                                             className="text-muted-foreground hover:text-foreground"
                                                             aria-label={t(
-                                                                'admin:expenses.receipts_aria',
+                                                                'admin.expenses.receipts_aria',
                                                                 {
                                                                     description:
                                                                         expense.description,
@@ -465,7 +465,7 @@ export default function AdminExpensesIndex({
                                                         }
                                                         className="text-destructive hover:text-destructive"
                                                         aria-label={t(
-                                                            'admin:expenses.delete_aria',
+                                                            'admin.expenses.delete_aria',
                                                             {
                                                                 description:
                                                                     expense.description,
@@ -484,7 +484,7 @@ export default function AdminExpensesIndex({
 
                         {expenses.data.length === 0 && (
                             <p className="px-4 py-12 text-center text-sm text-muted-foreground">
-                                {t('admin:expenses.no_expenses')}
+                                {t('admin.expenses.no_expenses')}
                             </p>
                         )}
                     </CardContent>
@@ -493,7 +493,7 @@ export default function AdminExpensesIndex({
                 {expenses.last_page > 1 && (
                     <div className="flex items-center justify-between">
                         <p className="text-sm text-muted-foreground">
-                            {t('admin:users.page_of', {
+                            {t('admin.users.page_of', {
                                 current: expenses.current_page,
                                 total: expenses.last_page,
                             })}
@@ -515,7 +515,7 @@ export default function AdminExpensesIndex({
                                     }
                                 >
                                     <ChevronLeft className="size-4" />{' '}
-                                    {t('admin:users.prev')}
+                                    {t('admin.users.prev')}
                                 </Button>
                             )}
                             {expenses.current_page < expenses.last_page && (
@@ -533,7 +533,7 @@ export default function AdminExpensesIndex({
                                         )
                                     }
                                 >
-                                    {t('admin:users.next')}{' '}
+                                    {t('admin.users.next')}{' '}
                                     <ChevronRight className="size-4" />
                                 </Button>
                             )}
@@ -552,7 +552,7 @@ export default function AdminExpensesIndex({
                     <DialogContent className="rounded-2xl sm:max-w-md">
                         <DialogHeader>
                             <DialogTitle>
-                                {t('admin:expenses.receipts_title')}
+                                {t('admin.expenses.receipts_title')}
                             </DialogTitle>
                             <DialogDescription>
                                 {receiptsFor
@@ -578,7 +578,7 @@ export default function AdminExpensesIndex({
                                         {receipt.original_name}
                                     </span>
                                     <span className="text-xs text-muted-foreground">
-                                        {t('admin:expenses.open')}
+                                        {t('admin.expenses.open')}
                                     </span>
                                 </a>
                             ))}

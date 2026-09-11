@@ -50,11 +50,11 @@ class UpdateIncomeRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'currency.required' => 'Selecciona la moneda del ingreso.',
-            'category_id.required' => 'Selecciona la categoría del ingreso.',
-            'exchange_rate.gt' => 'La tasa debe ser mayor a 0.',
-            'received_at.before_or_equal' => 'La fecha no puede ser futura.',
-            'receipt.max' => 'El comprobante no puede superar los 5 MB.',
+            'currency.required' => __('validation.app.income_currency_required'),
+            'category_id.required' => __('validation.app.income_category_required'),
+            'exchange_rate.gt' => __('validation.app.rate_gt'),
+            'received_at.before_or_equal' => __('validation.app.date_not_future'),
+            'receipt.max' => __('validation.app.receipt_max'),
         ];
     }
 }

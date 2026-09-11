@@ -7,6 +7,7 @@ use App\Http\Controllers\ExchangeRateController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\IncomeController;
 use App\Http\Controllers\LanguageController;
+use App\Http\Controllers\ManifestController;
 use App\Http\Controllers\PaymentSourceController;
 use App\Http\Controllers\RecurringPaymentController;
 use App\Http\Controllers\ReportController;
@@ -15,6 +16,9 @@ use App\Http\Middleware\EnsureTrackingFeature;
 use Illuminate\Support\Facades\Route;
 
 Route::inertia('/', 'welcome')->name('home');
+
+// Public: the browser fetches it before (and without) authentication.
+Route::get('manifest.webmanifest', ManifestController::class)->name('manifest');
 
 Route::middleware('auth')->group(function () {
     Route::post('language', [LanguageController::class, 'update'])->name('language.update');

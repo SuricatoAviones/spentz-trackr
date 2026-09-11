@@ -18,4 +18,5 @@ return [
     'action.source_deleted' => 'Payment source deleted',
     'action.backup_generated' => 'Backup generated',
 
+    'uncategorized' => 'Uncategorized',
 ];

@@ -48,6 +48,13 @@ return [
     'user_already_suspended' => 'El usuario ya está suspendido.',
     'user_suspended' => 'Usuario suspendido.',
     'user_not_suspended' => 'El usuario no está suspendido.',
+    'account_suspended' => 'Tu cuenta está suspendida.',
     'user_reactivated' => 'Usuario reactivado.',
 
+    'api_login_success' => 'Inicio de sesión exitoso',
+    'api_logout_success' => 'Sesión cerrada correctamente',
+    'api_profile_updated' => 'Perfil actualizado correctamente',
+    'api_locale_updated' => 'Idioma actualizado correctamente',
+
+    'pwa_description' => 'Controla tus gastos en USD, Bs y USDT',
 ];

@@ -264,7 +264,9 @@
         "update": "ACTUALIZAR",
         "create": "CREAR",
         "delete": "Eliminar",
-        "delete_blocked": "No se puede eliminar: tiene gastos asociados"
+        "delete_blocked": "No se puede eliminar: tiene gastos asociados",
+        "close": "Cerrar",
+        "loading": "Cargando"
     },
     "categories": {
         "title": "Categorías",

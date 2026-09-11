@@ -180,6 +180,21 @@ return [
     |
     */
 
+    'app' => [
+        'no_rate_available' => 'No hay tasa de cambio disponible. Regístrala en Ajustes.',
+        'no_rate_available_item' => 'No hay tasa de cambio disponible para el ítem en Bs. Regístrala en Ajustes.',
+        'item_rate_gt' => 'Cada ítem en Bs debe tener una tasa de cambio mayor a 0.',
+        'rate_gt' => 'La tasa debe ser mayor a 0.',
+        'date_not_future' => 'La fecha no puede ser futura.',
+        'receipt_max' => 'El comprobante no puede superar los 5 MB.',
+        'expense_currency_required' => 'Selecciona la moneda del gasto.',
+        'income_currency_required' => 'Selecciona la moneda del ingreso.',
+        'income_category_required' => 'Selecciona la categoría del ingreso.',
+        'bcv_rate_gt' => 'La tasa BCV debe ser mayor a 0.',
+        'paralelo_rate_gt' => 'La tasa paralela debe ser mayor a 0.',
+        'rate_required_without' => 'Indica al menos la tasa BCV o la paralela.',
+    ],
+
     'custom' => [
         'attribute-name' => [
             'rule-name' => 'custom-message',

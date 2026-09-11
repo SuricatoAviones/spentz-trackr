@@ -19,7 +19,7 @@ class EnsureApiUserNotSuspended
         if ($user !== null && $user->isSuspended()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Tu cuenta está suspendida.',
+                'message' => __('messages.account_suspended'),
             ], 403);
         }
 

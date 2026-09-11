@@ -50,8 +50,8 @@ export default function AdminSystem({
     const [generating, setGenerating] = useState(false);
 
     setLayoutProps({
-        title: t('admin:system.title'),
-        description: t('admin:system.subtitle'),
+        title: t('admin.system.title'),
+        description: t('admin.system.subtitle'),
     });
 
     function generateBackup() {
@@ -68,40 +68,40 @@ export default function AdminSystem({
 
     const healthItems = [
         {
-            label: t('admin:system.health_db'),
+            label: t('admin.system.health_db'),
             ok: status.database_ok,
             detail: status.database_ok
-                ? t('admin:system.health_db_ok')
-                : t('admin:system.health_db_fail'),
+                ? t('admin.system.health_db_ok')
+                : t('admin.system.health_db_fail'),
         },
         {
-            label: t('admin:system.health_storage'),
+            label: t('admin.system.health_storage'),
             ok: status.storage_writable,
             detail: status.storage_writable
-                ? t('admin:system.health_storage_ok')
-                : t('admin:system.health_storage_fail'),
+                ? t('admin.system.health_storage_ok')
+                : t('admin.system.health_storage_fail'),
         },
     ];
 
     return (
         <>
-            <Head title={t('admin:system.title')} />
+            <Head title={t('admin.system.title')} />
 
             <div className="space-y-8">
                 <div className="grid gap-6 lg:grid-cols-2">
                     <Card>
                         <CardHeader>
                             <CardTitle className="text-base">
-                                {t('admin:system.system_status')}
+                                {t('admin.system.system_status')}
                             </CardTitle>
                             <CardDescription>
-                                {t('admin:system.system_status_desc')}
+                                {t('admin.system.system_status_desc')}
                             </CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-3 text-sm">
                             <div className="flex items-center justify-between">
                                 <span className="text-muted-foreground">
-                                    {t('admin:system.environment')}
+                                    {t('admin.system.environment')}
                                 </span>
                                 <span className="font-medium">
                                     {status.environment}
@@ -125,7 +125,7 @@ export default function AdminSystem({
                             </div>
                             <div className="flex items-center justify-between">
                                 <span className="text-muted-foreground">
-                                    {t('admin:system.database')}
+                                    {t('admin.system.database')}
                                 </span>
                                 <span className="font-medium">
                                     {status.database}
@@ -133,7 +133,7 @@ export default function AdminSystem({
                             </div>
                             <div className="flex items-center justify-between">
                                 <span className="text-muted-foreground">
-                                    {t('admin:system.cache')}
+                                    {t('admin.system.cache')}
                                 </span>
                                 <span className="font-medium">
                                     {status.cache_driver}
@@ -168,44 +168,44 @@ export default function AdminSystem({
                         <Card>
                             <CardHeader>
                                 <CardTitle className="text-base">
-                                    {t('admin:system.data_volume')}
+                                    {t('admin.system.data_volume')}
                                 </CardTitle>
                                 <CardDescription>
-                                    {t('admin:system.data_volume_desc')}
+                                    {t('admin.system.data_volume_desc')}
                                 </CardDescription>
                             </CardHeader>
                             <CardContent className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                                 {[
                                     {
                                         icon: Server,
-                                        label: t('admin:system.count_users'),
+                                        label: t('admin.system.count_users'),
                                         value: counts.users,
                                     },
                                     {
                                         icon: Database,
-                                        label: t('admin:system.count_expenses'),
+                                        label: t('admin.system.count_expenses'),
                                         value: counts.expenses,
                                     },
                                     {
                                         icon: HardDrive,
-                                        label: t('admin:system.count_receipts'),
+                                        label: t('admin.system.count_receipts'),
                                         value: counts.receipts,
                                     },
                                     {
                                         icon: Database,
-                                        label: t('admin:system.count_rates'),
+                                        label: t('admin.system.count_rates'),
                                         value: counts.exchange_rates,
                                     },
                                     {
                                         icon: Server,
                                         label: t(
-                                            'admin:system.count_categories',
+                                            'admin.system.count_categories',
                                         ),
                                         value: counts.categories,
                                     },
                                     {
                                         icon: Server,
-                                        label: t('admin:system.count_sources'),
+                                        label: t('admin.system.count_sources'),
                                         value: counts.payment_sources,
                                     },
                                 ].map((item) => (
@@ -228,10 +228,10 @@ export default function AdminSystem({
                         <Card>
                             <CardHeader>
                                 <CardTitle className="text-base">
-                                    {t('admin:system.backup_title')}
+                                    {t('admin.system.backup_title')}
                                 </CardTitle>
                                 <CardDescription>
-                                    {t('admin:system.backup_desc')}
+                                    {t('admin.system.backup_desc')}
                                 </CardDescription>
                             </CardHeader>
                             <CardContent>
@@ -241,8 +241,8 @@ export default function AdminSystem({
                                 >
                                     <Download className="size-4" />
                                     {generating
-                                        ? t('admin:system.backup_generating')
-                                        : t('admin:system.backup_download')}
+                                        ? t('admin.system.backup_generating')
+                                        : t('admin.system.backup_download')}
                                 </Button>
                             </CardContent>
                         </Card>

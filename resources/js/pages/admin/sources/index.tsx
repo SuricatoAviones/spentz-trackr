@@ -72,8 +72,8 @@ export default function AdminSourcesIndex({
     const { t } = useTranslation();
 
     setLayoutProps({
-        title: t('admin:sources.title'),
-        description: t('admin:sources.total', { count: sources.total }),
+        title: t('admin.sources.title'),
+        description: t('admin.sources.total', { count: sources.total }),
     });
 
     const [search, setSearch] = useState(filters.search ?? '');
@@ -114,7 +114,7 @@ export default function AdminSourcesIndex({
     function destroy(source: AdminSource) {
         if (
             confirm(
-                t('admin:sources.delete_confirm', {
+                t('admin.sources.delete_confirm', {
                     name: source.name,
                     user: source.user.name,
                 }),
@@ -139,7 +139,7 @@ export default function AdminSourcesIndex({
 
     return (
         <>
-            <Head title={t('admin:sources.title')} />
+            <Head title={t('admin.sources.title')} />
 
             <div className="space-y-8">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-end">
@@ -169,13 +169,13 @@ export default function AdminSourcesIndex({
                                     );
                                 }}
                                 placeholder={t(
-                                    'admin:sources.search_placeholder',
+                                    'admin.sources.search_placeholder',
                                 )}
                                 className="pl-9"
                             />
                         </div>
                         <Button type="submit">
-                            {t('admin:users.search_button')}
+                            {t('admin.users.search_button')}
                         </Button>
                     </form>
                 </div>
@@ -184,7 +184,7 @@ export default function AdminSourcesIndex({
                     <CardContent className="p-4">
                         <label className="block max-w-xs">
                             <span className="mb-1 block text-[10px] font-semibold tracking-wider text-muted-foreground uppercase">
-                                {t('admin:expenses.filter_user')}
+                                {t('admin.expenses.filter_user')}
                             </span>
                             <select
                                 value={userId}
@@ -206,7 +206,7 @@ export default function AdminSourcesIndex({
                                 className="h-10 w-full rounded-lg bg-surface-low px-3 text-sm text-foreground focus:ring-2 focus:ring-emerald-500/50 focus:outline-none"
                             >
                                 <option value={0}>
-                                    {t('admin:expenses.all_users')}
+                                    {t('admin.expenses.all_users')}
                                 </option>
                                 {users.map((user) => (
                                     <option key={user.id} value={user.id}>
@@ -225,19 +225,19 @@ export default function AdminSourcesIndex({
                                 <thead>
                                     <tr className="border-b text-left text-xs tracking-wider text-muted-foreground uppercase">
                                         <th className="px-4 py-3 font-medium">
-                                            {t('admin:expenses.col_source')}
+                                            {t('admin.expenses.col_source')}
                                         </th>
                                         <th className="hidden px-4 py-3 font-medium md:table-cell">
-                                            {t('admin:expenses.filter_user')}
+                                            {t('admin.expenses.filter_user')}
                                         </th>
                                         <th className="hidden px-4 py-3 font-medium sm:table-cell">
-                                            {t('admin:users.col_expenses')}
+                                            {t('admin.users.col_expenses')}
                                         </th>
                                         <th className="hidden px-4 py-3 font-medium sm:table-cell">
-                                            {t('admin:users.col_total_usd')}
+                                            {t('admin.users.col_total_usd')}
                                         </th>
                                         <th className="px-4 py-3 text-right font-medium">
-                                            {t('admin:users.col_actions')}
+                                            {t('admin.users.col_actions')}
                                         </th>
                                     </tr>
                                 </thead>
@@ -260,7 +260,7 @@ export default function AdminSourcesIndex({
                                                             {source.is_system && (
                                                                 <Badge variant="outline">
                                                                     {t(
-                                                                        'admin:categories.badge_system',
+                                                                        'admin.categories.badge_system',
                                                                     )}
                                                                 </Badge>
                                                             )}
@@ -294,7 +294,7 @@ export default function AdminSourcesIndex({
                                                             openEdit(source)
                                                         }
                                                         aria-label={t(
-                                                            'admin:users.edit_aria',
+                                                            'admin.users.edit_aria',
                                                             {
                                                                 name: source.name,
                                                             },
@@ -313,7 +313,7 @@ export default function AdminSourcesIndex({
                                                         }
                                                         className="text-destructive hover:text-destructive disabled:opacity-40"
                                                         aria-label={t(
-                                                            'admin:users.delete_aria',
+                                                            'admin.users.delete_aria',
                                                             {
                                                                 name: source.name,
                                                             },
@@ -322,7 +322,7 @@ export default function AdminSourcesIndex({
                                                             source.can_delete
                                                                 ? undefined
                                                                 : t(
-                                                                      'common:delete_blocked',
+                                                                      'common.delete_blocked',
                                                                   )
                                                         }
                                                     >
@@ -338,7 +338,7 @@ export default function AdminSourcesIndex({
 
                         {sources.data.length === 0 && (
                             <p className="px-4 py-12 text-center text-sm text-muted-foreground">
-                                {t('admin:sources.no_sources')}
+                                {t('admin.sources.no_sources')}
                             </p>
                         )}
                     </CardContent>
@@ -351,10 +351,10 @@ export default function AdminSourcesIndex({
                     <DialogContent className="rounded-2xl sm:max-w-md">
                         <DialogHeader>
                             <DialogTitle>
-                                {t('admin:sources.edit_title')}
+                                {t('admin.sources.edit_title')}
                             </DialogTitle>
                             <DialogDescription>
-                                {t('admin:sources.edit_description', {
+                                {t('admin.sources.edit_description', {
                                     name: editing?.user.name,
                                 })}
                             </DialogDescription>
@@ -363,7 +363,7 @@ export default function AdminSourcesIndex({
                         <form onSubmit={submitEdit} className="space-y-4">
                             <div className="grid gap-2">
                                 <Label htmlFor="edit-source-name">
-                                    {t('common:name')}
+                                    {t('common.name')}
                                 </Label>
                                 <Input
                                     id="edit-source-name"
@@ -383,7 +383,7 @@ export default function AdminSourcesIndex({
 
                             <div className="grid gap-2">
                                 <Label htmlFor="edit-source-icon">
-                                    {t('common:icon')}
+                                    {t('common.icon')}
                                 </Label>
                                 <select
                                     id="edit-source-icon"
@@ -402,7 +402,7 @@ export default function AdminSourcesIndex({
                             </div>
 
                             <div className="grid gap-2">
-                                <Label>{t('common:color')}</Label>
+                                <Label>{t('common.color')}</Label>
                                 <div className="flex flex-wrap gap-2">
                                     {PRESET_COLORS.map((color) => (
                                         <button
@@ -417,7 +417,7 @@ export default function AdminSourcesIndex({
                                                     : 'hover:scale-105'
                                             }`}
                                             style={{ backgroundColor: color }}
-                                            aria-label={t('common:color_aria', {
+                                            aria-label={t('common.color_aria', {
                                                 color,
                                             })}
                                         />
@@ -436,8 +436,8 @@ export default function AdminSourcesIndex({
                                 className="w-full"
                             >
                                 {processing
-                                    ? t('common:saving')
-                                    : t('admin:users.save_changes')}
+                                    ? t('common.saving')
+                                    : t('admin.users.save_changes')}
                             </Button>
                         </form>
                     </DialogContent>

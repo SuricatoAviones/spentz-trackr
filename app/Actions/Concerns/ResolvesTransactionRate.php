@@ -40,7 +40,7 @@ trait ResolvesTransactionRate
 
         if ($rate <= 0) {
             throw ValidationException::withMessages([
-                $errorKey => 'No hay tasa de cambio disponible. Regístrala en Ajustes.',
+                $errorKey => __('validation.app.no_rate_available'),
             ]);
         }
 
