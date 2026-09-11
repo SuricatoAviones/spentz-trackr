@@ -4,7 +4,7 @@
 
 | Capa | Tecnología | Notas |
 |---|---|---|
-| Backend | Laravel 13 (PHP 8.3+, 8.5 recomendado) | API + SSR vía Inertia |
+| Backend | Laravel 13 (PHP 8.4.1+, 8.5 recomendado) | API + SSR vía Inertia |
 | Auth | Laravel Fortify | Login, registro, verificación de correo, 2FA, passkeys |
 | Frontend | Inertia v3 + React 19 + Tailwind 4 + shadcn/ui | SPA sobre Laravel |
 | Rutas TS | Laravel Wayfinder | Helpers tipados `@/actions` / `@/routes` (importar del módulo agrupado) |

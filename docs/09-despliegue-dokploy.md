@@ -6,7 +6,7 @@ Guía para publicar Spentz Trackr en un VPS gestionado con [Dokploy](https://dok
 
 | Requisito | Mínimo recomendado | Notas |
 |---|---|---|
-| VPS | 2 vCPU / 2 GB RAM | La app es ligera; Dokploy + Traefik + MySQL consumen lo suyo |
+| VPS | 2 vCPU / 2 GB RAM (+ 2 GB swap) | La app es ligera, pero el *build* compila extensiones PHP y assets: sin swap, 2 GB se quedan cortos y el build muere con `exit code: 137` |
 | Docker | 24+ | Lo instala Dokploy con `curl -sSL https://dokploy.com/install.sh \| sh` |
 | Dominio | 1 (A/AAAA → IP del VPS) | Para el panel de Dokploy y para la app |
 | Puerto 80/443 | Abiertos | Traefik hace TLS automático |
@@ -36,6 +36,18 @@ tests
 Y un `Dockerfile` multi-etapa (dependencias PHP + types Wayfinder + assets frontend + imagen runtime). Usa la imagen `serversideup/php` (PHP 8.5 + FPM + Nginx + cron ya incluido):
 
 ```dockerfile
+# --- Etapa 0: base PHP + extensiones (compartida por las etapas con PHP) ---
+FROM serversideup/php:8.5-fpm-nginx AS php-base
+
+USER root
+# install-php-extensions compila gd e intl desde fuente con `make -j$(nproc)`. En un VPS
+# pequeño (2 GB, con Dokploy + Traefik + MySQL encima) los gcc en paralelo agotan la RAM y
+# el kernel mata el build ("Killed", exit 137). IPE_PROCESSOR_COUNT=1 lo compila en serie.
+# Además, al vivir en su propia etapa base, este paso corre ANTES del `npm run build`
+# (la etapa frontend depende de wayfinder, que depende de esta) en vez de competir con él.
+RUN IPE_PROCESSOR_COUNT=1 install-php-extensions bcmath gd intl
+USER www-data
+
 # --- Etapa 1: dependencias PHP ---
 FROM composer:2 AS vendor
 WORKDIR /app
@@ -43,7 +55,7 @@ COPY composer.json composer.lock ./
 RUN composer install --no-dev --no-interaction --no-progress --optimize-autoloader --no-scripts
 
 # --- Etapa 2: types TypeScript de Wayfinder (la etapa frontend no tiene PHP) ---
-FROM serversideup/php:8.5-fpm-nginx AS wayfinder
+FROM php-base AS wayfinder
 WORKDIR /var/www/html
 
 USER root
@@ -66,11 +78,10 @@ ENV SKIP_WAYFINDER=1
 RUN npm run build
 
 # --- Etapa 4: runtime ---
-FROM serversideup/php:8.5-fpm-nginx
+FROM php-base
 WORKDIR /var/www/html
 
 USER root
-RUN install-php-extensions bcmath gd intl
 COPY --from=vendor /app/vendor ./vendor
 COPY --from=frontend /app/public/build ./public/build
 COPY --chown=www-data:www-data . .
@@ -83,11 +94,22 @@ RUN php artisan package:discover --ansi && php artisan storage:link
 EXPOSE 80
 ```
 
+> **¿Por qué una etapa `php-base` y `IPE_PROCESSOR_COUNT=1`?** `serversideup/php` solo trae
+> `opcache pcntl pdo_mysql pdo_pgsql redis zip`, así que `bcmath`, `gd` e `intl` hay que
+> compilarlas con `install-php-extensions`. Por defecto compila con `make -j$(nproc)` y, en un
+> VPS de 2 GB con Dokploy + Traefik + MySQL corriendo, esos gcc en paralelo agotan la RAM: el
+> kernel mata el proceso y el build termina en `Killed` / `exit code: 137`.
+> `IPE_PROCESSOR_COUNT=1` compila en serie, y poner las extensiones en una etapa base de la
+> que dependen las demás hace que ese paso corra **antes** del `npm run build` en vez de
+> pelearse con Vite por la memoria. Si el build sigue muriendo por OOM, añade swap al VPS
+> (`fallocate -l 2G /swapfile && chmod 600 /swapfile && mkswap /swapfile && swapon /swapfile`,
+> más la línea en `/etc/fstab`) o sube el plan a 4 GB.
+
 > **¿Por qué la etapa `wayfinder`?** El plugin `@laravel/vite-plugin-wayfinder` ejecuta `php artisan wayfinder:generate --with-form` en cada build de Vite, pero `node:22-alpine` no incluye PHP. Por eso se generan los types TS en una etapa con PHP (la misma imagen del runtime), se copian a la etapa frontend y, en `vite.config.ts`, el plugin mapea su opción `command` a un no-op (`node -e 0 --`) cuando existe la variable `SKIP_WAYFINDER=1` (solo seteada en el build). En local (`npm run dev`) sigue generando los types automáticamente.
 
 > `--no-scripts` en `composer install` evita que el autoloader ejecute `artisan` en la etapa `vendor` (donde aún no se copió la app); el `package:discover` se ejecuta explícitamente luego en la etapa runtime.
 
-> Si `serversideup/php:8.5-fpm-nginx` no estuviera publicado aún, usa `8.4-fpm-nginx` (la app corre en 8.3+).
+> Si `serversideup/php:8.5-fpm-nginx` no estuviera publicado aún, usa `8.4-fpm-nginx` (la app requiere 8.4.1+).
 
 ## 2. Crear la aplicación en Dokploy
 

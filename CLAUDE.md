@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-**Spentz Trackr** — self-hostable, multi-currency personal finance tracker (USD / Bs / USDT) aimed at Venezuela. Laravel 13 (PHP 8.3+) + Inertia v3 + React 19 + Tailwind 4 + shadcn/ui. Deployed via a hand-written `.env` (no installer — see ADR-008). Product docs (Spanish) live in `docs/` — `docs/README.md` is the index; **read `docs/04-arquitectura.md` before implementing new features** (contains the ADRs).
+**Spentz Trackr** — self-hostable, multi-currency personal finance tracker (USD / Bs / USDT) aimed at Venezuela. Laravel 13 (PHP 8.4+) + Inertia v3 + React 19 + Tailwind 4 + shadcn/ui. Deployed via a hand-written `.env` (no installer — see ADR-008). Product docs (Spanish) live in `docs/` — `docs/README.md` is the index; **read `docs/04-arquitectura.md` before implementing new features** (contains the ADRs).
 
 ## Rules system — read before editing (`.ai/rules/`)
 

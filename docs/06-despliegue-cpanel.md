@@ -9,7 +9,7 @@
 
 | Requisito | Valor |
 |---|---|
-| PHP | **8.3+** (8.5 recomendado) — *MultiPHP Manager* / *Select PHP Version* |
+| PHP | **8.4.1+** (8.5 recomendado) — *MultiPHP Manager* / *Select PHP Version* |
 | Extensiones | `pdo`, `pdo_mysql`, `mbstring`, `openssl`, `tokenizer`, `xml`, `curl`, `zip`, `bcmath`, `gd`, `fileinfo` |
 | Base de datos | MySQL 8 / MariaDB 10.6+ (o PostgreSQL 12+) |
 | Acceso | File Manager + **Terminal** (o al menos Cron Jobs) |

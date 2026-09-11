@@ -113,7 +113,7 @@ vendor/bin/pint --dirty                    # formateo PHP
 
 ## Stack
 
-Laravel 13 (PHP 8.3+) · Inertia v3 · React 19 · Tailwind 4 · shadcn/ui · Wayfinder ·
+Laravel 13 (PHP 8.4+) · Inertia v3 · React 19 · Tailwind 4 · shadcn/ui · Wayfinder ·
 Sanctum · Scramble · Pest / Larastan / Pint. Base de datos SQLite, MySQL 8 o PostgreSQL 12+.
 
 ## Documentación
