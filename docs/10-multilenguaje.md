@@ -1,6 +1,6 @@
 # 10 — Planificación: Multilenguaje (ES / EN)
 
-Convertir Spent Trackr en una app **español-inglés** con selector de idioma persistente. Español sigue siendo el idioma por defecto (mercado principal), Inglés como idioma completo de la interfaz.
+Convertir Spentz Trackr en una app **español-inglés** con selector de idioma persistente. Español sigue siendo el idioma por defecto (mercado principal), Inglés como idioma completo de la interfaz.
 
 ## 1. Decisiones clave
 
@@ -82,7 +82,7 @@ Convertir Spent Trackr en una app **español-inglés** con selector de idioma pe
 | Strings interpoladas en flash ("Gasto X eliminado") | Usar `__('messages.expense_deleted', ['name' => ...])` con `:name` |
 | `formatAmount` con moneda USDT/VES (sin símbolo estándar) | `Intl.NumberFormat` para separadores + símbolo fijo por moneda (USD `$`, USDT `₮`, VES `Bs`) |
 | Categorías por defecto en español para usuarios EN | Fase 2 opcional: seed con locale del usuario en registro |
-| SSR/SEO | No hay SSR (Inertia client-side); `Head` usa locale compartido |
+| SSR/SEO | Inertia trae SSR y estuvo activo; ver ADR-008 y la sección 6 — hoy `inertia.ssr.enabled` está en `false` |
 | Mantener `.env` de prod | `APP_LOCALE` cambia el default; usuario ya puede elegir EN sin tocar server |
 
 ## 5. Entregables por fase
@@ -94,3 +94,50 @@ Convertir Spent Trackr en una app **español-inglés** con selector de idioma pe
 | C | páginas admin traducidas + ACTION_LABELS en diccionario |
 | D | selector EN/ES en sidebar y ajustes + persistencia |
 | E | test de keys + revisión ES/EN + docs actualizadas + suite verde |
+---
+
+## 6. Estado implementado y trampas (actualizado 2026-09-10)
+
+Las fases A–E de arriba son el plan original. Esto es cómo quedó y qué hay que respetar al añadir textos.
+
+### Dónde vive cada texto
+
+| Capa | Fichero | Cómo se usa |
+|---|---|---|
+| Frontend (toda la UI) | `resources/js/i18n/{es,en}.json` | `t('expenses.title')` — namespace i18next `translation` |
+| Flash y errores de negocio | `lang/{es,en}/messages.php` | `__('messages.expense_deleted')`; se comparte por Inertia como bundle `messages` |
+| Validación propia de la app | `lang/{es,en}/validation.php` → clave **`app.*`** | `__('validation.app.rate_gt')` desde `messages()` de los Form Requests |
+| Nombres de campo en errores | `lang/{es,en}/validation.php` → **`attributes`** | Debe existir en **ambos**: sin él, EN muestra `category_id` en vez de `category` |
+| Etiquetas del panel admin (backend) | `lang/{es,en}/admin.php` | Acciones de auditoría y `uncategorized`; bundle `admin` |
+| Manifest de la PWA | `ManifestController` + `messages.pwa_description` | Se sirve por ruta, no como fichero estático |
+
+### ⚠️ Nunca uses `:` en una clave del frontend
+
+i18next interpreta `:` como **separador de namespace**. La app registra el namespace por defecto
+`translation` (los JSON) y, además, dos bundles que vienen del backend por shared props:
+`messages` y `admin` — que contienen **otras** claves.
+
+Por eso `t('admin:users.title')` no busca `admin.users.title` en el diccionario: busca
+`users.title` dentro del namespace `admin` (que solo tiene `action.*` y `uncategorized`), no la
+encuentra y **pinta la clave en crudo**. Esto tuvo el panel admin entero sin traducir, con
+154 claves rotas, mientras los tests pasaban en verde.
+
+**Siempre con punto:** `t('admin.users.title')`.
+
+### Qué valida `tests/Unit/I18nDictionaryTest.php`
+
+1. `es.json` y `en.json` tienen exactamente el mismo conjunto de claves.
+2. Toda clave `t('...')` estática existe en el diccionario (acepta plurales `_one`/`_other`…).
+3. **Ninguna clave usa `:`** — cubre tanto `t('...')` como plantillas `` t(`...${x}`) ``.
+4. Los placeholders `{{var}}` coinciden entre idiomas.
+
+Los puntos 3 y 4 se añadieron tras el incidente: el test original normalizaba `:` a `.` (por eso
+no veía el fallo) y buscaba placeholders estilo Laravel `:var` en diccionarios que usan `{{var}}`
+(por eso no comprobaba nada). Si tocas ese test, comprueba que **falla** al inyectar la
+regresión a propósito; un test que pasa en vano es peor que no tenerlo.
+
+### Capas que se quedan solo en español a propósito
+
+La salida de los comandos de consola (`admin:create`, `app:update`), los `report()` de los
+servicios y las anotaciones `#[QueryParameter]` de Scramble son para el operador, no para el
+usuario final. No se traducen.

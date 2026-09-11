@@ -39,6 +39,11 @@
         },
         "nav_menu": {
             "title": "Menú de navegación"
+        },
+        "nav": {
+            "manage_section": "Gestión",
+            "more": "Más",
+            "menu_aria": "Abrir el menú completo"
         }
     },
     "rates": {
@@ -259,7 +264,9 @@
         "update": "ACTUALIZAR",
         "create": "CREAR",
         "delete": "Eliminar",
-        "delete_blocked": "No se puede eliminar: tiene gastos asociados"
+        "delete_blocked": "No se puede eliminar: tiene gastos asociados",
+        "close": "Cerrar",
+        "loading": "Cargando"
     },
     "categories": {
         "title": "Categorías",

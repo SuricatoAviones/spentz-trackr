@@ -97,10 +97,7 @@ export default function ManageTwoFactor(props: Props) {
                                 onSuccess={() => setShowSetupModal(true)}
                             >
                                 {({ processing }) => (
-                                    <Button
-                                        type="submit"
-                                        disabled={processing}
-                                    >
+                                    <Button type="submit" disabled={processing}>
                                         {t('settings.two_factor_enable')}
                                     </Button>
                                 )}

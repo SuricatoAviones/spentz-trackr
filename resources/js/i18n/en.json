@@ -39,6 +39,11 @@
         },
         "nav_menu": {
             "title": "Navigation menu"
+        },
+        "nav": {
+            "manage_section": "Manage",
+            "more": "More",
+            "menu_aria": "Open the full menu"
         }
     },
     "rates": {
@@ -259,7 +264,9 @@
         "update": "UPDATE",
         "create": "CREATE",
         "delete": "Delete",
-        "delete_blocked": "Cannot delete: it has associated expenses"
+        "delete_blocked": "Cannot delete: it has associated expenses",
+        "close": "Close",
+        "loading": "Loading"
     },
     "categories": {
         "title": "Categories",

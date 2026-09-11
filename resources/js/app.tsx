@@ -3,9 +3,8 @@ import { useEffect } from 'react';
 import { Toaster } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { initializeTheme } from '@/hooks/use-appearance';
-import { initI18n, syncI18n  } from '@/i18n';
-import type {TranslationProps} from '@/i18n';
-import AppLayout from '@/layouts/app-layout';
+import { initI18n, syncI18n } from '@/i18n';
+import type { TranslationProps } from '@/i18n';
 import AuthLayout from '@/layouts/auth-layout';
 import SettingsLayout from '@/layouts/settings/layout';
 import TrackerLayout from '@/layouts/tracker-layout';
@@ -26,24 +25,13 @@ createInertiaApp({
         switch (true) {
             case name === 'welcome':
                 return null;
-            case name.startsWith('install/'):
-                return null;
             case name.startsWith('auth/'):
                 return AuthLayout;
             case name.startsWith('settings/'):
-                return [AppLayout, SettingsLayout];
-            case name === 'dashboard' ||
-                name.startsWith('expenses/') ||
-                name.startsWith('incomes/') ||
-                name.startsWith('categories/') ||
-                name.startsWith('sources/') ||
-                name.startsWith('reports/') ||
-                name === 'ajustes':
-                return TrackerLayout;
-            case name.startsWith('admin/'):
-                return AppLayout;
+                return [TrackerLayout, SettingsLayout];
+            // Every authenticated screen shares one navigation shell.
             default:
-                return AppLayout;
+                return TrackerLayout;
         }
     },
     strictMode: true,

@@ -34,7 +34,7 @@ class UpdateExchangeRateRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'rate.gt' => 'La tasa debe ser mayor a 0.',
+            'rate.gt' => __('validation.app.rate_gt'),
         ];
     }
 }

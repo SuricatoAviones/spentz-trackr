@@ -31,6 +31,8 @@ use Illuminate\Support\Carbon;
  * @property string|null $note
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
+ * @property-read User $user
+ * @property-read Category|null $category
  */
 #[Fillable([
     'user_id',
@@ -54,21 +56,35 @@ class RecurringPayment extends Model
     /** @use HasFactory<RecurringPaymentFactory> */
     use HasFactory;
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * @return BelongsTo<Category, $this>
+     */
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
     }
 
+    /**
+     * @param  Builder<RecurringPayment>  $query
+     * @return Builder<RecurringPayment>
+     */
     public function scopeForUser(Builder $query, int $userId): Builder
     {
         return $query->where('user_id', $userId);
     }
 
+    /**
+     * @param  Builder<RecurringPayment>  $query
+     * @return Builder<RecurringPayment>
+     */
     public function scopeActive(Builder $query): Builder
     {
         return $query->where('active', true);

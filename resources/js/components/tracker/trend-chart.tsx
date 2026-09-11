@@ -84,7 +84,7 @@ export function TrendChart({
                         key={point.month}
                         className="text-[9px] font-medium text-muted-foreground"
                     >
-{formatIsoMonthLabel(point.month)}
+                        {formatIsoMonthLabel(point.month)}
                     </span>
                 ))}
             </div>

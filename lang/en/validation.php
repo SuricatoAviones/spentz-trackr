@@ -180,6 +180,21 @@ return [
     |
     */
 
+    'app' => [
+        'no_rate_available' => 'No exchange rate available. Set one in Settings.',
+        'no_rate_available_item' => 'No exchange rate available for the item in Bs. Set one in Settings.',
+        'item_rate_gt' => 'Every item in Bs must have an exchange rate greater than 0.',
+        'rate_gt' => 'The rate must be greater than 0.',
+        'date_not_future' => 'The date cannot be in the future.',
+        'receipt_max' => 'The receipt cannot be larger than 5 MB.',
+        'expense_currency_required' => 'Select the expense currency.',
+        'income_currency_required' => 'Select the income currency.',
+        'income_category_required' => 'Select the income category.',
+        'bcv_rate_gt' => 'The BCV rate must be greater than 0.',
+        'paralelo_rate_gt' => 'The parallel rate must be greater than 0.',
+        'rate_required_without' => 'Provide at least the BCV or the parallel rate.',
+    ],
+
     'custom' => [
         'attribute-name' => [
             'rule-name' => 'custom-message',
@@ -197,6 +212,22 @@ return [
     |
     */
 
-    'attributes' => [],
+    'attributes' => [
+        'name' => 'name',
+        'email' => 'email address',
+        'password' => 'password',
+        'locale' => 'language',
+        'category_id' => 'category',
+        'payment_source_id' => 'payment source',
+        'currency' => 'currency',
+        'amount' => 'amount',
+        'exchange_rate' => 'exchange rate',
+        'rate_provider' => 'rate provider',
+        'description' => 'description',
+        'note' => 'note',
+        'spent_at' => 'date',
+        'receipt' => 'receipt',
+        'default_display_currency' => 'display currency',
+    ],
 
 ];

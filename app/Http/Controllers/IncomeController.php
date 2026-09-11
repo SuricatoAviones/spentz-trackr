@@ -2,18 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Incomes\StoreIncomeAction;
+use App\Actions\Incomes\UpdateIncomeAction;
 use App\Enums\CategoryType;
-use App\Enums\Currency;
 use App\Http\Requests\StoreIncomeRequest;
 use App\Http\Requests\UpdateIncomeRequest;
 use App\Models\Category;
 use App\Models\Income;
 use App\Services\ExchangeRateService;
-use App\Services\ExpenseConversionService;
+use App\Support\Presenters\IncomePresenter;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -52,7 +52,7 @@ class IncomeController extends Controller
             ->orderByDesc('id')
             ->paginate(20)
             ->withQueryString()
-            ->through(fn (Income $income) => $this->shape($income));
+            ->through(fn (Income $income) => IncomePresenter::present($income));
 
         $filters['currency'] = $request->string('currency')->toString();
 
@@ -77,39 +77,13 @@ class IncomeController extends Controller
         ]);
     }
 
-    public function store(StoreIncomeRequest $request, ExpenseConversionService $converter, ExchangeRateService $rateService): RedirectResponse
+    public function store(StoreIncomeRequest $request, StoreIncomeAction $action): RedirectResponse
     {
-        $validated = $request->validated();
-
-        $currency = Currency::from($validated['currency']);
-
-        $exchangeRate = $validated['exchange_rate'] ?? null;
-        $rateProvider = $validated['rate_provider'] ?? null;
-        if ($currency === Currency::Ves && $exchangeRate === null) {
-            $rate = $rateService->rateForUser($request->user());
-            $exchangeRate = (float) $rate['rate'];
-            $rateProvider = $rate['provider'] !== 'none' ? $rate['provider'] : null;
-        }
-
-        if ($currency === Currency::Ves && (float) $exchangeRate <= 0) {
-            throw ValidationException::withMessages([
-                'exchange_rate' => 'No hay tasa de cambio disponible. Regístrala en Ajustes.',
-            ]);
-        }
-
-        $converted = $converter->convert($currency, (float) $validated['amount'], $exchangeRate !== null ? (float) $exchangeRate : null);
-
-        $income = $request->user()->incomes()->create([
-            ...$validated,
-            'exchange_rate' => $currency === Currency::Ves ? $exchangeRate : null,
-            'rate_provider' => $currency === Currency::Ves ? $rateProvider : null,
-            'usd_amount' => $converted['usd_amount'],
-            'usdt_amount' => $converted['usdt_amount'],
-        ]);
-
-        if ($request->hasFile('receipt')) {
-            $this->storeReceipt($income, $request);
-        }
+        $income = $action->handle(
+            $request->user(),
+            $request->validated(),
+            $request->file('receipt'),
+        );
 
         return redirect()
             ->route('incomes.show', $income)
@@ -121,7 +95,7 @@ class IncomeController extends Controller
         $this->authorize('view', $income);
 
         return Inertia::render('incomes/show', [
-            'income' => $this->shape($income->load(['category', 'receipts'])),
+            'income' => IncomePresenter::present($income->load(['category', 'receipts'])),
         ]);
     }
 
@@ -141,45 +115,17 @@ class IncomeController extends Controller
         ]);
     }
 
-    public function update(UpdateIncomeRequest $request, Income $income, ExpenseConversionService $converter, ExchangeRateService $rateService): RedirectResponse
+    public function update(UpdateIncomeRequest $request, Income $income, UpdateIncomeAction $action): RedirectResponse
     {
         $this->authorize('update', $income);
 
-        $validated = $request->validated();
-
-        $currency = Currency::from($validated['currency']);
-
-        $exchangeRate = $validated['exchange_rate'] ?? null;
-        $rateProvider = $validated['rate_provider'] ?? null;
-        if ($currency === Currency::Ves && $exchangeRate === null) {
-            $rate = $rateService->rateForUser($request->user());
-            $exchangeRate = (float) $rate['rate'];
-            $rateProvider = $rate['provider'] !== 'none' ? $rate['provider'] : null;
-        }
-
-        if ($currency === Currency::Ves && (float) $exchangeRate <= 0) {
-            throw ValidationException::withMessages([
-                'exchange_rate' => 'No hay tasa de cambio disponible. Regístrala en Ajustes.',
-            ]);
-        }
-
-        $converted = $converter->convert($currency, (float) $validated['amount'], $exchangeRate !== null ? (float) $exchangeRate : null);
-
-        $income->update([
-            ...$validated,
-            'exchange_rate' => $currency === Currency::Ves ? $exchangeRate : null,
-            'rate_provider' => $currency === Currency::Ves ? $rateProvider : null,
-            'usd_amount' => $converted['usd_amount'],
-            'usdt_amount' => $converted['usdt_amount'],
-        ]);
-
-        if ($request->boolean('remove_receipt')) {
-            $this->deleteReceipts($income);
-        }
-
-        if ($request->hasFile('receipt')) {
-            $this->storeReceipt($income, $request);
-        }
+        $action->handle(
+            $request->user(),
+            $income,
+            $request->validated(),
+            $request->file('receipt'),
+            $request->boolean('remove_receipt'),
+        );
 
         return redirect()
             ->route('incomes.show', $income)
@@ -196,40 +142,6 @@ class IncomeController extends Controller
         return redirect()
             ->route('incomes.index')
             ->with('success', __('messages.income_deleted'));
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function shape(Income $income): array
-    {
-        return [
-            'id' => $income->id,
-            'description' => $income->description,
-            'note' => $income->note,
-            'amount' => $income->amount,
-            'currency' => $income->currency->value,
-            'exchange_rate' => $income->exchange_rate,
-            'rate_provider' => $income->rate_provider,
-            'usd_amount' => $income->usd_amount,
-            'usdt_amount' => $income->usdt_amount,
-            'received_at' => $income->received_at->toDateString(),
-            'category' => [
-                'id' => $income->category_id,
-                'name' => $income->category->name,
-                'icon' => $income->category->icon,
-                'color' => $income->category->color,
-            ],
-            'has_receipt' => $income->receipts->isNotEmpty(),
-            'receipts' => $income->receipts
-                ->map(fn ($receipt) => [
-                    'id' => $receipt->id,
-                    'url' => Storage::disk('public')->url($receipt->path),
-                    'original_name' => $receipt->original_name,
-                ])
-                ->values()
-                ->all(),
-        ];
     }
 
     /**
@@ -273,16 +185,6 @@ class IncomeController extends Controller
                 'color' => $category->color,
             ])
             ->all();
-    }
-
-    private function storeReceipt(Income $income, Request $request): void
-    {
-        $path = $request->file('receipt')->store('receipts', 'public');
-
-        $income->receipts()->create([
-            'path' => $path,
-            'original_name' => $request->file('receipt')->getClientOriginalName(),
-        ]);
     }
 
     private function deleteReceipts(Income $income): void

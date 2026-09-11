@@ -18,4 +18,5 @@ return [
     'action.source_deleted' => 'Origen eliminado',
     'action.backup_generated' => 'Backup generado',
 
+    'uncategorized' => 'Sin categoría',
 ];

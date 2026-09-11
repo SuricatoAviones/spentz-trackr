@@ -53,10 +53,10 @@ class StoreExpenseRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'currency.required' => 'Selecciona la moneda del gasto.',
-            'exchange_rate.gt' => 'La tasa debe ser mayor a 0.',
-            'spent_at.before_or_equal' => 'La fecha no puede ser futura.',
-            'receipt.max' => 'El comprobante no puede superar los 5 MB.',
+            'currency.required' => __('validation.app.expense_currency_required'),
+            'exchange_rate.gt' => __('validation.app.rate_gt'),
+            'spent_at.before_or_equal' => __('validation.app.date_not_future'),
+            'receipt.max' => __('validation.app.receipt_max'),
         ];
     }
 }

@@ -19,14 +19,22 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
-import { CURRENCY_META, formatAmount, formatDate, todayInputValue } from '@/lib/format';
+import {
+    CURRENCY_META,
+    formatAmount,
+    formatDate,
+    todayInputValue,
+} from '@/lib/format';
 import type { CurrencyCode } from '@/lib/format';
 import {
     destroy as goalsDestroy,
     store as goalsStore,
     update as goalsUpdate,
 } from '@/routes/savings-goals';
-import { destroy as contributionDestroy, store as contributionStore } from '@/routes/savings-goals/contributions';
+import {
+    destroy as contributionDestroy,
+    store as contributionStore,
+} from '@/routes/savings-goals/contributions';
 
 const PRESET_COLORS = [
     '#10B981',
@@ -216,7 +224,10 @@ export default function SavingsGoalsIndex({
         }
     }
 
-    function destroyContribution(goal: SavingsGoal, contribution: SavingsContribution) {
+    function destroyContribution(
+        goal: SavingsGoal,
+        contribution: SavingsContribution,
+    ) {
         if (confirm(t('savings_goals.remove_contribution_confirm'))) {
             router.delete(
                 contributionDestroy({
@@ -320,7 +331,9 @@ export default function SavingsGoalsIndex({
                                         </p>
                                         <p className="text-xs text-muted-foreground">
                                             {formatAmount(goal.saved)} /{' '}
-                                            {formatAmount(goal.target_usd_amount)}{' '}
+                                            {formatAmount(
+                                                goal.target_usd_amount,
+                                            )}{' '}
                                             USD
                                         </p>
                                     </div>
@@ -416,48 +429,50 @@ export default function SavingsGoalsIndex({
                                             <TrendingUp className="size-3.5" />
                                             {t('savings_goals.contributions')}
                                         </p>
-                                        {goal.contributions.map((contribution) => {
-                                            const income = incomes.find(
-                                                (item) =>
-                                                    item.id ===
-                                                    contribution.income_id,
-                                            );
+                                        {goal.contributions.map(
+                                            (contribution) => {
+                                                const income = incomes.find(
+                                                    (item) =>
+                                                        item.id ===
+                                                        contribution.income_id,
+                                                );
 
-                                            return (
-                                                <div
-                                                    key={contribution.id}
-                                                    className="flex items-center justify-between text-xs"
-                                                >
-                                                    <span className="flex min-w-0 items-center gap-2 text-muted-foreground">
-                                                        <CircleDollarSign className="size-3.5 shrink-0 text-emerald-400" />
-                                                        <span className="truncate">
-                                                            {formatAmount(
-                                                                contribution.usd_amount,
-                                                            )}{' '}
-                                                            USD
-                                                            {income
-                                                                ? ` · ${income.description}`
-                                                                : ''}
-                                                        </span>
-                                                    </span>
-                                                    <button
-                                                        type="button"
-                                                        onClick={() =>
-                                                            destroyContribution(
-                                                                goal,
-                                                                contribution,
-                                                            )
-                                                        }
-                                                        className="inline-flex size-6 shrink-0 items-center justify-center rounded-md text-muted-foreground hover:text-destructive"
-                                                        aria-label={t(
-                                                            'savings_goals.remove_contribution_aria',
-                                                        )}
+                                                return (
+                                                    <div
+                                                        key={contribution.id}
+                                                        className="flex items-center justify-between text-xs"
                                                     >
-                                                        <Trash2 className="size-3.5" />
-                                                    </button>
-                                                </div>
-                                            );
-                                        })}
+                                                        <span className="flex min-w-0 items-center gap-2 text-muted-foreground">
+                                                            <CircleDollarSign className="size-3.5 shrink-0 text-emerald-400" />
+                                                            <span className="truncate">
+                                                                {formatAmount(
+                                                                    contribution.usd_amount,
+                                                                )}{' '}
+                                                                USD
+                                                                {income
+                                                                    ? ` · ${income.description}`
+                                                                    : ''}
+                                                            </span>
+                                                        </span>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() =>
+                                                                destroyContribution(
+                                                                    goal,
+                                                                    contribution,
+                                                                )
+                                                            }
+                                                            className="inline-flex size-6 shrink-0 items-center justify-center rounded-md text-muted-foreground hover:text-destructive"
+                                                            aria-label={t(
+                                                                'savings_goals.remove_contribution_aria',
+                                                            )}
+                                                        >
+                                                            <Trash2 className="size-3.5" />
+                                                        </button>
+                                                    </div>
+                                                );
+                                            },
+                                        )}
                                     </div>
                                 )}
                             </div>
@@ -504,10 +519,7 @@ export default function SavingsGoalsIndex({
                                 maxLength={60}
                                 value={goalForm.data.name}
                                 onChange={(event) =>
-                                    goalForm.setData(
-                                        'name',
-                                        event.target.value,
-                                    )
+                                    goalForm.setData('name', event.target.value)
                                 }
                                 placeholder={t(
                                     'savings_goals.name_placeholder',
@@ -646,10 +658,9 @@ export default function SavingsGoalsIndex({
                                                     ? 'bg-emerald-500/20 ring-2 ring-emerald-500'
                                                     : 'bg-surface-high'
                                             }`}
-                                            aria-label={t(
-                                                'common.icon_aria',
-                                                { icon },
-                                            )}
+                                            aria-label={t('common.icon_aria', {
+                                                icon,
+                                            })}
                                         >
                                             <CategoryIcon
                                                 icon={icon}

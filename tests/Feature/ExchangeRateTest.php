@@ -254,3 +254,64 @@ test('ajustes keeps working when the auto-sync fails', function () {
 
     $this->assertDatabaseCount('exchange_rates', 0);
 });
+
+/** Count only the dolarapi.com calls — Inertia's SSR request is also recorded. */
+function dolarapiCalls(): int
+{
+    return collect(Http::recorded())
+        ->filter(fn (array $pair): bool => str_contains($pair[0]->url(), 'dolarapi.com'))
+        ->count();
+}
+
+test('a failed auto-sync is not retried on every page load', function () {
+    Http::fake([
+        've.dolarapi.com/*' => Http::response(null, 500),
+    ]);
+
+    $this->user->forceFill(['tracking_type' => 'both'])->save();
+
+    // Every one of these page loads calls ensureFreshRate().
+    $this->get(route('ajustes'))->assertOk();
+    $this->get(route('dashboard'))->assertOk();
+    $this->get(route('incomes.create'))->assertOk();
+    $this->get(route('expenses.create'))->assertOk();
+
+    // Only the first may hit the API; the cooldown absorbs the rest. Without it
+    // each load pays the connect timeout again and the app appears frozen.
+    expect(dolarapiCalls())->toBe(1);
+});
+
+test('the manual sync ignores the failure cooldown', function () {
+    // A sequence, not two fake() calls: stubs accumulate and the first match wins.
+    Http::fakeSequence('ve.dolarapi.com/*')
+        ->push(null, 500)
+        ->push([
+            ['moneda' => 'USD', 'fuente' => 'oficial', 'promedio' => 100.5],
+            ['moneda' => 'USD', 'fuente' => 'paralelo', 'promedio' => 120.25],
+        ]);
+
+    $this->get(route('ajustes'))->assertOk();
+    expect(Cache::get('exchange-rate:sync-failed'))->not->toBeNull();
+
+    // Pressing "sincronizar" must not be blocked by the cooldown.
+    $this->post(route('exchange-rate.sync'));
+
+    $this->assertDatabaseHas('exchange_rates', [
+        'user_id' => null,
+        'source' => 'api',
+        'provider' => 'bcv',
+    ]);
+});
+
+test('a successful sync clears the failure cooldown', function () {
+    Http::fakeSequence('ve.dolarapi.com/*')
+        ->push(null, 500)
+        ->push([['moneda' => 'USD', 'fuente' => 'oficial', 'promedio' => 100.5]]);
+
+    $this->get(route('ajustes'))->assertOk();
+    expect(Cache::get('exchange-rate:sync-failed'))->not->toBeNull();
+
+    $this->post(route('exchange-rate.sync'));
+
+    expect(Cache::get('exchange-rate:sync-failed'))->toBeNull();
+});

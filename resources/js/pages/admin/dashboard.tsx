@@ -1,4 +1,4 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, setLayoutProps } from '@inertiajs/react';
 import {
     ArrowUpRight,
     ChevronRight,
@@ -79,45 +79,50 @@ export default function AdminDashboard({
 }) {
     const { t } = useTranslation();
 
+    setLayoutProps({
+        title: t('admin.dashboard.title'),
+        description: t('admin.dashboard.subtitle'),
+    });
+
     const statCards = [
         {
-            label: t('admin:dashboard.stats_total_users'),
+            label: t('admin.dashboard.stats_total_users'),
             value: String(stats.total_users),
             icon: Users,
             accent: 'text-emerald-400',
         },
         {
-            label: t('admin:dashboard.stats_new_users'),
+            label: t('admin.dashboard.stats_new_users'),
             value: String(stats.new_users_month),
             icon: ArrowUpRight,
             accent: 'text-sky-400',
         },
         {
-            label: t('admin:dashboard.stats_verified'),
+            label: t('admin.dashboard.stats_verified'),
             value: String(stats.verified_users),
             icon: UserCheck,
             accent: 'text-emerald-400',
         },
         {
-            label: t('admin:dashboard.stats_admins'),
+            label: t('admin.dashboard.stats_admins'),
             value: String(stats.admin_users),
             icon: Shield,
             accent: 'text-amber-400',
         },
         {
-            label: t('admin:dashboard.stats_active'),
+            label: t('admin.dashboard.stats_active'),
             value: String(stats.active_users),
             icon: UserCheck,
             accent: 'text-emerald-400',
         },
         {
-            label: t('admin:dashboard.stats_total_expenses'),
+            label: t('admin.dashboard.stats_total_expenses'),
             value: String(stats.total_expenses),
             icon: Receipt,
             accent: 'text-sky-400',
         },
         {
-            label: t('admin:dashboard.stats_total_usd'),
+            label: t('admin.dashboard.stats_total_usd'),
             value: formatAmount(stats.total_usd),
             icon: Receipt,
             accent: 'text-emerald-400',
@@ -135,21 +140,13 @@ export default function AdminDashboard({
 
     return (
         <>
-            <Head title={t('admin:dashboard.title')} />
+            <Head title={t('admin.dashboard.title')} />
 
-            <div className="space-y-8 px-4 py-6 sm:px-6 lg:px-8">
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-                    <div>
-                        <h2 className="font-display text-2xl font-bold tracking-tight">
-                            {t('admin:dashboard.title')}
-                        </h2>
-                        <p className="mt-1 text-sm text-muted-foreground">
-                            {t('admin:dashboard.subtitle')}
-                        </p>
-                    </div>
+            <div className="space-y-8">
+                <div className="flex justify-start">
                     <span className="inline-flex w-fit items-center gap-2 rounded-full bg-surface-low px-3.5 py-1.5 text-xs font-semibold text-muted-foreground">
                         <span className="size-1.5 rounded-full bg-emerald-400" />
-                        {t('admin:dashboard.expenses_this_month', {
+                        {t('admin.dashboard.expenses_this_month', {
                             count: stats.monthly_expenses,
                         })}
                     </span>
@@ -183,10 +180,10 @@ export default function AdminDashboard({
                 <Card>
                     <CardHeader className="px-5 pt-5 sm:px-6">
                         <CardTitle className="text-base">
-                            {t('admin:dashboard.trend_12m')}
+                            {t('admin.dashboard.trend_12m')}
                         </CardTitle>
                         <CardDescription>
-                            {t('admin:dashboard.trend_desc')}
+                            {t('admin.dashboard.trend_desc')}
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="px-5 pb-5 sm:px-6">
@@ -198,16 +195,16 @@ export default function AdminDashboard({
                     <Card>
                         <CardHeader className="px-5 pt-5 sm:px-6">
                             <CardTitle className="text-base">
-                                {t('admin:dashboard.top_categories')}
+                                {t('admin.dashboard.top_categories')}
                             </CardTitle>
                             <CardDescription>
-                                {t('admin:dashboard.top_categories_desc')}
+                                {t('admin.dashboard.top_categories_desc')}
                             </CardDescription>
                         </CardHeader>
                         <CardContent className="px-5 pb-5 sm:px-6">
                             {topCategories.length === 0 ? (
                                 <p className="py-10 text-center text-sm text-muted-foreground">
-                                    {t('admin:dashboard.no_expenses')}
+                                    {t('admin.dashboard.no_expenses')}
                                 </p>
                             ) : (
                                 <HorizontalBars data={topCategories} />
@@ -218,22 +215,24 @@ export default function AdminDashboard({
                     <Card>
                         <CardHeader className="px-5 pt-5 sm:px-6">
                             <CardTitle className="text-base">
-                                {t('admin:dashboard.top_users')}
+                                {t('admin.dashboard.top_users')}
                             </CardTitle>
                             <CardDescription>
-                                {t('admin:dashboard.top_users_desc')}
+                                {t('admin.dashboard.top_users_desc')}
                             </CardDescription>
                         </CardHeader>
                         <CardContent className="px-5 pb-5 sm:px-6">
                             {topUsers.length === 0 ? (
                                 <p className="py-10 text-center text-sm text-muted-foreground">
-                                    {t('admin:dashboard.no_expenses')}
+                                    {t('admin.dashboard.no_expenses')}
                                 </p>
                             ) : (
                                 <HorizontalBars
                                     data={topUsers.map((user, index) => ({
                                         name: user.name,
-                                        color: USER_PALETTE[index % USER_PALETTE.length],
+                                        color: USER_PALETTE[
+                                            index % USER_PALETTE.length
+                                        ],
                                         total: user.total,
                                         percent: user.percent,
                                     }))}
@@ -247,17 +246,17 @@ export default function AdminDashboard({
                     <CardHeader className="flex flex-row items-center justify-between gap-4 px-5 pt-5 sm:px-6">
                         <div>
                             <CardTitle className="text-base">
-                                {t('admin:dashboard.recent_users')}
+                                {t('admin.dashboard.recent_users')}
                             </CardTitle>
                             <CardDescription>
-                                {t('admin:dashboard.recent_users_desc')}
+                                {t('admin.dashboard.recent_users_desc')}
                             </CardDescription>
                         </div>
                         <Link
                             href={usersIndex().url}
                             className="inline-flex shrink-0 items-center gap-1 text-xs font-semibold text-primary hover:text-primary/80"
                         >
-                            {t('admin:dashboard.view_all')}
+                            {t('admin.dashboard.view_all')}
                             <ChevronRight className="size-3.5" />
                         </Link>
                     </CardHeader>
@@ -282,7 +281,9 @@ export default function AdminDashboard({
                                                     variant="secondary"
                                                     className="shrink-0"
                                                 >
-                                                    {t('admin:dashboard.admin_badge')}
+                                                    {t(
+                                                        'admin.dashboard.admin_badge',
+                                                    )}
                                                 </Badge>
                                             )}
                                         </p>
@@ -292,14 +293,20 @@ export default function AdminDashboard({
                                     </div>
                                     <div className="hidden shrink-0 text-right text-xs text-muted-foreground sm:block">
                                         <p className="font-medium text-foreground">
-                                            {t('admin:dashboard.expenses_count', {
-                                                count: user.expenses_count,
-                                            })}
+                                            {t(
+                                                'admin.dashboard.expenses_count',
+                                                {
+                                                    count: user.expenses_count,
+                                                },
+                                            )}
                                         </p>
                                         <p>
-                                            {t('admin:dashboard.registered_on', {
-                                                date: user.created_at,
-                                            })}
+                                            {t(
+                                                'admin.dashboard.registered_on',
+                                                {
+                                                    date: user.created_at,
+                                                },
+                                            )}
                                         </p>
                                     </div>
                                 </Link>

@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Middleware\EnsureApiUserNotSuspended;
-use App\Http\Middleware\EnsureInstalled;
 use App\Http\Middleware\EnsureUserIsAdmin;
 use App\Http\Middleware\EnsureUserNotSuspended;
 use App\Http\Middleware\HandleAppearance;
@@ -27,11 +26,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $schedule->job(new SyncExchangeRates)->everyFiveMinutes();
     })
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->trustProxies(at: env('TRUSTED_PROXIES', '*'));
-
-        $middleware->prepend([
-            EnsureInstalled::class,
-        ]);
+        $trustedProxies = $_SERVER['TRUSTED_PROXIES'] ?? $_ENV['TRUSTED_PROXIES'] ?? '*';
+        $middleware->trustProxies(at: is_string($trustedProxies) ? $trustedProxies : '*');
 
         $middleware->encryptCookies(except: ['appearance', 'sidebar_state']);
 

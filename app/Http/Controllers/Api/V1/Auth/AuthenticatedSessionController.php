@@ -47,12 +47,12 @@ class AuthenticatedSessionController extends BaseApiController
 
         if ($user === null || ! Hash::check($request->string('password'), $user->password)) {
             throw ValidationException::withMessages([
-                'email' => ['Las credenciales proporcionadas son incorrectas.'],
+                'email' => [__('auth.failed')],
             ]);
         }
 
         if ($user->isSuspended()) {
-            return $this->apiError('Tu cuenta está suspendida.', 403);
+            return $this->apiError(__('messages.account_suspended'), 403);
         }
 
         $token = $user->createToken($request->string('device_name', 'spent-trackr-api'), ['*'], now()->addDays(90));
@@ -61,7 +61,7 @@ class AuthenticatedSessionController extends BaseApiController
             'token' => $token->plainTextToken,
             'token_id' => $token->accessToken->id,
             'user' => $this->userShape($user),
-        ], 'Inicio de sesión exitoso');
+        ], __('messages.api_login_success'));
     }
 
     /**
@@ -71,7 +71,7 @@ class AuthenticatedSessionController extends BaseApiController
     {
         $request->user()->currentAccessToken()->delete();
 
-        return $this->apiResponse(message: 'Sesión cerrada correctamente');
+        return $this->apiResponse(message: __('messages.api_logout_success'));
     }
 
     /**

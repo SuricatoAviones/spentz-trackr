@@ -2,20 +2,19 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Actions\Expenses\StoreExpenseAction;
+use App\Actions\Expenses\UpdateExpenseAction;
 use App\Enums\CategoryType;
-use App\Enums\Currency;
 use App\Http\Requests\StoreExpenseRequest;
 use App\Http\Requests\UpdateExpenseRequest;
 use App\Models\Category;
 use App\Models\Expense;
 use App\Models\PaymentSource;
-use App\Services\ExchangeRateService;
-use App\Services\ExpenseConversionService;
+use App\Support\Presenters\ExpensePresenter;
 use Dedoc\Scramble\Attributes\QueryParameter;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Validation\ValidationException;
 
 class ExpenseController extends BaseApiController
 {
@@ -35,7 +34,7 @@ class ExpenseController extends BaseApiController
 
         $query = Expense::query()
             ->forUser($user->id)
-            ->with(['category', 'paymentSource', 'receipts'])
+            ->with(['category', 'paymentSource', 'receipts', 'items'])
             ->when($request->string('search')->toString(), function ($query, string $search) {
                 $query->where(function ($query) use ($search) {
                     $query->where('description', 'like', "%{$search}%")
@@ -65,7 +64,7 @@ class ExpenseController extends BaseApiController
             ->orderByDesc('id')
             ->paginate(20)
             ->withQueryString()
-            ->through(fn (Expense $expense) => $this->shape($expense));
+            ->through(fn (Expense $expense) => ExpensePresenter::present($expense));
 
         $filters['currency'] = $request->string('currency')->toString();
 
@@ -81,42 +80,13 @@ class ExpenseController extends BaseApiController
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreExpenseRequest $request, ExpenseConversionService $converter, ExchangeRateService $rateService): JsonResponse
+    public function store(StoreExpenseRequest $request, StoreExpenseAction $action): JsonResponse
     {
-        $validated = $request->validated();
-
-        $currency = Currency::from($validated['currency']);
-
-        $exchangeRate = $validated['exchange_rate'] ?? null;
-        $rateProvider = $validated['rate_provider'] ?? null;
-        if ($currency === Currency::Ves && $exchangeRate === null) {
-            $rate = $rateService->rateForUser($request->user());
-            $exchangeRate = (float) $rate['rate'];
-            $rateProvider = $rate['provider'] !== 'none' ? $rate['provider'] : null;
-        }
-
-        if ($currency === Currency::Ves && (float) $exchangeRate <= 0) {
-            throw ValidationException::withMessages([
-                'exchange_rate' => 'No hay tasa de cambio disponible. Regístrala en Ajustes.',
-            ]);
-        }
-
-        $converted = $converter->convert($currency, $this->totalAmount($validated), $exchangeRate !== null ? (float) $exchangeRate : null);
-
-        $expense = $request->user()->expenses()->create([
-            ...$validated,
-            'amount' => $this->baseAmount($validated),
-            'payment_method' => $this->paymentMethod($currency, $validated),
-            'commission' => $this->commission($currency, $validated),
-            'exchange_rate' => $currency === Currency::Ves ? $exchangeRate : null,
-            'rate_provider' => $currency === Currency::Ves ? $rateProvider : null,
-            'usd_amount' => $converted['usd_amount'],
-            'usdt_amount' => $converted['usdt_amount'],
-        ]);
-
-        if ($request->hasFile('receipt')) {
-            $this->storeReceipt($expense, $request);
-        }
+        $expense = $action->handle(
+            $request->user(),
+            $request->validated(),
+            $request->file('receipt'),
+        );
 
         return $this->apiCreated(
             $expense->id,
@@ -132,58 +102,27 @@ class ExpenseController extends BaseApiController
         $this->authorize('view', $expense);
 
         return $this->apiResponse([
-            'expense' => $this->shape($expense->load('receipts')),
+            'expense' => ExpensePresenter::present($expense->load(['category', 'paymentSource', 'receipts', 'items'])),
         ]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateExpenseRequest $request, Expense $expense, ExpenseConversionService $converter, ExchangeRateService $rateService): JsonResponse
+    public function update(UpdateExpenseRequest $request, Expense $expense, UpdateExpenseAction $action): JsonResponse
     {
         $this->authorize('update', $expense);
 
-        $validated = $request->validated();
-
-        $currency = Currency::from($validated['currency']);
-
-        $exchangeRate = $validated['exchange_rate'] ?? null;
-        $rateProvider = $validated['rate_provider'] ?? null;
-        if ($currency === Currency::Ves && $exchangeRate === null) {
-            $rate = $rateService->rateForUser($request->user());
-            $exchangeRate = (float) $rate['rate'];
-            $rateProvider = $rate['provider'] !== 'none' ? $rate['provider'] : null;
-        }
-
-        if ($currency === Currency::Ves && (float) $exchangeRate <= 0) {
-            throw ValidationException::withMessages([
-                'exchange_rate' => 'No hay tasa de cambio disponible. Regístrala en Ajustes.',
-            ]);
-        }
-
-        $converted = $converter->convert($currency, $this->totalAmount($validated), $exchangeRate !== null ? (float) $exchangeRate : null);
-
-        $expense->update([
-            ...$validated,
-            'amount' => $this->baseAmount($validated),
-            'payment_method' => $this->paymentMethod($currency, $validated),
-            'commission' => $this->commission($currency, $validated),
-            'exchange_rate' => $currency === Currency::Ves ? $exchangeRate : null,
-            'rate_provider' => $currency === Currency::Ves ? $rateProvider : null,
-            'usd_amount' => $converted['usd_amount'],
-            'usdt_amount' => $converted['usdt_amount'],
-        ]);
-
-        if ($request->boolean('remove_receipt')) {
-            $this->deleteReceipts($expense);
-        }
-
-        if ($request->hasFile('receipt')) {
-            $this->storeReceipt($expense, $request);
-        }
+        $action->handle(
+            $request->user(),
+            $expense,
+            $request->validated(),
+            $request->file('receipt'),
+            $request->boolean('remove_receipt'),
+        );
 
         return $this->apiResponse([
-            'expense' => $this->shape($expense->load('receipts')),
+            'expense' => ExpensePresenter::present($expense->fresh(['category', 'paymentSource', 'receipts', 'items'])),
         ], __('messages.expense_updated'));
     }
 
@@ -202,48 +141,6 @@ class ExpenseController extends BaseApiController
             'data' => ['id' => $expense->id],
             'message' => __('messages.expense_deleted'),
         ], 200);
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function shape(Expense $expense): array
-    {
-        return [
-            'id' => $expense->id,
-            'description' => $expense->description,
-            'note' => $expense->note,
-            'amount' => $expense->amount,
-            'currency' => $expense->currency->value,
-            'payment_method' => $expense->payment_method?->value,
-            'commission' => $expense->commission,
-            'exchange_rate' => $expense->exchange_rate,
-            'rate_provider' => $expense->rate_provider,
-            'usd_amount' => $expense->usd_amount,
-            'usdt_amount' => $expense->usdt_amount,
-            'spent_at' => $expense->spent_at->toDateString(),
-            'category' => [
-                'id' => $expense->category_id,
-                'name' => $expense->category->name,
-                'icon' => $expense->category->icon,
-                'color' => $expense->category->color,
-            ],
-            'source' => [
-                'id' => $expense->payment_source_id,
-                'name' => $expense->paymentSource->name,
-                'icon' => $expense->paymentSource->icon,
-                'color' => $expense->paymentSource->color,
-            ],
-            'has_receipt' => $expense->receipts->isNotEmpty(),
-            'receipts' => $expense->receipts
-                ->map(fn ($receipt) => [
-                    'id' => $receipt->id,
-                    'url' => Storage::disk('public')->url($receipt->path),
-                    'original_name' => $receipt->original_name,
-                ])
-                ->values()
-                ->all(),
-        ];
     }
 
     /**
@@ -307,64 +204,11 @@ class ExpenseController extends BaseApiController
             ->all();
     }
 
-    private function storeReceipt(Expense $expense, Request $request): void
-    {
-        $path = $request->file('receipt')->store('receipts', 'public');
-
-        $expense->receipts()->create([
-            'path' => $path,
-            'original_name' => $request->file('receipt')->getClientOriginalName(),
-        ]);
-    }
-
     private function deleteReceipts(Expense $expense): void
     {
         foreach ($expense->receipts as $receipt) {
             Storage::disk('public')->delete($receipt->path);
             $receipt->delete();
         }
-    }
-
-    /**
-     * @param  array<string, mixed>  $validated
-     */
-    private function baseAmount(array $validated): float
-    {
-        return round((float) $validated['amount'], 2);
-    }
-
-    /**
-     * @param  array<string, mixed>  $validated
-     */
-    private function totalAmount(array $validated): float
-    {
-        $base = (float) $validated['amount'];
-        $commission = isset($validated['commission']) ? (float) $validated['commission'] : 0.0;
-
-        return round($base + $commission, 2);
-    }
-
-    /**
-     * @param  array<string, mixed>  $validated
-     */
-    private function commission(Currency $currency, array $validated): ?string
-    {
-        if ($currency !== Currency::Ves) {
-            return null;
-        }
-
-        return $validated['commission'] ?? null;
-    }
-
-    /**
-     * @param  array<string, mixed>  $validated
-     */
-    private function paymentMethod(Currency $currency, array $validated): ?string
-    {
-        if ($currency !== Currency::Ves) {
-            return null;
-        }
-
-        return $validated['payment_method'] ?? null;
     }
 }

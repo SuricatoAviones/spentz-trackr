@@ -1,4 +1,4 @@
-import { Head, router, useForm } from '@inertiajs/react';
+import { Head, router, setLayoutProps, useForm } from '@inertiajs/react';
 import { Pencil, Search, Trash2 } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -72,9 +72,16 @@ export default function AdminCategoriesIndex({
 }) {
     const { t } = useTranslation();
     const [search, setSearch] = useState(filters.search ?? '');
-    const [userId, setUserId] = useState(filters.user_id ? Number(filters.user_id) : 0);
+    const [userId, setUserId] = useState(
+        filters.user_id ? Number(filters.user_id) : 0,
+    );
     const [editing, setEditing] = useState<AdminCategory | null>(null);
     const searchTimeout = useRef<number | null>(null);
+
+    setLayoutProps({
+        title: t('admin.categories.title'),
+        description: t('admin.categories.total', { count: categories.total }),
+    });
 
     const { data, setData, put, processing, errors } = useForm({
         name: '',
@@ -109,7 +116,7 @@ export default function AdminCategoriesIndex({
     function destroy(category: AdminCategory) {
         if (
             confirm(
-                t('admin:categories.delete_confirm', {
+                t('admin.categories.delete_confirm', {
                     name: category.name,
                     user: category.user.name,
                 }),
@@ -134,21 +141,10 @@ export default function AdminCategoriesIndex({
 
     return (
         <>
-            <Head title={t('admin:categories.title')} />
+            <Head title={t('admin.categories.title')} />
 
-            <div className="space-y-8 px-4 py-6 sm:px-6 lg:px-8">
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                        <h2 className="text-xl font-semibold tracking-tight">
-                            {t('categories:title')}
-                        </h2>
-                        <p className="text-sm text-muted-foreground">
-                            {t('admin:categories.total', {
-                                count: categories.total,
-                            })}
-                        </p>
-                    </div>
-
+            <div className="space-y-8">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-end">
                     <form
                         className="flex gap-2"
                         onSubmit={(event) => {
@@ -174,12 +170,14 @@ export default function AdminCategoriesIndex({
                                         400,
                                     );
                                 }}
-                                placeholder={t('admin:categories.search_placeholder')}
+                                placeholder={t(
+                                    'admin.categories.search_placeholder',
+                                )}
                                 className="pl-9"
                             />
                         </div>
                         <Button type="submit">
-                            {t('admin:users.search_button')}
+                            {t('admin.users.search_button')}
                         </Button>
                     </form>
                 </div>
@@ -188,7 +186,7 @@ export default function AdminCategoriesIndex({
                     <CardContent className="p-4">
                         <label className="block max-w-xs">
                             <span className="mb-1 block text-[10px] font-semibold tracking-wider text-muted-foreground uppercase">
-                                {t('admin:expenses.filter_user')}
+                                {t('admin.expenses.filter_user')}
                             </span>
                             <select
                                 value={userId}
@@ -209,7 +207,9 @@ export default function AdminCategoriesIndex({
                                 }}
                                 className="h-10 w-full rounded-lg bg-surface-low px-3 text-sm text-foreground focus:ring-2 focus:ring-emerald-500/50 focus:outline-none"
                             >
-                                <option value={0}>{t('admin:expenses.all_users')}</option>
+                                <option value={0}>
+                                    {t('admin.expenses.all_users')}
+                                </option>
                                 {users.map((user) => (
                                     <option key={user.id} value={user.id}>
                                         {user.name} ({user.email})
@@ -227,22 +227,22 @@ export default function AdminCategoriesIndex({
                                 <thead>
                                     <tr className="border-b text-left text-xs tracking-wider text-muted-foreground uppercase">
                                         <th className="px-4 py-3 font-medium">
-                                            {t('admin:categories.col_category')}
+                                            {t('admin.categories.col_category')}
                                         </th>
                                         <th className="hidden px-4 py-3 font-medium md:table-cell">
-                                            {t('admin:expenses.filter_user')}
+                                            {t('admin.expenses.filter_user')}
                                         </th>
                                         <th className="hidden px-4 py-3 font-medium sm:table-cell">
-                                            {t('admin:users.col_expenses')}
+                                            {t('admin.users.col_expenses')}
                                         </th>
                                         <th className="hidden px-4 py-3 font-medium sm:table-cell">
-                                            {t('admin:users.col_total_usd')}
+                                            {t('admin.users.col_total_usd')}
                                         </th>
                                         <th className="hidden px-4 py-3 font-medium lg:table-cell">
-                                            {t('admin:categories.col_budget')}
+                                            {t('admin.categories.col_budget')}
                                         </th>
                                         <th className="px-4 py-3 text-right font-medium">
-                                            {t('admin:users.col_actions')}
+                                            {t('admin.users.col_actions')}
                                         </th>
                                     </tr>
                                 </thead>
@@ -264,7 +264,9 @@ export default function AdminCategoriesIndex({
                                                             {category.name}
                                                             {category.is_system && (
                                                                 <Badge variant="outline">
-                                                                    {t('admin:categories.badge_system')}
+                                                                    {t(
+                                                                        'admin.categories.badge_system',
+                                                                    )}
                                                                 </Badge>
                                                             )}
                                                         </p>
@@ -305,9 +307,12 @@ export default function AdminCategoriesIndex({
                                                         onClick={() =>
                                                             openEdit(category)
                                                         }
-                                                        aria-label={t('admin:users.edit_aria', {
-                                                            name: category.name,
-                                                        })}
+                                                        aria-label={t(
+                                                            'admin.users.edit_aria',
+                                                            {
+                                                                name: category.name,
+                                                            },
+                                                        )}
                                                     >
                                                         <Pencil className="size-4" />
                                                     </Button>
@@ -321,13 +326,18 @@ export default function AdminCategoriesIndex({
                                                             !category.can_delete
                                                         }
                                                         className="text-destructive hover:text-destructive disabled:opacity-40"
-                                                        aria-label={t('admin:users.delete_aria', {
-                                                            name: category.name,
-                                                        })}
+                                                        aria-label={t(
+                                                            'admin.users.delete_aria',
+                                                            {
+                                                                name: category.name,
+                                                            },
+                                                        )}
                                                         title={
                                                             category.can_delete
                                                                 ? undefined
-                                                                : t('common:delete_blocked')
+                                                                : t(
+                                                                      'common.delete_blocked',
+                                                                  )
                                                         }
                                                     >
                                                         <Trash2 className="size-4" />
@@ -342,7 +352,7 @@ export default function AdminCategoriesIndex({
 
                         {categories.data.length === 0 && (
                             <p className="px-4 py-12 text-center text-sm text-muted-foreground">
-                                {t('admin:categories.no_categories')}
+                                {t('admin.categories.no_categories')}
                             </p>
                         )}
                     </CardContent>
@@ -355,10 +365,10 @@ export default function AdminCategoriesIndex({
                     <DialogContent className="rounded-2xl sm:max-w-md">
                         <DialogHeader>
                             <DialogTitle>
-                                {t('admin:categories.edit_title')}
+                                {t('admin.categories.edit_title')}
                             </DialogTitle>
                             <DialogDescription>
-                                {t('admin:categories.edit_description', {
+                                {t('admin.categories.edit_description', {
                                     name: editing?.user.name,
                                 })}
                             </DialogDescription>
@@ -367,7 +377,7 @@ export default function AdminCategoriesIndex({
                         <form onSubmit={submitEdit} className="space-y-4">
                             <div className="grid gap-2">
                                 <Label htmlFor="edit-category-name">
-                                    {t('common:name')}
+                                    {t('common.name')}
                                 </Label>
                                 <Input
                                     id="edit-category-name"
@@ -387,7 +397,7 @@ export default function AdminCategoriesIndex({
 
                             <div className="grid gap-2">
                                 <Label htmlFor="edit-category-icon">
-                                    {t('common:icon')}
+                                    {t('common.icon')}
                                 </Label>
                                 <select
                                     id="edit-category-icon"
@@ -406,7 +416,7 @@ export default function AdminCategoriesIndex({
                             </div>
 
                             <div className="grid gap-2">
-                                <Label>{t('common:color')}</Label>
+                                <Label>{t('common.color')}</Label>
                                 <div className="flex flex-wrap gap-2">
                                     {PRESET_COLORS.map((color) => (
                                         <button
@@ -421,7 +431,9 @@ export default function AdminCategoriesIndex({
                                                     : 'hover:scale-105'
                                             }`}
                                             style={{ backgroundColor: color }}
-                                            aria-label={t('common:color_aria', { color })}
+                                            aria-label={t('common.color_aria', {
+                                                color,
+                                            })}
                                         />
                                     ))}
                                 </div>
@@ -434,7 +446,7 @@ export default function AdminCategoriesIndex({
 
                             <div className="grid gap-2">
                                 <Label htmlFor="edit-category-budget">
-                                    {t('categories:budget_label')}
+                                    {t('categories.budget_label')}
                                 </Label>
                                 <Input
                                     id="edit-category-budget"
@@ -446,7 +458,9 @@ export default function AdminCategoriesIndex({
                                     onChange={(event) =>
                                         setData('budget', event.target.value)
                                     }
-                                    placeholder={t('admin:categories.budget_optional')}
+                                    placeholder={t(
+                                        'admin.categories.budget_optional',
+                                    )}
                                 />
                                 {errors.budget && (
                                     <p className="text-xs text-destructive">
@@ -461,8 +475,8 @@ export default function AdminCategoriesIndex({
                                 className="w-full"
                             >
                                 {processing
-                                    ? t('common:saving')
-                                    : t('admin:users.save_changes')}
+                                    ? t('common.saving')
+                                    : t('admin.users.save_changes')}
                             </Button>
                         </form>
                     </DialogContent>

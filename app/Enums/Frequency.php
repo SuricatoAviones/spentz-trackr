@@ -2,6 +2,9 @@
 
 namespace App\Enums;
 
+use Carbon\CarbonImmutable;
+use Carbon\CarbonInterface;
+
 enum Frequency: string
 {
     case Daily = 'daily';
@@ -11,24 +14,12 @@ enum Frequency: string
     case Yearly = 'yearly';
 
     /**
-     * Get the human-readable label in Spanish.
-     */
-    public function label(): string
-    {
-        return match ($this) {
-            self::Daily => 'Diario',
-            self::Weekly => 'Semanal',
-            self::Monthly => 'Mensual',
-            self::Quarterly => 'Trimestral',
-            self::Yearly => 'Anual',
-        };
-    }
-
-    /**
      * Advance the given date by one period for this frequency.
      */
-    public function advance(\DateTimeInterface $date): \DateTimeInterface
+    public function advance(CarbonInterface $date): CarbonImmutable
     {
+        $date = $date->toImmutable();
+
         return match ($this) {
             self::Daily => $date->modify('+1 day'),
             self::Weekly => $date->modify('+7 days'),

@@ -31,9 +31,7 @@ function useLanguage() {
     };
 
     const label = (code: string): string =>
-        code === 'es'
-            ? t('settings.language_es')
-            : t('settings.language_en');
+        code === 'es' ? t('settings.language_es') : t('settings.language_en');
 
     return { locale, changeLanguage, label, t };
 }
@@ -53,7 +51,7 @@ export function LanguageSwitcher({
                 <DropdownMenuTrigger asChild>
                     <button
                         type="button"
-                        className="flex h-8 w-full items-center gap-2 rounded-md p-2 text-left text-sm outline-hidden ring-sidebar-ring transition-[width,height,padding] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2!"
+                        className="flex h-8 w-full items-center gap-2 rounded-md p-2 text-left text-sm ring-sidebar-ring outline-hidden transition-[width,height,padding] group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent"
                     >
                         <Globe className="size-4 shrink-0" />
                         <span className="truncate text-xs font-medium uppercase">

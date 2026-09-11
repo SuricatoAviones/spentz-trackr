@@ -359,7 +359,9 @@ export default function Ajustes({
                                     step="0.01"
                                     min="0"
                                     inputMode="decimal"
-                                    placeholder={t('ajustes.budget_placeholder')}
+                                    placeholder={t(
+                                        'ajustes.budget_placeholder',
+                                    )}
                                     value={budgetData.monthly_budget}
                                     onChange={(event) =>
                                         setBudgetData(
@@ -385,26 +387,24 @@ export default function Ajustes({
                                     spent: formatAmount(monthlySpent),
                                 })}
                             </span>
-                            {monthlyBudget !== null &&
-                                monthlyBudget !== '' && (
-                                    <span
-                                        className={
-                                            monthlySpent >
-                                            Number(monthlyBudget)
-                                                ? 'font-semibold text-destructive'
-                                                : 'font-semibold text-emerald-400'
-                                        }
-                                    >
-                                        {Number(monthlyBudget) > 0
-                                            ? `${Math.min(
-                                                  (monthlySpent /
-                                                      Number(monthlyBudget)) *
-                                                      100,
+                            {monthlyBudget !== null && monthlyBudget !== '' && (
+                                <span
+                                    className={
+                                        monthlySpent > Number(monthlyBudget)
+                                            ? 'font-semibold text-destructive'
+                                            : 'font-semibold text-emerald-400'
+                                    }
+                                >
+                                    {Number(monthlyBudget) > 0
+                                        ? `${Math.min(
+                                              (monthlySpent /
+                                                  Number(monthlyBudget)) *
                                                   100,
-                                              ).toFixed(0)}%`
-                                            : '0%'}
-                                    </span>
-                                )}
+                                              100,
+                                          ).toFixed(0)}%`
+                                        : '0%'}
+                                </span>
+                            )}
                         </div>
                         <button
                             type="submit"

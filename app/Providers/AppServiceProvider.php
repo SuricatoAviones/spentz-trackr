@@ -35,7 +35,7 @@ class AppServiceProvider extends ServiceProvider
     }
 
     /**
-     * Expose the Swagger UI (Scramble) outside local dev, except in production.
+     * Expose the API docs (Scramble) everywhere except production.
      */
     protected function configureApiDocsAccess(): void
     {
@@ -56,8 +56,6 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('api', fn (Request $request) => Limit::perMinute(100)->by($request->user()?->id ?: $request->ip()));
 
         RateLimiter::for('api.auth', fn (Request $request) => Limit::perMinute(5)->by($request->ip()));
-
-        RateLimiter::for('install', fn (Request $request) => Limit::perMinute(5)->by($request->ip()));
     }
 
     /**

@@ -23,6 +23,9 @@ class IncomeReceipt extends Model
     /** @use HasFactory<IncomeReceiptFactory> */
     use HasFactory;
 
+    /**
+     * @return BelongsTo<Income, $this>
+     */
     public function income(): BelongsTo
     {
         return $this->belongsTo(Income::class);

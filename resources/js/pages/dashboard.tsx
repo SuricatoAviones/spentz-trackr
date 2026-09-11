@@ -137,15 +137,21 @@ export default function Dashboard({
                   })),
               ].sort((a, b) => b.date.localeCompare(a.date));
 
-    const showExpenses = () => trackingType === 'expenses' || trackingType === 'both';
+    const showExpenses = () =>
+        trackingType === 'expenses' || trackingType === 'both';
     const activeBudget = monthlyBudget ?? 0;
-    const spentForBudget = () => (showExpenses() ? totals?.usd ?? 0 : 0);
+    const spentForBudget = () => (showExpenses() ? (totals?.usd ?? 0) : 0);
     const budgetPercent = () =>
-        activeBudget > 0 ? Math.min((spentForBudget() / activeBudget) * 100, 100) : 0;
+        activeBudget > 0
+            ? Math.min((spentForBudget() / activeBudget) * 100, 100)
+            : 0;
     const budgetOver = () => spentForBudget() > activeBudget;
     const budgetRemaining = () => activeBudget - spentForBudget();
     const ajustesUrl = () => '/ajustes';
-    const hasActiveBudget = monthlyBudget !== null && monthlyBudget !== undefined && monthlyBudget > 0;
+    const hasActiveBudget =
+        monthlyBudget !== null &&
+        monthlyBudget !== undefined &&
+        monthlyBudget > 0;
 
     return (
         <div className="space-y-5 lg:grid lg:grid-cols-2 lg:gap-5 lg:space-y-0">

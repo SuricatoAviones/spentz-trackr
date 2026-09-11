@@ -1,7 +1,12 @@
-# Spent Trackr — Documentación del Proyecto
+# Spentz Trackr — Documentación del Proyecto
 
-Aplicación web de control de gastos multi-moneda (USD, Bs, USDT) para Venezuela.
-Stack: Laravel 13 + Inertia + React 19 + Tailwind 4 + shadcn/ui + MySQL. Deploy en cPanel. PWA en fase posterior.
+Aplicación web de control de gastos e ingresos multi-moneda (USD, Bs, USDT) para Venezuela,
+open-source y auto-hospedable.
+Stack: Laravel 13 + Inertia v3 + React 19 + Tailwind 4 + shadcn/ui, sobre SQLite / MySQL /
+PostgreSQL. Despliegue en cPanel, VPS o Docker. Incluye PWA, API REST y panel de administración.
+
+El `README.md` de la raíz del repo es el punto de entrada para usuarios; estos documentos
+son la referencia técnica y de producto.
 
 ## Índice de documentos
 
@@ -17,4 +22,3 @@ Stack: Laravel 13 + Inertia + React 19 + Tailwind 4 + shadcn/ui + MySQL. Deploy 
 | [08-panel-admin.md](08-panel-admin.md) | Panel admin: módulos, rutas, auditoría y backup |
 | [09-despliegue-dokploy.md](09-despliegue-dokploy.md) | Despliegue en VPS con Dokploy (Docker + Traefik) |
 | [10-multilenguaje.md](10-multilenguaje.md) | Planificación ES/EN: decisiones, fases y alcance |
-| [11-instalador.md](11-instalador.md) | Instalación web, CLI y Docker del instalador open-source |

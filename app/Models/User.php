@@ -36,6 +36,9 @@ use Laravel\Sanctum\HasApiTokens;
  * @property string|null $remember_token
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
+ * @property-read int|null $expenses_count aggregate helper (withCount)
+ * @property-read string|null $expenses_sum_usd_amount aggregate helper (withSum)
+ * @property-read string|null $expenses_max_spent_at aggregate helper (withMax)
  */
 #[Fillable(['name', 'email', 'password', 'default_display_currency', 'min_commission', 'commission_rate', 'tracking_type', 'monthly_budget', 'locale'])]
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
@@ -54,36 +57,57 @@ class User extends Authenticatable implements PasskeyUser
         return $this->suspended_at !== null;
     }
 
+    /**
+     * @return HasMany<Category, $this>
+     */
     public function categories(): HasMany
     {
         return $this->hasMany(Category::class);
     }
 
+    /**
+     * @return HasMany<PaymentSource, $this>
+     */
     public function paymentSources(): HasMany
     {
         return $this->hasMany(PaymentSource::class);
     }
 
+    /**
+     * @return HasMany<Expense, $this>
+     */
     public function expenses(): HasMany
     {
         return $this->hasMany(Expense::class);
     }
 
+    /**
+     * @return HasMany<Income, $this>
+     */
     public function incomes(): HasMany
     {
         return $this->hasMany(Income::class);
     }
 
+    /**
+     * @return HasMany<SavingsGoal, $this>
+     */
     public function savingsGoals(): HasMany
     {
         return $this->hasMany(SavingsGoal::class);
     }
 
+    /**
+     * @return HasMany<RecurringPayment, $this>
+     */
     public function recurringPayments(): HasMany
     {
         return $this->hasMany(RecurringPayment::class);
     }
 
+    /**
+     * @return HasMany<ExchangeRate, $this>
+     */
     public function exchangeRates(): HasMany
     {
         return $this->hasMany(ExchangeRate::class);

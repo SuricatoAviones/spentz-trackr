@@ -4,137 +4,188 @@
 
 | Capa | Tecnología | Notas |
 |---|---|---|
-| Backend | Laravel 13 (PHP 8.3+) | API + SSR vía Inertia |
-| Auth | Laravel Fortify | Ya instalado; login, registro, sesiones |
-| Frontend | Inertia v3 + React 19 + Tailwind 4 | SPA sobre Laravel |
-| UI | shadcn/ui (Radix) | Componentes accesibles |
-| Rutas TS | Laravel Wayfinder | Funciones tipadas `@/actions` / `@/routes` |
-| Base de datos | MySQL (prod) / SQLite (dev) | Driver por `.env` |
-| Almacenamiento | Disco local `storage/app/public` | Comprobantes; `php artisan storage:link` en cPanel |
-| Tasas | API `https://ve.dolarapi.com/v1/dolares` | BCV + paralelo; fallback manual |
-| Tests | Pest + Larastan + Pint | Obligatorios por cambio |
-| Despliegue | cPanel (Apache) + MySQL | Ver `06-despliegue-cpanel.md` |
-| PWA (fase 3) | Service Worker + manifest | Ver `07-roadmap.md` |
+| Backend | Laravel 13 (PHP 8.3+, 8.5 recomendado) | API + SSR vía Inertia |
+| Auth | Laravel Fortify | Login, registro, verificación de correo, 2FA, passkeys |
+| Frontend | Inertia v3 + React 19 + Tailwind 4 + shadcn/ui | SPA sobre Laravel |
+| Rutas TS | Laravel Wayfinder | Helpers tipados `@/actions` / `@/routes` (importar del módulo agrupado) |
+| Base de datos | SQLite / MySQL 8 / PostgreSQL 12+ | Driver por `.env` |
+| Almacenamiento | Disco `storage/app/public` | Comprobantes; `php artisan storage:link` |
+| Tasas | `https://ve.dolarapi.com/v1/dolares` | BCV + paralelo; fallback manual |
+| API | Sanctum (tokens, 90 días) + Scramble (OpenAPI) | `/api/v1` |
+| Charts | Componentes SVG propios (`resources/js/components/tracker/*`) | Sin librería |
+| Tests | Pest + Larastan (nivel 7) + Pint | Obligatorios por cambio |
+| Despliegue | cPanel / VPS / Docker | Ver `06`, `09` |
 
-## Diagrama de arquitectura
+## Wiring: todo en `bootstrap/app.php`
 
-```mermaid
-flowchart LR
-    subgraph Cliente
-        B[Browser / PWA]
-    end
+Laravel 11+ — no hay `app/Http/Kernel.php` ni `app/Console/Kernel.php`. `bootstrap/app.php`
+registra:
 
-    subgraph "Servidor cPanel (Apache + PHP-FPM)"
-        L[Laravel App]
-        Q[Queue: sync/queue-listener]
-        S[Scheduler cron]
-    end
+- **Rutas**: `web.php`, `api.php` (prefijo `api/v1`), `console.php`; `web.php` a su vez
+  hace `require` de `settings.php` y `admin.php`.
+- **Scheduler**: `SyncExchangeRates` job → `everyFiveMinutes()`.
+- **Middleware y su orden** (ver abajo).
+- **Excepciones**: respuestas JSON para `api/*` o `expectsJson()`.
 
-    subgraph Datos
-        M[(MySQL)]
-        F[storage/app/public]
-    end
+### Orden de middleware
 
-    B <-->|HTTP + Inertia| L
-    L <--> M
-    L <--> F
-    S -->|php artisan schedule:run| L
-    L -->|HTTP GET ve.dolarapi.com| API[dolarapi.com]
-```
+- Grupo `web` (append): `HandleAppearance` → `SetLocale` → `HandleInertiaRequests` →
+  `AddLinkHeadersForPreloadedAssets` → `EnsureUserNotSuspended` (la suspensión se comprueba
+  **antes** del middleware de ruta, incluido `admin`).
+- Grupo `api` (prepend): `EnsureApiUserNotSuspended`.
+- Aliases: `admin` → `EnsureUserIsAdmin`, `api.active` → `EnsureApiUserNotSuspended`.
+- `EnsureTrackingFeature:<feature>` — middleware de ruta que oculta módulos (incomes,
+  expenses, savings, recurring) según `users.tracking_type`.
 
-## Flujo: registrar un gasto en Bs
+## Capa de dominio
 
-```mermaid
-sequenceDiagram
-    participant U as Usuario (React)
-    participant C as ExpenseController
-    participant V as Validación
-    participant DB as MySQL
-
-    U->>C: POST /expenses (monto, ves, tasa?, ...)
-    C->>V: Validar datos
-    alt Moneda = ves y sin tasa manual
-        V->>V: Usar tasa del día (API o manual del usuario)
-    end
-    V->>C: Datos válidos
-    C->>C: Calcular usd_amount y usdt_amount
-    C->>DB: INSERT expense
-    C->>U: Redirect dashboard (flash: "Gasto registrado")
-```
-
-## Flujo: sincronización de tasas (scheduler)
-
-```mermaid
-sequenceDiagram
-    participant S as Scheduler (cron)
-    participant T as SyncExchangeRatesJob
-    participant A as dolarapi.com
-    participant DB as MySQL
-
-    S->>T: Dispara job (cada 5 min + on-demand)
-    T->>A: GET /v1/dolares
-    alt Éxito
-        A-->>T: JSON { usd: { bcv, paralelo } }
-        T->>DB: UPSERT exchange_rates (source=api, date=hoy)
-    else Fallo / timeout
-        T->>DB: Registrar log de error
-        Note over T: Conservar última tasa conocida
-    end
-```
-
-## Reglas de arquitectura
-
-1. **Scoping por usuario:** toda consulta de datos de negocio filtra por `user_id` del autenticado. Políticas de autorización por recurso (`ExpensePolicy`, `CategoryPolicy`, `PaymentSourcePolicy`).
-2. **Panel admin:** solo accesible con middleware `admin` (`auth` + `verified` + `is_admin`). Grupo de rutas en `routes/admin.php` bajo el prefijo `/admin`, controladores en `app/Http/Controllers/Admin/`, páginas Inertia en `resources/js/pages/admin/` con `AppLayout`. Los usuarios normales reciben 403 y no ven la navegación admin.
-2. **Controllers delgados:** validación en `Form Requests`, lógica de conversión en un servicio `ExpenseConverter` (o accessor de modelo), no en el controller.
-3. **Conversión única de moneda:** todo gasto guarda `usd_amount` y `usdt_amount` calculados al persistir; los reportes jamás recalculan con la tasa actual.
-4. **Tasa por transacción:** `expenses.exchange_rate` congela la tasa usada; `exchange_rates` solo alimenta el precargado del formulario.
-5. **Inertia:** páginas en `resources/js/pages`, formularios con `useForm`, navegación con Wayfinder. Sin Blade para pantallas de la app.
-6. **API de tasas fuera del request del usuario:** se consulta solo vía scheduler/job; el formulario lee la última tasa persistida (nunca hace HTTP en línea).
-7. **Comprobantes:** subida con validación de tipo/imagen y tamaño; guardado en disco público; nombre único generado por Laravel.
-8. **Jobs/queues:** la sincronización de tasas va a la cola (`queue:listen` ya incluido en `composer run dev`); en cPanel se usa la cola por cron o driver `sync` si no hay supervisor.
-9. **Caché:** tasa del día con `Cache::remember` (TTL de 60 s) para no golpear MySQL en cada formulario.
-10. **PWA futura:** los endpoints de Inertia deben ser compatibles con GET/offline básico; no introducir dependencias de tiempo real.
-
-## Decisiones registradas (ADR)
-
-### ADR-001: Moneda de referencia doble (USD + USDT)
-Se guardan ambos equivalentes (`usd_amount`, `usdt_amount`) porque el usuario quiere totales en las dos monedas. USDT se trata como 1:1 con USD por ser stablecoin referencial. Alternativa descartada: tratar USDT como "otra moneda con tasa flotante" — añade complejidad sin beneficio.
-
-### ADR-002: Tasa automática con override manual, sin depender de la API en runtime
-La API de tasas (dolarapi.com) puede caer o cambiar; por eso se persiste diariamente vía scheduler y el usuario siempre puede sobrescribir. El formulario nunca bloquea por fallo de API.
-
-### ADR-003: cPanel sin supervisor ⇒ cola vía cron
-cPanel no garantiza supervisor/queue workers persistentes. Estrategia: jobs de tasa con driver `sync` o un cron que ejecute `queue:work --once` cada minuto (documentado en `06-despliegue-cpanel.md`).
-
-### ADR-004: Un gasto = una moneda
-v1 no soporta pagos mixtos (mitad Bs, mitad USD). Simplifica cálculo y reportes. Se puede agregar en v2 con tabla pivot.
-
-### ADR-005: Rol admin como columna `is_admin`, sin paquete de roles
-Solo hay dos niveles (usuario/admin); Spatie Permission y tablas pivot serían overkill. La columna `is_admin` (bool, default false) en `users` basta: el middleware `EnsureUserIsAdmin` protege todo `/admin`. El admin se crea/actualiza con `php artisan admin:create` (idempotente, lee `ADMIN_NAME`/`ADMIN_EMAIL`/`ADMIN_PASSWORD` de `.env`; si no hay password, genera una aleatoria). El admin puede listar, ver, editar (nombre/email/rol) y eliminar usuarios (cascade a gastos/categorías/orígenes); no puede eliminarse a sí mismo.
-
-### ADR-006: Multilenguaje ES/EN con i18next + shared props de Inertia
-El backend usa `lang/es|en` de Laravel (`__()`), el frontend usa `react-i18next` con diccionarios `resources/js/i18n/{es,en}.json` cargados vía shared props (`translations`) — sin petición extra por página. Resolución del locale: usuario autenticado (`users.locale`) → sesión → `APP_LOCALE` (es) → navegador (fallback defensivo). El selector persiste vía `POST /language`; `I18nBridge` en `app.tsx` sincroniza i18next al recibir las props, sin recarga. Fechas/montos/meses se formatean con `Intl` en el cliente (nunca `strftime`). Alternativas descartadas: i18next-http-backend (petición extra) y helper `t()` a mano (menos features). Detalle en `10-multilenguaje.md`.
-
-## Estructura de código propuesta
+Los controllers son delgados: validación en **Form Requests**, orquestación en
+**Actions de dominio** (`app/Actions/**`), matemática en **servicios**.
 
 ```
 app/
-├── Http/Controllers/        # ExpenseController, CategoryController, PaymentSourceController, ReportController
-│   └── Admin/                # DashboardController, UserController (panel admin)
-├── Http/Requests/           # StoreExpenseRequest, UpdateExpenseRequest, Admin\UpdateAdminUserRequest
-├── Http/Middleware/         # EnsureUserIsAdmin (+ HandleInertiaRequests, HandleAppearance)
-├── Console/Commands/        # CreateAdmin (admin:create)
-├── Models/                  # User, Expense, Category, PaymentSource, ExpenseReceipt, ExchangeRate
-├── Services/                # ExchangeRateService (API + cache), ExpenseConversionService
-├── Jobs/                    # SyncExchangeRatesJob
-├── Policies/                # ExpensePolicy, CategoryPolicy, PaymentSourcePolicy
-└── Console/Schedules/       # Registro de tarea de sincronización
-
-database/
-├── migrations/              # users(+is_admin, extra), categories, payment_sources, expenses, expense_receipts, exchange_rates
-└── seeders/                 # Categorías y orígenes por defecto
-
-resources/js/pages/          # Dashboard, Expenses/*, Categories, Sources, Reports, Auth/*, Settings/*, admin/*
-routes/                      # web.php (+ admin.php, settings.php)
+├── Actions/
+│   ├── Concerns/ResolvesTransactionRate.php   # tasa: submitted → tasa del día → error
+│   ├── Expenses/{StoreExpenseAction,UpdateExpenseAction}.php
+│   │   └── Concerns/PersistsExpense.php        # comisión Bs, items mixtos, congelado, recibos
+│   └── Incomes/{StoreIncomeAction,UpdateIncomeAction}.php
+│       └── Concerns/PersistsIncome.php
+├── Services/
+│   ├── ExpenseConversionService.php            # convert(currency, amount, rate) → {usd, usdt}
+│   └── ExchangeRateService.php                 # rateForUser / ratesForUser / ensureFreshRate / syncFromApi
+├── Support/
+│   ├── CsvExporter.php                         # streaming CSV (BOM) + guard anti-inyección
+│   └── Presenters/{ExpensePresenter,IncomePresenter}.php  # forma JSON única web + API
+├── Jobs/SyncExchangeRates.php
+├── Policies/                                   # scoping por recurso
+└── Enums/{Currency,PaymentMethod,Frequency,CategoryType,TrackingType}.php
 ```
+
+**Web y API comparten los Actions y los Presenters** — una sola implementación de la lógica
+de negocio, sin duplicación entre `App\Http\Controllers\*` y `App\Http\Controllers\Api\V1\*`.
+
+## Flujo: registrar un gasto en Bs con comisión
+
+```mermaid
+sequenceDiagram
+    participant U as React (expense-form)
+    participant C as ExpenseController
+    participant A as StoreExpenseAction
+    participant R as ExchangeRateService
+    participant S as ExpenseConversionService
+    participant DB as BD
+
+    U->>C: POST /expenses (monto, ves, método, comisión, tasa?, items[])
+    C->>C: StoreExpenseRequest (validación)
+    C->>A: handle(user, validated, receipt?)
+    A->>R: rateForUser(user)  %% si no vino tasa
+    A->>S: convert(ves, amount+commission, rate)
+    A->>S: convert(...) por cada item mixto
+    A->>DB: INSERT expense (amount base, commission, usd/usdt congelados) + items + recibo
+    A-->>C: Expense
+    C-->>U: redirect expenses.show (flash "Gasto registrado")
+```
+
+## Flujo: sincronización de tasas
+
+```mermaid
+sequenceDiagram
+    participant Sch as Scheduler (cron)
+    participant J as SyncExchangeRates
+    participant API as ve.dolarapi.com
+    participant DB as BD
+
+    Sch->>J: cada 5 min
+    J->>API: GET /v1/dolares
+    alt Éxito
+        API-->>J: [{ moneda:"USD", fuente:"oficial"|"paralelo", promedio }, ...]
+        J->>DB: UPSERT exchange_rates (user_id=null, source=api, provider=bcv|paralelo, date=hoy)
+    else Fallo / payload inesperado
+        J->>J: report() y conservar la última tasa
+    end
+```
+
+> **Formato de payload**: dolarapi devuelve una **lista** de objetos con
+> `moneda`/`fuente`/`promedio` (`fuente = "oficial"` ⇒ BCV). El formato antiguo
+> `{"usd":{"bcv":…}}` se sigue aceptando por compatibilidad.
+>
+> **En dev el scheduler no corre**: `ensureFreshRate($user)` se llama en los page-loads de
+> Dashboard/Ajustes/Expense create|edit. No quitarlo.
+
+## Reglas de arquitectura
+
+1. **Scoping por usuario**: toda consulta de datos de negocio filtra por `user_id`,
+   reforzado por políticas de recurso.
+2. **Conversión congelada**: `usd_amount`/`usdt_amount` se calculan al persistir; los
+   reportes **jamás** recalculan con la tasa actual.
+3. **Tasa por transacción**: `expenses.exchange_rate` congela la tasa; `exchange_rates`
+   solo alimenta el precargado del formulario, que **nunca** hace HTTP en línea.
+4. **Comisión Bs**: `commission = max(min_commission, amount × commission_rate%)` para pago
+   móvil / transferencia. `expenses.amount` guarda la base; `commission` va aparte; el
+   equivalente USD/USDT se calcula sobre `amount + commission`.
+5. **Controllers delgados**: validación en Form Requests, lógica en Actions/servicios.
+6. **i18n**: backend `lang/{es,en}` + `__()`; frontend `react-i18next` con
+   `resources/js/i18n/{es,en}.json` vía shared props. `es.json` y `en.json` deben quedar
+   key-idénticos (`I18nDictionaryTest`).
+7. **Frontend**: páginas en `resources/js/pages`, `useForm`, navegación con Wayfinder
+   (importar de `@/routes/<grupo>`, nunca de `@/routes`). Sin Blade para pantallas de app.
+8. **API**: Eloquent nunca se serializa crudo hacia clientes; se pasa por un Presenter.
+
+## Decisiones registradas (ADR)
+
+### ADR-001 — Moneda de referencia doble (USD + USDT)
+Se guardan ambos equivalentes porque el usuario quiere totales en las dos monedas. USDT se
+trata 1:1 con USD (stablecoin referencial). Descartado: tratar USDT como moneda con tasa
+flotante (complejidad sin beneficio).
+
+### ADR-002 — Tasa automática con override manual, sin depender de la API en runtime
+La API puede caer o cambiar; se persiste vía scheduler y el usuario siempre puede
+sobrescribir. El formulario nunca bloquea por fallo de API.
+
+### ADR-003 — Un gasto principal = una moneda, más ítems mixtos
+La transacción tiene una moneda "principal"; las porciones en otras monedas van en
+`expense_items`, cada una con su tasa y su equivalente congelado. Evita una tabla pivote
+compleja y mantiene los reportes simples (todo suma en USD/USDT).
+
+### ADR-004 — Rol admin como columna `is_admin`, sin paquete de roles
+Solo hay dos niveles. `users.is_admin` (bool, fuera de `$fillable`) + middleware
+`EnsureUserIsAdmin` protege `/admin`. Admin se crea con `php artisan admin:create`. El
+admin no puede eliminarse ni suspenderse a sí mismo.
+
+### ADR-005 — Multilenguaje ES/EN con i18next + shared props de Inertia
+Sin petición extra por página. Resolución del locale: usuario → sesión → `APP_LOCALE` (es)
+→ navegador. Detalle en `10-multilenguaje.md`.
+
+### ADR-006 — Comisiones Bs con regla configurable "lo que sea mayor"
+`max(min_commission, amount × commission_rate%)`, con piso y porcentaje por usuario
+(defaults 14 Bs / 0,30%). El frontend precalcula al elegir método y deja el valor editable
+("Sin comisión" disponible).
+
+### ADR-007 — Actions de dominio compartidos entre web y API
+`StoreExpenseAction`/`UpdateExpenseAction` (y sus equivalentes de Income) encapsulan
+conversión + comisión + items + recibos. Los controllers web (Inertia) y API (JSON) los
+llaman con el array validado; los `Presenter` unifican la salida. Elimina la duplicación
+histórica entre `Controllers\*` y `Controllers\Api\V1\*`.
+
+### ADR-008 — Sin instalador: configuración por `.env` (revierte el instalador dual-mode)
+La app tuvo un instalador auto-hospedable (wizard `/install`, `app:install` y arranque
+headless en Docker) gobernado por `APP_INSTALL_MODE`. **Se eliminó por completo.** El
+despliegue es ahora el flujo estándar de Laravel: crear el `.env` a mano (o inyectar
+variables de entorno), `php artisan key:generate`, `php artisan migrate --force` y
+`php artisan admin:create`.
+
+Consecuencia deliberada: **la app ya no arranca sin `APP_KEY`**. Antes el middleware
+`EnsureInstalled` la rellenaba en caliente desde `storage/app.key` para que el wizard
+funcionase sin configuración; ese middleware ya no existe. En Docker la clave la sigue
+resolviendo `docker/entrypoint.d/98-spentz-key.sh` (la persiste en `storage/app.key`,
+dentro del volumen, y la materializa en un `.env` mínimo).
+
+### ADR-009 — API REST con tokens Sanctum
+Tokens de acceso personal con expiración (90 días), `throttle:api` (100/min) y
+`throttle:api.auth` (5/min por IP). CORS bloqueado a `CORS_ALLOWED_ORIGINS`. La UI de
+documentación (Scramble) se expone en `/api/v1` y el spec en `/api/v1.json`, cerrada en
+producción por el gate `viewApiDocs`.
+
+### ADR-010 — Auditoría del panel admin (`admin_actions`)
+Cada acción de administrador se registra con `AdminAction::record()`. El `target` es un
+morph sin FK: el registro sobrevive al borrado del objetivo.

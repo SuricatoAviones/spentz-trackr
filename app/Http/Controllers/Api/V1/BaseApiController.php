@@ -2,14 +2,12 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-class BaseApiController
+class BaseApiController extends Controller
 {
-    use AuthorizesRequests;
-
     /**
      * Return a successful JSON response.
      */

@@ -55,6 +55,41 @@ function staticTranslationKeys(): array
     return array_values(array_unique($keys));
 }
 
+/**
+ * Static prefixes of template-literal keys, e.g. `t(`admin.rates.source_${x}`)`
+ * yields "admin.rates.source_". Only the prefix is verifiable, so these are not
+ * checked for existence — but they must still be free of the ":" separator,
+ * which is how a broken key hid from every check once.
+ *
+ * @return list<string>
+ */
+function templateTranslationKeyPrefixes(): array
+{
+    $root = dirname(__DIR__, 2).'/resources/js';
+
+    $iterator = new RecursiveIteratorIterator(
+        new RecursiveDirectoryIterator($root, FilesystemIterator::SKIP_DOTS),
+    );
+
+    $prefixes = [];
+
+    foreach ($iterator as $file) {
+        if (! in_array($file->getExtension(), ['ts', 'tsx'], true)) {
+            continue;
+        }
+
+        preg_match_all(
+            '/\bt\(`([\w:.-]+)(?:\$\{|`)/',
+            file_get_contents($file->getPathname()),
+            $matches,
+        );
+
+        $prefixes = array_merge($prefixes, $matches[1]);
+    }
+
+    return array_values(array_unique($prefixes));
+}
+
 function resolveKeyVariants(array $dictionaryKeys, string $key): bool
 {
     if (in_array($key, $dictionaryKeys, true)) {
@@ -86,20 +121,28 @@ test('every static translation key used in the frontend exists in the dictionari
     $missing = [];
 
     foreach (staticTranslationKeys() as $key) {
-        [$namespace, $dottedKey] = array_pad(explode(':', $key, 2), 2, null);
-
-        $resolves = $dottedKey === null
-            ? resolveKeyVariants($knownKeys, $key)
-            : ($namespace === 'admin'
-                ? resolveKeyVariants($knownKeys, "admin.{$dottedKey}")
-                : resolveKeyVariants($knownKeys, "{$namespace}.{$dottedKey}"));
-
-        if (! $resolves) {
+        if (! resolveKeyVariants($knownKeys, $key)) {
             $missing[] = $key;
         }
     }
 
     expect($missing)->toBe([]);
+});
+
+test('no frontend translation key uses the i18next namespace separator', function () {
+    // i18next reads ":" as a namespace separator, so t('admin:users.title')
+    // looks for key "users.title" inside a namespace called "admin" — not for
+    // "admin.users.title" in the dictionary. The app only registers the default
+    // "translation" namespace from es/en.json (plus the backend-provided
+    // "messages"/"admin" bundles, which hold different keys), so a colon here
+    // renders the raw key in the UI. This regressed the whole admin panel once;
+    // keep every key dotted.
+    $namespaced = array_values(array_filter(
+        array_merge(staticTranslationKeys(), templateTranslationKeyPrefixes()),
+        fn (string $key): bool => str_contains($key, ':'),
+    ));
+
+    expect($namespaced)->toBe([]);
 });
 
 test('interpolated placeholders match between languages', function () {
@@ -133,7 +176,10 @@ function extractPlaceholders(array $dictionary, string $key): array
         }
     }
 
-    preg_match_all('/:([a-z_]+)/', (string) $value, $matches);
+    // The frontend dictionaries interpolate the i18next way ({{name}}), not the
+    // Laravel way (:name) — matching on ":" found nothing and made this check a
+    // no-op.
+    preg_match_all('/\{\{\s*([A-Za-z0-9_]+)\s*\}\}/', (string) $value, $matches);
 
     sort($matches[1]);
 

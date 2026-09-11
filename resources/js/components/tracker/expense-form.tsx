@@ -166,9 +166,10 @@ export function ExpenseForm({
 
     function addItem(): void {
         setData((values) => {
-            const currency = (Object.keys(CURRENCY_META) as CurrencyCode[]).find(
-                (c) => c !== values.currency,
-            ) ?? 'usd';
+            const currency =
+                (Object.keys(CURRENCY_META) as CurrencyCode[]).find(
+                    (c) => c !== values.currency,
+                ) ?? 'usd';
             const choice = resolveChoice(values.rate_provider);
             const rateValue =
                 currency === 'ves'
@@ -203,7 +204,10 @@ export function ExpenseForm({
         }));
     }
 
-    function updateItem(index: number, patch: Partial<(typeof data.items)[number]>): void {
+    function updateItem(
+        index: number,
+        patch: Partial<(typeof data.items)[number]>,
+    ): void {
         setData((values) => ({
             ...values,
             items: values.items.map((item, i) =>
@@ -212,7 +216,10 @@ export function ExpenseForm({
         }));
     }
 
-    function handleItemCurrencyChange(index: number, currency: CurrencyCode): void {
+    function handleItemCurrencyChange(
+        index: number,
+        currency: CurrencyCode,
+    ): void {
         updateItem(index, { currency });
 
         if (currency === 'ves') {
@@ -831,41 +838,43 @@ export function ExpenseForm({
                                 className="rounded-lg bg-surface-high p-3"
                             >
                                 <div className="flex gap-2">
-                                    {(Object.keys(CURRENCY_META) as CurrencyCode[]).map(
-                                        (currency) => {
-                                            const meta = CURRENCY_META[currency];
-                                            const active =
-                                                item.currency === currency;
+                                    {(
+                                        Object.keys(
+                                            CURRENCY_META,
+                                        ) as CurrencyCode[]
+                                    ).map((currency) => {
+                                        const meta = CURRENCY_META[currency];
+                                        const active =
+                                            item.currency === currency;
 
-                                            return (
-                                                <button
-                                                    key={currency}
-                                                    type="button"
-                                                    onClick={() =>
-                                                        handleItemCurrencyChange(
-                                                            index,
-                                                            currency,
-                                                        )
-                                                    }
-                                                    className={`flex-1 rounded-lg py-1.5 text-xs font-semibold transition-all ${
-                                                        active
-                                                            ? 'text-primary-foreground'
-                                                            : 'bg-surface-low text-muted-foreground'
-                                                    }`}
-                                                    style={
-                                                        active
-                                                            ? {
-                                                                  backgroundColor:
-                                                                      meta.color,
-                                                              }
-                                                            : undefined
-                                                    }
-                                                >
-                                                    {meta.label}
-                                                </button>
-                                            );
-                                        },
-                                    )}
+                                        return (
+                                            <button
+                                                key={currency}
+                                                type="button"
+                                                onClick={() =>
+                                                    handleItemCurrencyChange(
+                                                        index,
+                                                        currency,
+                                                    )
+                                                }
+                                                className={`flex-1 rounded-lg py-1.5 text-xs font-semibold transition-all ${
+                                                    active
+                                                        ? 'text-primary-foreground'
+                                                        : 'bg-surface-low text-muted-foreground'
+                                                }`}
+                                                style={
+                                                    active
+                                                        ? {
+                                                              backgroundColor:
+                                                                  meta.color,
+                                                          }
+                                                        : undefined
+                                                }
+                                            >
+                                                {meta.label}
+                                            </button>
+                                        );
+                                    })}
                                 </div>
 
                                 <div className="mt-2 flex items-end gap-2">

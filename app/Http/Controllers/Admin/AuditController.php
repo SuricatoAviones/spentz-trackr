@@ -11,6 +11,7 @@ use App\Models\ExpenseReceipt;
 use App\Models\PaymentSource;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -22,14 +23,20 @@ class AuditController extends Controller
         $actions = AdminAction::query()
             ->with([
                 'admin:id,name,email',
-                'target.morphTo' => fn (MorphTo $morph) => $morph->constrain([
-                    User::class => fn ($query) => $query->select('id', 'name', 'email'),
-                    Category::class => fn ($query) => $query->select('id', 'name'),
-                    PaymentSource::class => fn ($query) => $query->select('id', 'name'),
-                    Expense::class => fn ($query) => $query->select('id', 'description'),
-                    ExchangeRate::class => fn ($query) => $query->select('id', 'rate_date', 'source', 'provider'),
-                    ExpenseReceipt::class => fn ($query) => $query->select('id', 'original_name'),
-                ]),
+                'target' => function (Relation $morphTo): void {
+                    if (! $morphTo instanceof MorphTo) {
+                        return;
+                    }
+
+                    $morphTo->constrain([
+                        User::class => fn ($query) => $query->select('id', 'name', 'email'),
+                        Category::class => fn ($query) => $query->select('id', 'name'),
+                        PaymentSource::class => fn ($query) => $query->select('id', 'name'),
+                        Expense::class => fn ($query) => $query->select('id', 'description'),
+                        ExchangeRate::class => fn ($query) => $query->select('id', 'rate_date', 'source', 'provider'),
+                        ExpenseReceipt::class => fn ($query) => $query->select('id', 'original_name'),
+                    ]);
+                },
             ])
             ->orderByDesc('id')
             ->paginate(50)

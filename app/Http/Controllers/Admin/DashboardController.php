@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Category;
 use App\Models\Expense;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -43,43 +44,47 @@ class DashboardController extends Controller
             ];
         })->values();
 
-        $topCategories = Expense::query()
+        $categoryTotals = Expense::query()
             ->selectRaw('category_id, sum(usd_amount) as total')
             ->groupBy('category_id')
             ->orderByDesc('total')
             ->limit(5)
-            ->get()
-            ->map(function ($row) use ($totalUsd): array {
-                $category = $row->category()->first(['id', 'name', 'color']);
-                $total = round((float) $row->total, 2);
+            ->pluck('total', 'category_id');
 
-                return [
-                    'name' => $category?->name ?? 'Sin categoría',
-                    'color' => $category?->color ?? '#6B7280',
-                    'total' => $total,
-                    'percent' => $totalUsd > 0 ? round(($total / $totalUsd) * 100, 1) : 0.0,
-                ];
-            })
-            ->values();
+        $categories = Category::query()->whereKey($categoryTotals->keys()->all())->get(['id', 'name', 'color']);
 
-        $topUsers = Expense::query()
+        $topCategories = $categoryTotals->map(function (mixed $rawTotal, int $categoryId) use ($totalUsd, $categories): array {
+            $category = $categories->firstWhere('id', $categoryId);
+            $total = round((float) $rawTotal, 2);
+
+            return [
+                'name' => $category instanceof Category ? $category->name : __('admin.uncategorized'),
+                'color' => $category instanceof Category ? $category->color : '#6B7280',
+                'total' => $total,
+                'percent' => $totalUsd > 0 ? round(($total / $totalUsd) * 100, 1) : 0.0,
+            ];
+        })->values();
+
+        $userTotals = Expense::query()
             ->selectRaw('user_id, sum(usd_amount) as total')
             ->groupBy('user_id')
             ->orderByDesc('total')
             ->limit(5)
-            ->get()
-            ->map(function ($row) use ($totalUsd): array {
-                $user = $row->user()->first(['id', 'name']);
-                $total = round((float) $row->total, 2);
+            ->pluck('total', 'user_id');
 
-                return [
-                    'id' => $user?->id,
-                    'name' => $user?->name ?? 'Usuario eliminado',
-                    'total' => $total,
-                    'percent' => $totalUsd > 0 ? round(($total / $totalUsd) * 100, 1) : 0.0,
-                ];
-            })
-            ->values();
+        $users = User::query()->whereKey($userTotals->keys()->all())->get(['id', 'name']);
+
+        $topUsers = $userTotals->map(function (mixed $rawTotal, int $userId) use ($totalUsd, $users): array {
+            $user = $users->firstWhere('id', $userId);
+            $total = round((float) $rawTotal, 2);
+
+            return [
+                'id' => $user instanceof User ? $user->id : null,
+                'name' => $user instanceof User ? $user->name : 'Usuario eliminado',
+                'total' => $total,
+                'percent' => $totalUsd > 0 ? round(($total / $totalUsd) * 100, 1) : 0.0,
+            ];
+        })->values();
 
         $recentUsers = User::query()
             ->withCount('expenses')

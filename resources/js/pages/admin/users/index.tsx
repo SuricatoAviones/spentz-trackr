@@ -1,4 +1,4 @@
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link, router, setLayoutProps } from '@inertiajs/react';
 import {
     ChevronLeft,
     ChevronRight,
@@ -60,6 +60,12 @@ export default function AdminUsersIndex({
     filters: { search: string };
 }) {
     const { t } = useTranslation();
+
+    setLayoutProps({
+        title: t('admin.users.title'),
+        description: t('admin.users.accounts_total', { count: users.total }),
+    });
+
     const [search, setSearch] = useState(filters.search);
     const [editing, setEditing] = useState<AdminUser | null>(null);
     const [editData, setEditData] = useState({
@@ -103,32 +109,17 @@ export default function AdminUsersIndex({
     }
 
     function destroy(user: AdminUser) {
-        if (
-            confirm(
-                t('admin:users.delete_confirm', { name: user.name }),
-            )
-        ) {
+        if (confirm(t('admin.users.delete_confirm', { name: user.name }))) {
             router.delete(usersDestroy({ user: user.id }).url);
         }
     }
 
     return (
         <>
-            <Head title={t('admin:users.title')} />
+            <Head title={t('admin.users.title')} />
 
-            <div className="space-y-8 px-4 py-6 sm:px-6 lg:px-8">
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                        <h2 className="text-xl font-semibold tracking-tight">
-                            {t('admin:users.title')}
-                        </h2>
-                        <p className="text-sm text-muted-foreground">
-                            {t('admin:users.accounts_total', {
-                                count: users.total,
-                            })}
-                        </p>
-                    </div>
-
+            <div className="space-y-8">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-end">
                     <form
                         className="flex gap-2"
                         onSubmit={(event) => {
@@ -154,12 +145,14 @@ export default function AdminUsersIndex({
                                         400,
                                     );
                                 }}
-                                placeholder={t('admin:users.search_placeholder')}
+                                placeholder={t(
+                                    'admin.users.search_placeholder',
+                                )}
                                 className="pl-9"
                             />
                         </div>
                         <Button type="submit">
-                            {t('admin:users.search_button')}
+                            {t('admin.users.search_button')}
                         </Button>
                     </form>
                 </div>
@@ -171,25 +164,25 @@ export default function AdminUsersIndex({
                                 <thead>
                                     <tr className="border-b text-left text-xs tracking-wider text-muted-foreground uppercase">
                                         <th className="px-4 py-3 font-medium">
-                                            {t('admin:users.col_user')}
+                                            {t('admin.users.col_user')}
                                         </th>
                                         <th className="hidden px-4 py-3 font-medium md:table-cell">
-                                            {t('admin:users.col_role')}
+                                            {t('admin.users.col_role')}
                                         </th>
                                         <th className="hidden px-4 py-3 font-medium md:table-cell">
-                                            {t('admin:users.col_verified')}
+                                            {t('admin.users.col_verified')}
                                         </th>
                                         <th className="hidden px-4 py-3 font-medium sm:table-cell">
-                                            {t('admin:users.col_expenses')}
+                                            {t('admin.users.col_expenses')}
                                         </th>
                                         <th className="hidden px-4 py-3 font-medium sm:table-cell">
-                                            {t('admin:users.col_total_usd')}
+                                            {t('admin.users.col_total_usd')}
                                         </th>
                                         <th className="hidden px-4 py-3 font-medium lg:table-cell">
-                                            {t('admin:users.col_registered')}
+                                            {t('admin.users.col_registered')}
                                         </th>
                                         <th className="px-4 py-3 text-right font-medium">
-                                            {t('admin:users.col_actions')}
+                                            {t('admin.users.col_actions')}
                                         </th>
                                     </tr>
                                 </thead>
@@ -218,29 +211,39 @@ export default function AdminUsersIndex({
                                                         variant="destructive"
                                                         className="mt-1"
                                                     >
-                                                        {t('admin:users.badge_suspended')}
+                                                        {t(
+                                                            'admin.users.badge_suspended',
+                                                        )}
                                                     </Badge>
                                                 )}
                                             </td>
                                             <td className="hidden px-4 py-3 md:table-cell">
                                                 {user.is_admin ? (
                                                     <Badge variant="secondary">
-                                                        {t('admin:users.badge_admin')}
+                                                        {t(
+                                                            'admin.users.badge_admin',
+                                                        )}
                                                     </Badge>
                                                 ) : (
                                                     <Badge variant="outline">
-                                                        {t('admin:users.badge_user')}
+                                                        {t(
+                                                            'admin.users.badge_user',
+                                                        )}
                                                     </Badge>
                                                 )}
                                             </td>
                                             <td className="hidden px-4 py-3 md:table-cell">
                                                 {user.email_verified_at ? (
                                                     <Badge variant="default">
-                                                        {t('admin:users.badge_yes')}
+                                                        {t(
+                                                            'admin.users.badge_yes',
+                                                        )}
                                                     </Badge>
                                                 ) : (
                                                     <Badge variant="outline">
-                                                        {t('admin:users.badge_no')}
+                                                        {t(
+                                                            'admin.users.badge_no',
+                                                        )}
                                                     </Badge>
                                                 )}
                                             </td>
@@ -261,7 +264,10 @@ export default function AdminUsersIndex({
                                                         onClick={() =>
                                                             openEdit(user)
                                                         }
-                                                        aria-label={t('admin:users.edit_aria', { name: user.name })}
+                                                        aria-label={t(
+                                                            'admin.users.edit_aria',
+                                                            { name: user.name },
+                                                        )}
                                                     >
                                                         <Pencil className="size-4" />
                                                     </Button>
@@ -272,9 +278,12 @@ export default function AdminUsersIndex({
                                                             destroy(user)
                                                         }
                                                         className="text-destructive hover:text-destructive"
-                                                        aria-label={t('admin:users.delete_aria', {
-                                                            name: user.name,
-                                                        })}
+                                                        aria-label={t(
+                                                            'admin.users.delete_aria',
+                                                            {
+                                                                name: user.name,
+                                                            },
+                                                        )}
                                                     >
                                                         <Trash2 className="size-4" />
                                                     </Button>
@@ -288,7 +297,7 @@ export default function AdminUsersIndex({
 
                         {users.data.length === 0 && (
                             <p className="px-4 py-12 text-center text-sm text-muted-foreground">
-                                {t('admin:users.no_users')}
+                                {t('admin.users.no_users')}
                             </p>
                         )}
                     </CardContent>
@@ -297,7 +306,7 @@ export default function AdminUsersIndex({
                 {users.last_page > 1 && (
                     <div className="flex items-center justify-between">
                         <p className="text-sm text-muted-foreground">
-                            {t('admin:users.page_of', {
+                            {t('admin.users.page_of', {
                                 current: users.current_page,
                                 total: users.last_page,
                             })}
@@ -318,7 +327,8 @@ export default function AdminUsersIndex({
                                         )
                                     }
                                 >
-                                    <ChevronLeft className="size-4" /> {t('admin:users.prev')}
+                                    <ChevronLeft className="size-4" />{' '}
+                                    {t('admin.users.prev')}
                                 </Button>
                             )}
                             {users.current_page < users.last_page && (
@@ -336,7 +346,7 @@ export default function AdminUsersIndex({
                                         )
                                     }
                                 >
-                                    {t('admin:users.next')}{' '}
+                                    {t('admin.users.next')}{' '}
                                     <ChevronRight className="size-4" />
                                 </Button>
                             )}
@@ -351,16 +361,16 @@ export default function AdminUsersIndex({
             >
                 <DialogContent className="rounded-2xl sm:max-w-md">
                     <DialogHeader>
-                        <DialogTitle>{t('admin:users.edit_title')}</DialogTitle>
+                        <DialogTitle>{t('admin.users.edit_title')}</DialogTitle>
                         <DialogDescription>
-                            {t('admin:users.edit_description')}
+                            {t('admin.users.edit_description')}
                         </DialogDescription>
                     </DialogHeader>
 
                     <form onSubmit={submitEdit} className="space-y-4">
                         <div className="grid gap-2">
                             <Label htmlFor="edit-name">
-                                {t('common:name')}
+                                {t('common.name')}
                             </Label>
                             <Input
                                 id="edit-name"
@@ -377,7 +387,7 @@ export default function AdminUsersIndex({
 
                         <div className="grid gap-2">
                             <Label htmlFor="edit-email">
-                                {t('settings:email_label')}
+                                {t('settings.email_label')}
                             </Label>
                             <Input
                                 id="edit-email"
@@ -404,7 +414,7 @@ export default function AdminUsersIndex({
                                 }
                             />
                             <span className="text-sm">
-                                {t('admin:users.admin_role')}
+                                {t('admin.users.admin_role')}
                             </span>
                         </label>
 
@@ -414,8 +424,8 @@ export default function AdminUsersIndex({
                             className="w-full"
                         >
                             {saving
-                                ? t('common:saving')
-                                : t('admin:users.save_changes')}
+                                ? t('common.saving')
+                                : t('admin.users.save_changes')}
                         </Button>
                     </form>
                 </DialogContent>

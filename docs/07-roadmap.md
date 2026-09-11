@@ -1,76 +1,70 @@
 # 07 — Roadmap
 
-## Fase 1 — Base y autenticación ✅ completada
-- [x] Configurar MySQL en dev (o mantener SQLite en dev y MySQL en prod).
-- [x] Migraciones: `categories`, `payment_sources`, `expenses`, `expense_receipts`, `exchange_rates`.
-- [x] Modelos con relaciones, casts de montos y scopes por usuario.
-- [x] Seeders: categorías y orígenes por defecto (Binance, Bancos, Wallets, Efectivo).
-- [x] Políticas de autorización.
+## Fase 1 — Base y autenticación ✅
+- [x] Migraciones, modelos con relaciones, casts y scopes por usuario.
+- [x] Seeders: categorías y orígenes por defecto.
+- [x] Políticas de autorización (`ExpensePolicy`, `CategoryPolicy`, …).
 - [x] Tests: registro, login, scoping entre usuarios.
 
-## Fase 2 — Núcleo de gastos ✅ completada
-- [x] CRUD de gastos (crear/editar/eliminar/listar) con conversión USD/USDT.
+## Fase 2 — Núcleo de gastos ✅
+- [x] CRUD de gastos con conversión USD/USDT y tasa congelada.
 - [x] Formulario con tasa precargada (API o manual) y subida de comprobante.
-- [x] CRUD de categorías y orígenes (React + Inertia).
-- [x] Servicio de tasas (`ExchangeRateService` + `SyncExchangeRatesJob` + scheduler + caché).
-- [x] Dashboard con totales USD/USDT y gráficas.
+- [x] CRUD de categorías y orígenes.
+- [x] Servicio de tasas (`ExchangeRateService` + `SyncExchangeRates` job + scheduler + caché).
+- [x] Dashboard con totales USD/USDT y gráficas (componentes SVG propios, sin librería).
 - [x] Listado con filtros y exportación CSV.
 - [x] Comparativo mensual (12 meses).
-- [x] Tests completos (Pest) de todos los flujos.
 
-## Fase 3 — PWA ✅ completada
-- [x] Manifest + íconos (instalable en Android/iOS/desktop).
-- [x] Service Worker con precache del shell (Vite plugin o `workbox`).
+## Fase 3 — PWA ✅
+- [x] `manifest.webmanifest` + íconos (instalable Android/iOS/desktop).
+- [x] Service Worker (`public/sw.js`) con precache del shell.
 - [x] Estrategia offline: cache-first para assets, network-first para datos.
-- [x] Tema/color y standalone display.
-- [x] Verificación: Lighthouse PWA, instalación real, offline browsing.
 
-## Fase 4 — API REST ✅ completada
-- [x] Endpoints de autenticación con tokens Sanctum (register/login/logout/me).
-- [x] CRUD completo de gastos, ingresos, categorías y fuentes bajo `/api/v1`.
-- [x] Conversión de monedas en tiempo real (USD, VES, USDT) con tasa congelada por transacción.
-- [x] Reportes anuales y tendencia mensual (`/reports`, `/reports/monthly-summary`).
-- [x] Tasas de cambio manuales y sincronización API (`/rates`, `/rates/sync`).
-- [x] Rate limiting (`api` 100/min por usuario o IP; `api.auth` 5/min por IP) y seguridad por token.
-- [x] CORS configurado para aplicaciones móviles (`config/cors.php`, `sanctum/csrf-cookie`).
-- [x] Documentación OpenAPI/Swagger con Scramble (UI en `/docs/api`, spec en `/docs/api.json`; referencia REST en `docs/api/api-documentation.md`).
+## Fase 4 — API REST ✅
+- [x] Auth con tokens Sanctum (register/login/logout/me), expiración 90 días.
+- [x] CRUD de gastos, ingresos, categorías y orígenes bajo `/api/v1`.
+- [x] Gastos mixtos (`items`) soportados también por la API.
+- [x] Reportes (`/reports`, `/reports/monthly-summary`) y tasas (`/rates`, `/rates/sync`).
+- [x] Rate limiting (`api` 100/min, `api.auth` 5/min) y CORS por `CORS_ALLOWED_ORIGINS`.
+- [x] Documentación OpenAPI con Scramble: UI en `/api/v1`, spec en `/api/v1.json`
+      (gate `viewApiDocs`, cerrada en producción). Referencia: `docs/api/api-documentation.md`.
 
-## Fase 5 — Panel de administración ✅ completada
+## Fase 5 — Panel de administración ✅
 - [x] Dashboard global: métricas, tendencia 12 meses, top categorías y usuarios.
-- [x] Gestión de usuarios: edición, verificación manual de email, reset de contraseña, suspensión/reactivación y eliminación.
-- [x] Gastos globales con filtros, exportación CSV y comprobantes.
-- [x] Tasas del día: ajuste manual y sincronización con la API.
+- [x] Usuarios: editar, verificar email, reset de contraseña, suspender/reactivar, eliminar.
+- [x] Gastos globales con filtros, exportación CSV y comprobantes inline.
+- [x] Tasas del día: ajuste manual y sincronización.
 - [x] Gestión global de categorías y orígenes.
-- [x] Auditoría de acciones de administradores (`admin_actions`).
-- [x] Sistema: estado del entorno y backup JSON de todas las tablas.
+- [x] Auditoría de acciones (`admin_actions`) y backup JSON de todas las tablas.
 
-## Fase 6 — Multilenguaje (ES/EN) ✅ completada
-Plan detallado en `10-multilenguaje.md`.
-- [x] Fase A — Infraestructura backend: middleware `SetLocale`, `lang/es|en`, ruta `/language`, shared props.
-- [x] Fase B — i18next en frontend: diccionarios, páginas de usuario, `Intl` en fechas/montos/meses.
-- [x] Fase C — Panel admin traducido.
-- [x] Fase D — Selector de idioma en sidebar y ajustes.
-- [x] Fase E — QA: consistencia de keys, revisión ES/EN, docs y suite verde.
+## Fase 6 — Multilenguaje (ES/EN) ✅
+Plan en `10-multilenguaje.md`.
+- [x] Middleware `SetLocale`, `lang/{es,en}`, ruta `/language`, shared props de Inertia.
+- [x] i18next en frontend; `Intl` para fechas/montos/meses.
+- [x] Panel admin traducido; selector de idioma en sidebar y Ajustes.
+- [x] `tests/Unit/I18nDictionaryTest.php` obliga paridad de keys `es.json` ↔ `en.json`.
 
-## Fase 7 — Open-source y auto-hospedaje (en curso)
-Plan detallado en `11-instalador.md`.
-- [x] Documentación OpenAPI/Swagger accesible en `/api/v1` (UI) y `/api/v1.json` (spec).
-- [x] Gate `viewApiDocs` para controlar el acceso a la documentación.
-- [x] Instalador web (`/install`): middleware `EnsureInstalled`, wizard de 4 pasos (Requisitos, Base de datos, Aplicación, Completado).
-- [x] Soporte de SQLite, MySQL y PostgreSQL en el instalador.
-- [x] Servicio compartido `App\Services\Installer`.
-- [x] Instalador CLI (`php artisan app:install`) con flags no interactivos y `--force`.
-- [x] Comando de actualización (`php artisan app:update`): git pull + dependencias + migraciones + cachés.
-- [x] Docker Compose (app + MySQL), override PostgreSQL y SQLite, `.env.docker`.
-- [x] Docs `11-instalador.md`.
-- [x] Tests del instalador (requisitos, comandos registrados, endpoint de requisitos).
-- [x] Presupuesto global mensual (límite total de gasto con barra de progreso en el dashboard).
-- [x] Modo oscuro/claro configurable en Ajustes → Apariencia.
-- [ ] Prueba E2E real de una instalación limpia (web + CLI + Docker) en entorno de staging.
-- [ ] Política de versionado y tags.
+## Fase 7 — Open-source y auto-hospedaje ✅
+- [x] Soporte SQLite / MySQL / PostgreSQL.
+- [x] Configuración por `.env` estándar de Laravel (`key:generate`, `migrate`,
+      `admin:create`). Despliegue documentado en `06-despliegue-cpanel.md` (cPanel/VPS) y
+      `09-despliegue-dokploy.md` (Docker).
+- [x] Docker: `APP_KEY` persiste entre recreaciones de contenedor (volumen) vía
+      `docker/entrypoint.d/98-spentz-key.sh`; las migraciones corren en cada arranque
+      (`99-spentz-migrate.sh`).
+- [x] `app:update`: git pull + dependencias + migraciones + cachés.
+- [x] `LICENSE` MIT en la raíz.
+- [x] Presupuesto mensual global y por categoría; metas de ahorro; pagos recurrentes.
+- [x] Modo claro/oscuro configurable (Ajustes → Apariencia).
+
+## Pendiente
+- [ ] Prueba E2E de un despliegue limpio (cPanel + Docker) en staging.
+- [ ] Política de versionado y tags de release.
+- [ ] Scheduler en el contenedor Docker (hoy la tasa solo se sincroniza al cargar página).
+- [ ] Presupuesto por categoría **con alertas/notificaciones**.
 
 ## Ideas v2 (candidatas)
-- Presupuestos mensuales por categoría con alertas (presupuesto por categoría ya existe).
-- Gastos mixtos (una transacción con dos monedas).
-- Metas de ahorro.
-- Recordatorios de pagos recurrentes.
+- Pagos recurrentes que generen automáticamente el gasto al vencer.
+- Conciliación / import desde extractos bancarios.
+- Multi-tenant (organizaciones con varios usuarios).
+- Apps nativas sobre la API REST.

@@ -133,7 +133,9 @@ export default function TwoFactorRecoveryCodes({
                                     ) : (
                                         <div
                                             className="space-y-2"
-                                            aria-label={t('settings.recovery_codes_loading')}
+                                            aria-label={t(
+                                                'settings.recovery_codes_loading',
+                                            )}
                                         >
                                             {Array.from(
                                                 { length: 8 },
@@ -151,9 +153,7 @@ export default function TwoFactorRecoveryCodes({
 
                                 <div className="text-xs text-muted-foreground select-none">
                                     <p id="regenerate-warning">
-                                        {t(
-                                            'settings.recovery_codes_warning_1',
-                                        )}{' '}
+                                        {t('settings.recovery_codes_warning_1')}{' '}
                                         {t('settings.recovery_codes_warning_2')}{' '}
                                         <span className="font-bold">
                                             {t(

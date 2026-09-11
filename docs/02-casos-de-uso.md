@@ -4,171 +4,109 @@
 
 | Actor | Descripción |
 |---|---|
-| **Usuario** | Persona registrada. Ve y gestiona solo sus propios datos (gastos, categorías, orígenes). |
-| **Sistema (cron)** | Proceso programado que sincroniza la tasa Bs/USD desde la API. |
+| **Usuario** | Persona registrada. Ve y gestiona solo sus datos. Elige en Ajustes si registra gastos, ingresos o ambos. |
+| **Administrador** | Usuario con `is_admin`. Accede a `/admin` y cruza datos de todos los usuarios (sin scoping). No puede eliminarse ni suspenderse a sí mismo. |
+| **Consumidor API** | Cliente externo autenticado con un token Sanctum (`/api/v1`). |
+| **Sistema (scheduler)** | Proceso programado que sincroniza la tasa Bs/USD. |
+| **Operador** | Quien despliega y mantiene la instancia (`.env`, migraciones, `admin:create`). |
 
-## Diagrama de casos de uso
+## Diagrama
 
 ```mermaid
 flowchart TB
-    subgraph Autenticación
-        UC1[Registrarse]
-        UC2[Iniciar sesión]
-        UC3[Cerrar sesión]
+    subgraph Cuenta
+        UC1[Registrarse / iniciar sesión]
+        UC2[Verificar correo · 2FA · passkeys]
+        UC3[Configurar tracking / comisiones / presupuesto / idioma / apariencia]
     end
-
-    subgraph Gastos
-        UC4[Registrar gasto]
-        UC5[Editar gasto]
-        UC6[Eliminar gasto]
-        UC7[Ver listado con filtros]
-        UC8[Ver detalle del gasto]
+    subgraph Movimientos
+        UC4[Registrar gasto -incl. mixto y comisión Bs-]
+        UC5[Registrar ingreso]
+        UC6[Editar / eliminar / listar con filtros]
+        UC7[Adjuntar comprobante]
     end
-
-    subgraph Configuración
-        UC9[Gestionar categorías]
-        UC10[Gestionar orígenes]
+    subgraph Planificación
+        UC8[Meta de ahorro + aportes]
+        UC9[Pago recurrente + marcar pagado]
+        UC10[Categorías y orígenes]
     end
-
     subgraph Reportes
-        UC11[Ver dashboard]
-        UC12[Ver comparativo mensual]
+        UC11[Dashboard]
+        UC12[Reportes anuales / comparativo]
         UC13[Exportar CSV]
     end
-
     subgraph Tasas
         UC14[Ver tasa del día]
         UC15[Ajustar tasa manualmente]
+        UC16[Sincronizar vía API -sistema-]
     end
-
-    Usuario --> UC1
-    Usuario --> UC2
-    Usuario --> UC3
-    Usuario --> UC4
-    Usuario --> UC5
-    Usuario --> UC6
-    Usuario --> UC7
-    Usuario --> UC8
-    Usuario --> UC9
-    Usuario --> UC10
-    Usuario --> UC11
-    Usuario --> UC12
-    Usuario --> UC13
-    Usuario --> UC14
-    Usuario --> UC15
-
-    Sistema --> UC16[Sincronizar tasa vía API]
+    subgraph Administración
+        UC17[Panel admin: usuarios / gastos / tasas]
+        UC18[Auditoría de acciones]
+        UC19[Backup JSON]
+    end
+    subgraph API
+        UC20[Emitir token y consumir /api/v1]
+    end
+    Usuario --> UC1 & UC2 & UC3 & UC4 & UC5 & UC6 & UC7 & UC8 & UC9 & UC10 & UC11 & UC12 & UC13 & UC14 & UC15
+    Administrador --> UC17 & UC18 & UC19
+    ConsumidorAPI[Consumidor API] --> UC20
+    Sistema --> UC16
 ```
 
-## Detalle de casos de uso
+## Detalle (los más relevantes)
 
-### Autenticación
+### UC-04 Registrar gasto
+- **Precondición:** sesión iniciada; al menos una categoría de gasto y un origen.
+- **Flujo:**
+  1. El usuario ingresa monto, moneda (USD/Bs/USDT), categoría, origen, fecha, nota.
+  2. Si es **Bs**: se precarga la tasa del día (BCV/Paralelo/manual); el usuario puede
+     ajustarla. Si elige pago móvil o transferencia, se precalcula la comisión
+     `max(mínimo, monto × %)`, editable ("Sin comisión" disponible).
+  3. Opcional: añade **ítems** en otras monedas (gasto mixto), cada uno con su tasa.
+  4. Opcional: adjunta comprobante (imagen ≤ 5 MB).
+  5. Guarda. El sistema (Action `StoreExpenseAction`) congela `usd_amount`/`usdt_amount`
+     sobre `amount + commission` más el equivalente de cada ítem.
+- **Reglas:** monto > 0; Bs ⇒ tasa > 0; `amount` guarda la base, la comisión va aparte.
+- **Postcondición:** gasto visible en listado, dashboard y reportes; su tasa queda congelada.
 
-#### UC-01 Registrarse
-- **Actor:** Usuario (invitado)
-- **Precondiciones:** Ninguna.
-- **Flujo principal:**
-  1. El usuario accede a la página de registro.
-  2. Ingresa nombre, correo y contraseña.
-  3. El sistema crea la cuenta y categorías/orígenes por defecto.
-  4. Se inicia sesión automáticamente y se redirige al dashboard.
-- **Postcondiciones:** Cuenta creada, sesión iniciada, datos por defecto asignados.
-- **Excepciones:** El correo ya existe → mensaje de error.
+### UC-05 Registrar ingreso
+Análogo a UC-04 pero sin origen, comisión ni ítems. Requiere una categoría de tipo
+`income`. Gated por `tracking_type ∈ {income, both}`.
 
-#### UC-02 Iniciar sesión
-- **Actor:** Usuario
-- **Flujo principal:** Correo + contraseña → sesión iniciada → dashboard.
-- **Excepciones:** Credenciales inválidas, cuenta bloqueada por intentos (throttling).
+### UC-08 Meta de ahorro
+Crear meta con objetivo y moneda (se congela `target_usd_amount`). Registrar aportes
+(opcionalmente ligados a un ingreso). `achieved_at` se marca/desmarca automáticamente al
+comparar la suma de aportes con el objetivo.
 
-#### UC-03 Cerrar sesión
-- **Actor:** Usuario
-- **Flujo principal:** Botón cerrar sesión → sesión destruida → página de login.
+### UC-09 Pago recurrente
+Crear pago con `frequency` (diario…anual) y próximo vencimiento. "Marcar pagado" avanza
+`next_due_date` según la frecuencia y setea `last_paid_at` — **no** crea un gasto.
 
-### Gastos
+### UC-13 Exportar CSV
+Aplica los filtros del listado; genera un CSV en streaming (UTF-8 con BOM, celdas
+protegidas contra inyección de fórmulas). Ver `05-reportes.md`.
 
-#### UC-04 Registrar gasto
-- **Actor:** Usuario
-- **Precondiciones:** Sesión iniciada. Debe existir al menos una categoría y un origen.
-- **Flujo principal:**
-  1. El usuario pulsa "Registrar gasto".
-  2. Ingresa: monto, moneda (USD | Bs | USDT), categoría, origen, fecha, nota (opcional).
-  3. Si la moneda es **Bs**, el sistema precarga la tasa del día (API); el usuario puede ajustarla manualmente.
-  4. Opcional: adjunta imagen de comprobante.
-  5. Guarda. El sistema calcula y almacena `usd_amount`.
-- **Reglas de negocio:**
-  - Monto > 0.
-  - Moneda Bs ⇒ tasa requerida y > 0.
-  - `usd_amount` = monto si USD o USDT; monto / tasa si Bs.
-  - USDT se registra con su propio monto y también se expresa en USD (referencia 1:1) para reportes.
-- **Postcondiciones:** Gasto visible en listado y reportes.
+### UC-16 Sincronizar tasa (sistema)
+- El scheduler ejecuta `SyncExchangeRates` cada 5 min.
+- `GET https://ve.dolarapi.com/v1/dolares` → lista `[{moneda, fuente, promedio}]`.
+- Guarda `exchange_rates` (`user_id=null`, `source=api`, `provider=bcv|paralelo`, fecha hoy).
+- Si falla: `report()` y conserva la última tasa. En dev, el Dashboard sincroniza al cargar.
 
-#### UC-05 Editar gasto
-- **Actor:** Usuario
-- **Flujo principal:** Abre detalle → modifica campos → guarda → recalcula `usd_amount`.
-- **Excepciones:** No puede editar gastos de otro usuario (autorización por `user_id`).
+### UC-17 Panel admin
+Middleware `auth` + `verified` + `admin` (403 para el resto). Gestión de usuarios (editar,
+verificar email, reset de contraseña, suspender/reactivar, eliminar con cascada), gastos
+globales con export, tasas del día, categorías/orígenes globales.
 
-#### UC-06 Eliminar gasto
-- **Actor:** Usuario
-- **Flujo principal:** Elimina → confirmación → se elimina el gasto y su comprobante (si existe).
+### UC-20 API REST
+`POST /api/v1/auth/register|login` devuelve un token Sanctum (90 días). Con el token
+(`Authorization: Bearer …`) se accede al CRUD de gastos (incl. ítems mixtos), ingresos,
+categorías, orígenes, reportes y tasas. Rate limit `api` 100/min. Doc OpenAPI en `/api/v1`.
 
-#### UC-07 Ver listado con filtros
-- **Actor:** Usuario
-- **Flujo principal:** Pagina y filtra por: período (rango de fechas), moneda, categoría, origen, texto (nota/descripción), rango de monto.
-- **Postcondiciones:** Totales del filtro mostrados (suma en USD y USDT).
+## Matriz de prioridades (estado actual)
 
-#### UC-08 Ver detalle del gasto
-- **Actor:** Usuario
-- **Flujo principal:** Muestra todos los campos, tasa usada, equivalencia en USD y comprobante.
-
-### Configuración
-
-#### UC-09 Gestionar categorías
-- **Actor:** Usuario
-- **Flujo:** Crear, renombrar, cambiar ícono/color, eliminar. Eliminar una categoría con gastos → se bloquea o se pide reasignación.
-- **Nota:** Se crean categorías por defecto al registrarse (Alimentación, Transporte, Servicios, Salud, Ocio, Ropa, Educación, Otros).
-
-#### UC-10 Gestionar orígenes
-- **Actor:** Usuario
-- **Flujo:** Crear, renombrar, eliminar. Orígenes sugeridos por defecto: **Binance, Bancos, Wallets, Efectivo**.
-
-### Reportes
-
-#### UC-11 Ver dashboard
-- **Actor:** Usuario
-- **Flujo:** Muestra: total gastado del mes en **USD** y en **USDT**, desglose Bs/USD/USDT, gasto por categoría (gráfica), gasto por origen, últimos gastos, tendencia de los últimos 6 meses.
-
-#### UC-12 Ver comparativo mensual
-- **Actor:** Usuario
-- **Flujo:** Tabla/gráfica mes a mes (últimos 12 meses) con total en USD y USDT, y variación % vs mes anterior.
-
-#### UC-13 Exportar CSV
-- **Actor:** Usuario
-- **Flujo:** Aplica filtros → exporta CSV con columnas: fecha, descripción, categoría, origen, moneda, monto, tasa, equivalente USD, equivalente USDT.
-
-### Tasas
-
-#### UC-14 Ver tasa del día
-- **Actor:** Usuario
-- **Flujo:** El dashboard muestra la tasa Bs/USD vigente (BCV/paralelo según la API) con su fecha y fuente.
-
-#### UC-15 Ajustar tasa manualmente
-- **Actor:** Usuario
-- **Flujo:** Sobrescribe la tasa del día con un valor manual; el sistema la marca como `manual` y la usa para nuevas transacciones Bs hasta que se actualice.
-
-#### UC-16 Sincronizar tasa vía API (sistema)
-- **Actor:** Sistema (cron/schedule)
-- **Flujo principal:**
-  1. El scheduler ejecuta la tarea cada 5 minutos (o bajo demanda).
-  2. Consulta `https://ve.dolarapi.com/v1/dolares` (fuentes: BCV y paralelo).
-  3. Guarda/actualiza la tasa del día en `exchange_rates` con fuente `api`.
-  4. Si la API falla: registra el error y conserva la última tasa conocida (el usuario puede ingresarla manual).
-- **Postcondiciones:** La tasa del día queda disponible para nuevos gastos en Bs.
-
-## Matriz de prioridades (MoSCoW)
-
-| Prioridad | Casos de uso |
+| Estado | Casos de uso |
 |---|---|
-| **Must have** | UC-01, UC-02, UC-03, UC-04, UC-05, UC-06, UC-07, UC-09, UC-10, UC-11, UC-14, UC-15, UC-16 |
-| **Should have** | UC-08, UC-12, UC-13 |
-| **Could have** | Restauración de contraseña, verificación de correo, modo oscuro, idioma EN |
-| **Won't have (v1)** | Ingresos, presupuestos, saldos, multi-moneda por transacción |
+| **Implementado** | UC-01 … UC-20 |
+| **Parcial** | UC-09 (no genera el gasto automáticamente al vencer) |
+| **Futuro** | Alertas de presupuesto; import de extractos; multi-tenant |
