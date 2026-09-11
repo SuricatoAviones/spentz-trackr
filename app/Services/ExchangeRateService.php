@@ -15,6 +15,21 @@ class ExchangeRateService
     private const CACHE_TTL_SECONDS = 60;
 
     /**
+     * Page loads (`ensureFreshRate`) must never hang on dolarapi.com: they use a
+     * tight budget, and a failure puts the sync on cooldown so the *next* page
+     * load doesn't pay the same wait again. Background callers (scheduler job,
+     * the manual "sincronizar" button) keep the generous timeout and ignore the
+     * cooldown.
+     */
+    private const INLINE_TIMEOUT_SECONDS = 3;
+
+    private const BACKGROUND_TIMEOUT_SECONDS = 15;
+
+    private const SYNC_FAILURE_KEY = 'exchange-rate:sync-failed';
+
+    private const SYNC_FAILURE_COOLDOWN_SECONDS = 300;
+
+    /**
      * Get today's available rates for the expense form: manual override, BCV and paralelo.
      *
      * @return array{bcv: string, paralelo: string, manual: string}
@@ -153,7 +168,15 @@ class ExchangeRateService
             return null;
         }
 
-        return $this->syncFromApi();
+        // dolarapi.com is unreachable often enough (and slowly enough) that
+        // retrying it on every page load would freeze the app: a failed sync
+        // blocks up to the connect timeout, and nothing gets persisted, so the
+        // next request would pay it again. Back off instead.
+        if (Cache::get(self::SYNC_FAILURE_KEY) !== null) {
+            return null;
+        }
+
+        return $this->syncFromApi(timeoutSeconds: self::INLINE_TIMEOUT_SECONDS);
     }
 
     /**
@@ -161,15 +184,22 @@ class ExchangeRateService
      *
      * @return array<string, mixed>|null The API payload, or null on failure.
      */
-    public function syncFromApi(?Carbon $date = null): ?array
+    public function syncFromApi(?Carbon $date = null, ?int $timeoutSeconds = null): ?array
     {
         $date ??= Carbon::today();
+        $timeoutSeconds ??= self::BACKGROUND_TIMEOUT_SECONDS;
 
         try {
-            $response = Http::timeout(15)->get(self::API_URL);
+            // connectTimeout matters more than timeout here: Guzzle defaults to
+            // a 10s connect timeout, which is what actually stalls the request
+            // when the host is unreachable.
+            $response = Http::connectTimeout($timeoutSeconds)
+                ->timeout($timeoutSeconds)
+                ->get(self::API_URL);
 
             if ($response->failed()) {
                 report('dolarapi.com respondió con estado '.$response->status());
+                $this->rememberSyncFailure();
 
                 return null;
             }
@@ -179,6 +209,7 @@ class ExchangeRateService
 
             if ($rates === null) {
                 report('dolarapi.com devolvió un payload inesperado.');
+                $this->rememberSyncFailure();
 
                 return null;
             }
@@ -196,13 +227,29 @@ class ExchangeRateService
             }
 
             Cache::forget("exchange-rate:0:{$date->toDateString()}");
+            Cache::forget(self::SYNC_FAILURE_KEY);
 
             return $payload;
         } catch (\Throwable $exception) {
             report($exception);
+            $this->rememberSyncFailure();
 
             return null;
         }
+    }
+
+    /**
+     * Put the API sync on cooldown so `ensureFreshRate` stops hitting a dead
+     * endpoint on every page load. Background callers ignore this flag, and a
+     * successful sync clears it.
+     */
+    private function rememberSyncFailure(): void
+    {
+        Cache::put(
+            self::SYNC_FAILURE_KEY,
+            Carbon::now()->toIso8601String(),
+            self::SYNC_FAILURE_COOLDOWN_SECONDS,
+        );
     }
 
     /**
