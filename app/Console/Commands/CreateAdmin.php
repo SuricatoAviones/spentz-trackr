@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Actions\Users\AssignDefaultUserDataAction;
 use App\Models\User;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
@@ -15,7 +16,7 @@ class CreateAdmin extends Command
     /**
      * Execute the console command.
      */
-    public function handle(): int
+    public function handle(AssignDefaultUserDataAction $defaults): int
     {
         $name = (string) config('admin.name');
         $email = (string) config('admin.email');
@@ -36,6 +37,11 @@ class CreateAdmin extends Command
             'password' => $password,
             'is_admin' => true,
         ])->save();
+
+        // El admin no pasa por Fortify\CreateNewUser, así que las categorías y
+        // orígenes por defecto se asignan aquí. La acción es idempotente: no
+        // toca al admin que ya los tiene.
+        $defaults->handle($user);
 
         if ($created) {
             $this->info("Administrador creado: {$email}");

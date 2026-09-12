@@ -97,7 +97,9 @@ php artisan optimize
 ```
 
 `admin:create` es idempotente, pero **reescribe la contraseña** con `ADMIN_PASSWORD` cada
-vez que se ejecuta: córrelo una sola vez y cambia la contraseña desde la app.
+vez que se ejecuta: córrelo una sola vez y cambia la contraseña desde la app. Crea el admin
+con sus categorías y orígenes por defecto, así que no hace falta ningún seeder
+(detalle en `09-despliegue-dokploy.md`, sección 6).
 
 **Sin Terminal:** encadena esos comandos en un Cron Job de una sola ejecución y bórralo
 después.

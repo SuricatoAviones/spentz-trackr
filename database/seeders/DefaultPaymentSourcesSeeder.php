@@ -2,9 +2,15 @@
 
 namespace Database\Seeders;
 
+use App\Actions\Users\AssignDefaultUserDataAction;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 
+/**
+ * Backfill the default payment sources for users created before
+ * AssignDefaultUserDataAction existed. New users get them at creation time
+ * (Fortify registration and `admin:create`), so this is a one-off repair tool.
+ */
 class DefaultPaymentSourcesSeeder extends Seeder
 {
     /**
@@ -12,16 +18,7 @@ class DefaultPaymentSourcesSeeder extends Seeder
      *
      * @var array<int, array{name: string, icon: string, color: string}>
      */
-    public const DEFAULT_SOURCES = [
-        ['name' => 'Efectivo', 'icon' => 'banknote', 'color' => '#F59E0B'],
-        ['name' => 'Zelle', 'icon' => 'zap', 'color' => '#8B5CF6'],
-        ['name' => 'PayPal', 'icon' => 'wallet', 'color' => '#3B82F6'],
-        ['name' => 'Binance', 'icon' => 'bitcoin', 'color' => '#EC4899'],
-        ['name' => 'Pago Móvil', 'icon' => 'smartphone', 'color' => '#14B8A6'],
-        ['name' => 'Banco de Venezuela', 'icon' => 'landmark', 'color' => '#10B981'],
-        ['name' => 'Banesco', 'icon' => 'landmark', 'color' => '#EF4444'],
-        ['name' => 'Mercantil', 'icon' => 'landmark', 'color' => '#06B6D4'],
-    ];
+    public const DEFAULT_SOURCES = AssignDefaultUserDataAction::DEFAULT_PAYMENT_SOURCES;
 
     /**
      * Run the database seeds.
