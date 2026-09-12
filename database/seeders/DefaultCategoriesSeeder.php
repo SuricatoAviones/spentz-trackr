@@ -2,9 +2,15 @@
 
 namespace Database\Seeders;
 
+use App\Actions\Users\AssignDefaultUserDataAction;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 
+/**
+ * Backfill the default categories for users created before
+ * AssignDefaultUserDataAction existed. New users get them at creation time
+ * (Fortify registration and `admin:create`), so this is a one-off repair tool.
+ */
 class DefaultCategoriesSeeder extends Seeder
 {
     /**
@@ -12,16 +18,7 @@ class DefaultCategoriesSeeder extends Seeder
      *
      * @var array<int, array{name: string, icon: string, color: string}>
      */
-    public const DEFAULT_CATEGORIES = [
-        ['name' => 'Alimentación', 'icon' => 'shopping-cart', 'color' => '#10B981'],
-        ['name' => 'Transporte', 'icon' => 'car', 'color' => '#3B82F6'],
-        ['name' => 'Servicios', 'icon' => 'zap', 'color' => '#F59E0B'],
-        ['name' => 'Salud', 'icon' => 'heart-pulse', 'color' => '#EF4444'],
-        ['name' => 'Ocio', 'icon' => 'gamepad-2', 'color' => '#8B5CF6'],
-        ['name' => 'Ropa', 'icon' => 'shirt', 'color' => '#EC4899'],
-        ['name' => 'Educación', 'icon' => 'graduation-cap', 'color' => '#06B6D4'],
-        ['name' => 'Otros', 'icon' => 'tag', 'color' => '#6B7280'],
-    ];
+    public const DEFAULT_CATEGORIES = AssignDefaultUserDataAction::DEFAULT_CATEGORIES;
 
     /**
      * Run the database seeds.

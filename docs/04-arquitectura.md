@@ -149,8 +149,10 @@ compleja y mantiene los reportes simples (todo suma en USD/USDT).
 
 ### ADR-004 — Rol admin como columna `is_admin`, sin paquete de roles
 Solo hay dos niveles. `users.is_admin` (bool, fuera de `$fillable`) + middleware
-`EnsureUserIsAdmin` protege `/admin`. Admin se crea con `php artisan admin:create`. El
-admin no puede eliminarse ni suspenderse a sí mismo.
+`EnsureUserIsAdmin` protege `/admin`. Admin se crea con `php artisan admin:create` (paso
+manual, una sola vez: el comando reescribe la contraseña desde `ADMIN_PASSWORD` en cada
+ejecución, por eso no está en el entrypoint de Docker). El admin no puede eliminarse ni
+suspenderse a sí mismo.
 
 ### ADR-005 — Multilenguaje ES/EN con i18next + shared props de Inertia
 Sin petición extra por página. Resolución del locale: usuario → sesión → `APP_LOCALE` (es)
@@ -189,3 +191,12 @@ producción por el gate `viewApiDocs`.
 ### ADR-010 — Auditoría del panel admin (`admin_actions`)
 Cada acción de administrador se registra con `AdminAction::record()`. El `target` es un
 morph sin FK: el registro sobrevive al borrado del objetivo.
+
+### ADR-011 — Datos por defecto en una Action, no en seeders de despliegue
+Las categorías y orígenes de pago iniciales se asignan **al crear el usuario**, vía
+`app/Actions/Users/AssignDefaultUserDataAction.php`, invocada por los dos caminos de
+creación: `Fortify\CreateNewUser` (registro) y `CreateAdmin` (`admin:create`), que no pasa
+por Fortify. La acción es idempotente (solo crea el set que falte), así que el upsert de
+`admin:create` nunca duplica. `DefaultCategoriesSeeder` / `DefaultPaymentSourcesSeeder`
+quedan solo como backfill para usuarios creados antes de esto; el despliegue no los
+necesita.

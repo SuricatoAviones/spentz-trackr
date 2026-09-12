@@ -188,22 +188,58 @@ sección 4. Dos scripts de entrypoint hacen el resto en **cada** arranque:
    no responde reintenta hasta 30 veces con 5 s de espera (`MIGRATE_DB_RETRIES` /
    `MIGRATE_DB_RETRY_DELAY`). Si falla definitivamente, el contenedor no arranca.
 
-### Crear el administrador (una sola vez)
+### Crear el administrador (una sola vez, a mano)
 
-Tras el primer deploy, desde el **Terminal** de la app en Dokploy:
+`admin:create` **no se ejecuta solo en ningún deploy, ni siquiera en el primero**: es el único
+paso manual de la puesta en marcha. Tras el primer deploy, desde el **Terminal** de la app en
+Dokploy:
 
 ```bash
 php artisan admin:create
 ```
 
-Lee `ADMIN_NAME` / `ADMIN_EMAIL` / `ADMIN_PASSWORD` del entorno. **No lo corras en cada
-deploy**: reescribe la contraseña con `ADMIN_PASSWORD` cada vez, así que revertiría
-cualquier cambio de contraseña hecho desde la app. Por eso no está en el entrypoint.
+Lee `ADMIN_NAME` / `ADMIN_EMAIL` / `ADMIN_PASSWORD` del entorno e imprime las credenciales en
+consola (si `ADMIN_PASSWORD` está vacío genera una aleatoria de 16 caracteres: anótala). Crea
+el admin con sus categorías y orígenes por defecto.
+
+**Por qué no está en el entrypoint:** el comando es un *upsert* por email
+(`firstOrNew` + `forceFill`), no un "crear si no existe": reescribe la contraseña con
+`ADMIN_PASSWORD` **en cada ejecución**. Si corriera en cada arranque, todo redeploy revertiría
+la contraseña que el admin hubiera cambiado desde la app. Por eso: una vez y nunca más.
+
+Higiene recomendada tras el primer login: cambia la contraseña desde el perfil y **borra
+`ADMIN_PASSWORD`** del Environment de Dokploy.
+
+### Datos por defecto (categorías y orígenes)
+
+No requieren ningún comando. Las 8 categorías (Alimentación, Transporte, Servicios, Salud,
+Ocio, Ropa, Educación, Otros) y los 8 orígenes de pago (Efectivo, Zelle, PayPal, Binance, Pago
+Móvil, BDV, Banesco, Mercantil) se crean **por usuario, al crearse la cuenta**, en
+`app/Actions/Users/AssignDefaultUserDataAction.php`. Los dos caminos de creación la invocan:
+el registro normal (`Fortify\CreateNewUser`) y `admin:create`. La acción es idempotente —
+solo crea el set que falte — así que volver a correr `admin:create` nunca duplica nada.
+
+Las preferencias de usuario (moneda por defecto, idioma, comisión mínima y %, presupuesto,
+tipo de tracking) son columnas de `users` con default en migración: tampoco hay que seedear
+nada. La tasa de cambio se llena sola (cron cada 5 min + `ensureFreshRate()` en el render).
+
+> **Instalaciones anteriores a esta versión.** El admin creado antes de que `admin:create`
+> asignara los defaults se quedó sin categorías ni orígenes. Se reparan una sola vez con los
+> seeders de backfill, que solo tocan usuarios que no tengan **ninguno**:
+>
+> ```bash
+> php artisan db:seed --class=DefaultCategoriesSeeder --force
+> php artisan db:seed --class=DefaultPaymentSourcesSeeder --force
+> ```
+>
+> `--force` es obligatorio porque en `APP_ENV=production` `db:seed` pide confirmación
+> interactiva. ⚠️ **Nunca corras `php artisan db:seed` sin `--class`**: el `DatabaseSeeder`
+> crea un usuario de prueba `test@example.com` por factory.
 
 ### En despliegues posteriores
 
-Las migraciones corren solas en cada arranque, así que un redeploy con cambios de BD no
-necesita comandos manuales.
+Nada manual. Las migraciones corren solas en cada arranque y los datos por defecto ya existen,
+así que un redeploy —incluso con cambios de BD— no necesita ningún comando.
 
 ## 7. Scheduler (tasa cada 5 min)
 
