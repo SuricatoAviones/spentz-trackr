@@ -18,8 +18,8 @@ test('new users can register', function () {
     $response = $this->post(route('register.store'), [
         'name' => 'Test User',
         'email' => 'test@example.com',
-        'password' => 'password',
-        'password_confirmation' => 'password',
+        'password' => 'Clave-Segura-2026!',
+        'password_confirmation' => 'Clave-Segura-2026!',
     ]);
 
     $this->assertAuthenticated();
@@ -30,8 +30,8 @@ test('new users get the default categories and payment sources', function () {
     $this->post(route('register.store'), [
         'name' => 'Test User',
         'email' => 'test@example.com',
-        'password' => 'password',
-        'password_confirmation' => 'password',
+        'password' => 'Clave-Segura-2026!',
+        'password_confirmation' => 'Clave-Segura-2026!',
     ]);
 
     $user = User::query()->where('email', 'test@example.com')->firstOrFail();

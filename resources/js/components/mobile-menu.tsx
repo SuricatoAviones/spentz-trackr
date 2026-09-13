@@ -42,10 +42,7 @@ export function MobileMenu({ children }: { children: ReactNode }) {
                 side="right"
                 className="flex w-[86%] max-w-xs flex-col gap-0 border-sidebar-border bg-sidebar p-0 text-sidebar-foreground"
             >
-                <SheetHeader className="flex-row items-center gap-3 space-y-0 px-5 py-4 text-left">
-                    <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 font-display text-lg font-extrabold text-primary-foreground">
-                        S
-                    </span>
+                <SheetHeader className="flex-row items-center space-y-0 px-5 py-4 text-left">
                     <div className="min-w-0">
                         <SheetTitle className="font-display text-sm leading-tight font-bold text-foreground">
                             Spentz Trackr

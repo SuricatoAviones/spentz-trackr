@@ -3,6 +3,7 @@ import { ArrowRight, BarChart3, Camera, Wallet, Zap } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { dashboard, login } from '@/routes';
 import { register } from '@/routes';
+import { privacy as legalPrivacy, terms as legalTerms } from '@/routes/legal';
 
 function RadarVisual({ t }: { t: (key: string) => string }) {
     const legend = [
@@ -180,7 +181,9 @@ export default function Welcome() {
                         </span>
                         <span className="font-display text-lg font-bold tracking-tight">
                             Spent
-                            <span className="text-emerald-400">Trackr</span>
+                            <span className="text-emerald-600 dark:text-emerald-400">
+                                Trackr
+                            </span>
                         </span>
                     </div>
                     <nav
@@ -225,15 +228,15 @@ export default function Welcome() {
                         </span>
                         <h1 className="mt-5 animate-in font-display text-4xl leading-[1.05] font-bold tracking-tight delay-100 duration-700 fade-in slide-in-from-bottom-3 motion-reduce:animate-none sm:text-5xl">
                             {t('welcome.hero_1')}{' '}
-                            <span className="text-emerald-400">
+                            <span className="text-emerald-600 dark:text-emerald-400">
                                 {t('welcome.hero_usd')}
                             </span>
                             ,{' '}
-                            <span className="text-amber-400">
+                            <span className="text-amber-600 dark:text-amber-400">
                                 {t('welcome.hero_bs')}
                             </span>{' '}
                             {t('welcome.hero_2')}{' '}
-                            <span className="text-blue-400">
+                            <span className="text-blue-600 dark:text-blue-400">
                                 {t('welcome.hero_usdt')}
                             </span>
                         </h1>
@@ -263,7 +266,7 @@ export default function Welcome() {
                                     className="rounded-2xl border border-border bg-surface-low/60 p-4"
                                 >
                                     <feature.icon
-                                        className="size-4 text-emerald-400"
+                                        className="size-4 text-emerald-600 dark:text-emerald-400"
                                         strokeWidth={2.2}
                                     />
                                     <h2 className="mt-2.5 font-display text-sm font-semibold">
@@ -282,9 +285,23 @@ export default function Welcome() {
                     </div>
                 </main>
 
-                <footer className="relative z-10 mx-auto flex w-full max-w-5xl items-center justify-between px-6 py-6 text-xs text-muted-foreground">
+                <footer className="relative z-10 mx-auto flex w-full max-w-5xl flex-wrap items-center justify-between gap-x-6 gap-y-3 px-6 py-6 text-xs text-muted-foreground">
                     <span>© 2026 Spentz Trackr</span>
-                    <span>{t('welcome.rates_source')}</span>
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+                        <Link
+                            href={legalTerms().url}
+                            className="transition-colors hover:text-foreground"
+                        >
+                            {t('legal.terms_link')}
+                        </Link>
+                        <Link
+                            href={legalPrivacy().url}
+                            className="transition-colors hover:text-foreground"
+                        >
+                            {t('legal.privacy_link')}
+                        </Link>
+                        <span>{t('welcome.rates_source')}</span>
+                    </div>
                 </footer>
             </div>
         </>

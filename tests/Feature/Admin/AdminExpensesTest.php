@@ -164,8 +164,8 @@ test('the admin expenses index exposes the receipts of each expense', function (
 });
 
 test('an admin can download an expense receipt', function () {
-    Storage::fake('public');
-    Storage::disk('public')->put('receipts/factura.pdf', 'contenido del pdf');
+    Storage::fake('receipts');
+    Storage::disk('receipts')->put('receipts/factura.pdf', 'contenido del pdf');
 
     $target = User::factory()->create();
     $expense = Expense::factory()->for($target)->create();

@@ -25,6 +25,13 @@ createInertiaApp({
         switch (true) {
             case name === 'welcome':
                 return null;
+            // Páginas públicas: traen su propio marco y NO pueden usar
+            // TrackerLayout, que lee `auth.user.tracking_type` y explota con el
+            // usuario nulo de un visitante anónimo (pantalla en blanco, sin
+            // error en el servidor). Toda página accesible sin sesión necesita
+            // una rama propia aquí — lo vigila PublicPagesLayoutTest.
+            case name.startsWith('legal/'):
+                return null;
             case name.startsWith('auth/'):
                 return AuthLayout;
             case name.startsWith('settings/'):

@@ -28,3 +28,49 @@ corre `composer update --lock`.
 con `IPE_PROCESSOR_COUNT=1` (compilación en serie) y poniendo las extensiones en la etapa
 `php-base` de la que dependen `wayfinder` y el runtime, para que BuildKit no solape ese paso
 con `npm run build`. No devuelvas el `install-php-extensions` a la etapa final.
+
+## Seguridad: cuatro cosas que no se deben deshacer
+Salieron de una auditoría; cada una tapa un agujero explotable, no una preferencia.
+
+**`TRUSTED_PROXIES` nunca vale `*`.** Con `*` todo cliente es un proxy de confianza:
+`X-Forwarded-Host` reescribía el host de `url()`/`route()` — y con él el enlace de
+recuperación de contraseña que se manda por correo, o sea, toma de cuenta — y
+`X-Forwarded-For` falsificaba `$request->ip()`, con lo que los limitadores de
+`login` (5/min por email|IP) y `api.auth` se saltaban rotando la cabecera. El
+default en `bootstrap/app.php` es "ningún proxy"; quien tenga uno delante pone su
+red. Encima hay `trustHosts` fijado al host de `APP_URL` y `URL::useOrigin()` en
+producción. Ver `tests/Feature/ProxyTrustTest.php`.
+
+**Los comprobantes van al disco `receipts`, nunca a `public`.** `public` se sirve
+directo por el symlink `public/storage`, fuera del middleware de Laravel: cualquiera
+con la URL veía la factura de cualquier usuario. Todo pasa por
+`App\Support\ReceiptStorage` y solo sale por `{expenses,incomes}.receipts.show`, que
+comprueban la política. No añadir `url` ni `serve` al disco `receipts` ni volver a
+publicar `Storage::url()` en un presenter. Ver `tests/Feature/ReceiptAccessTest.php`.
+
+**Cambiar una contraseña revoca el acceso vivo.** `App\Support\AccountAccess::revoke()`
+borra los tokens Sanctum y las filas de sesión del usuario; se llama tanto en el
+cambio propio (`Settings\SecurityController`) como en el reset del admin. Sin eso,
+cambiar la clave tras una intrusión no echaba al intruso.
+
+**La política de contraseñas aplica siempre, no solo en producción.** Antes
+`Password::defaults()` devolvía `null` fuera de producción y un `APP_ENV=local`
+olvidado —muy fácil con un `.env` escrito a mano— aceptaba claves de un carácter.
+Fuera de producción solo se omite `uncompromised()` (necesita red).
+
+## CSP + Vite: el dev server tiene que publicar en IPv4
+`vite.config.ts` fija `server.host = "127.0.0.1"` **a propósito**. Con el `localhost` por
+defecto, Node (>=17) resuelve antes `::1` y Vite publica en `http://[::1]:5173`; y la
+gramática de CSP **no admite literales IPv6** (un host-source solo acepta letras, dígitos y
+guiones), así que ese origen no se puede permitir ni escribiéndolo tal cual en la directiva:
+el navegador bloquea `@vite/client`, `app.tsx`, `app.css` y las fuentes de `@fonts`, y la app
+arranca **en blanco** con decenas de "violates the following Content Security Policy
+directive" — incluso con el origen presente en la política. No quites ese `server.host`.
+
+`App\Http\Middleware\SecurityHeaders` lee el origen de `public/hot` (la URL exacta que usará
+el navegador; no la adivines) y el `ws://` del HMR solo va en `connect-src`. Si el origen
+llegara con corchetes, el middleware **no manda cabecera CSP**: una política que no puede
+nombrar ese origen no protege de nada y solo rompe el desarrollo. En producción no hay
+fichero `hot` y la política vuelve a ser estricta. Si añades un recurso externo (una fuente,
+un CDN de imágenes), añádelo a su directiva concreta: `default-src 'self'` no lo hereda.
+Ver `tests/Feature/SecurityHeadersTest.php`.

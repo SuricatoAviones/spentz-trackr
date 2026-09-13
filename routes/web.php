@@ -7,6 +7,7 @@ use App\Http\Controllers\ExchangeRateController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\IncomeController;
 use App\Http\Controllers\LanguageController;
+use App\Http\Controllers\LegalController;
 use App\Http\Controllers\ManifestController;
 use App\Http\Controllers\PaymentSourceController;
 use App\Http\Controllers\RecurringPaymentController;
@@ -19,6 +20,10 @@ Route::inertia('/', 'welcome')->name('home');
 
 // Public: the browser fetches it before (and without) authentication.
 Route::get('manifest.webmanifest', ManifestController::class)->name('manifest');
+
+// Públicas a propósito: hay que poder leerlas antes de crear una cuenta.
+Route::get('terminos', [LegalController::class, 'terms'])->name('legal.terms');
+Route::get('privacidad', [LegalController::class, 'privacy'])->name('legal.privacy');
 
 Route::middleware('auth')->group(function () {
     Route::post('language', [LanguageController::class, 'update'])->name('language.update');
@@ -41,6 +46,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('incomes/nuevo', [IncomeController::class, 'create'])->name('incomes.create');
         Route::get('incomes/{income}', [IncomeController::class, 'show'])->name('incomes.show');
         Route::get('incomes/{income}/editar', [IncomeController::class, 'edit'])->name('incomes.edit');
+        Route::get('incomes/{income}/receipts/{receipt}', [IncomeController::class, 'receipt'])->name('incomes.receipts.show');
     });
 
     Route::middleware([EnsureTrackingFeature::class.':expenses'])->group(function () {
@@ -53,6 +59,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('expenses/nuevo', [ExpenseController::class, 'create'])->name('expenses.create');
         Route::get('expenses/{expense}', [ExpenseController::class, 'show'])->name('expenses.show');
         Route::get('expenses/{expense}/editar', [ExpenseController::class, 'edit'])->name('expenses.edit');
+        Route::get('expenses/{expense}/receipts/{receipt}', [ExpenseController::class, 'receipt'])->name('expenses.receipts.show');
     });
 
     Route::resource('categories', CategoryController::class)->only(['index', 'store', 'update', 'destroy']);
@@ -63,7 +70,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('reports/export', [ReportController::class, 'export'])->name('reports.export');
 
     Route::put('exchange-rate', [ExchangeRateController::class, 'update'])->name('exchange-rate.update');
-    Route::post('exchange-rate/sync', [ExchangeRateController::class, 'sync'])->name('exchange-rate.sync');
+    Route::post('exchange-rate/sync', [ExchangeRateController::class, 'sync'])
+        ->middleware('throttle:rates.sync')
+        ->name('exchange-rate.sync');
 
     Route::resource('savings-goals', SavingsGoalController::class)->only(['index', 'store', 'update', 'destroy']);
     Route::post('savings-goals/{goal}/contributions', [SavingsGoalController::class, 'storeContribution'])->name('savings-goals.contributions.store');

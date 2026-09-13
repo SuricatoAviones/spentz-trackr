@@ -265,7 +265,7 @@ export function IncomeForm({
                                         <span
                                             className={`block text-xs font-semibold ${
                                                 active
-                                                    ? 'text-blue-400'
+                                                    ? 'text-blue-600 dark:text-blue-400'
                                                     : 'text-foreground'
                                             }`}
                                         >
@@ -299,7 +299,7 @@ export function IncomeForm({
                                             rate_provider: 'custom',
                                         })
                                     }
-                                    className="mt-1.5 w-full bg-transparent font-display text-xl font-bold text-amber-400 tabular-nums focus:outline-none"
+                                    className="mt-1.5 w-full bg-transparent font-display text-xl font-bold text-amber-600 tabular-nums focus:outline-none dark:text-amber-400"
                                 />
                             </div>
                         )}
@@ -421,7 +421,7 @@ export function IncomeForm({
 
                 <label className="mt-4 flex cursor-pointer items-center justify-between rounded-lg bg-surface-high px-3 py-3">
                     <span className="flex items-center gap-3">
-                        <span className="flex size-10 items-center justify-center rounded-full bg-blue-500/15 text-blue-400">
+                        <span className="flex size-10 items-center justify-center rounded-full bg-blue-500/15 text-blue-600 dark:text-blue-400">
                             <Camera className="size-5" />
                         </span>
                         <span>

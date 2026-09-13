@@ -160,8 +160,11 @@ return [
     |
     */
 
-    'features' => [
-        Features::registration(),
+    'features' => array_values(array_filter([
+        // Instancia auto-hospedada: quien la publique en internet debe poder
+        // cerrar el registro. REGISTRATION_ENABLED=false apaga a la vez el
+        // formulario web y POST /api/v1/auth/register.
+        env('REGISTRATION_ENABLED', true) ? Features::registration() : null,
         Features::resetPasswords(),
         Features::emailVerification(),
         Features::twoFactorAuthentication([
@@ -172,6 +175,6 @@ return [
         Features::passkeys([
             'confirmPassword' => true,
         ]),
-    ],
+    ])),
 
 ];

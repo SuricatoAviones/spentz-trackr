@@ -147,10 +147,10 @@ export default function ExpensesIndex({
                         {t('expenses.this_month')}
                     </p>
                     <div className="mt-1.5 flex flex-wrap items-baseline gap-x-4 gap-y-1">
-                        <span className="font-display text-2xl font-extrabold text-emerald-400 tabular-nums">
+                        <span className="font-display text-2xl font-extrabold text-emerald-600 tabular-nums dark:text-emerald-400">
                             {formatAmount(totals.usd)} USD
                         </span>
-                        <span className="font-display text-lg font-bold text-blue-400 tabular-nums">
+                        <span className="font-display text-lg font-bold text-blue-600 tabular-nums dark:text-blue-400">
                             {formatAmount(totals.usdt)} USDT
                         </span>
                     </div>
@@ -350,7 +350,7 @@ export default function ExpensesIndex({
             {activeFilterCount > 0 && (
                 <div className="flex flex-wrap gap-2">
                     {currency && (
-                        <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/15 px-3 py-1 text-xs font-semibold text-amber-400">
+                        <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/15 px-3 py-1 text-xs font-semibold text-amber-600 dark:text-amber-400">
                             {currency.toUpperCase()}
                             <button
                                 type="button"
@@ -371,7 +371,7 @@ export default function ExpensesIndex({
                         </span>
                     )}
                     {categoryId > 0 && (
-                        <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/15 px-3 py-1 text-xs font-semibold text-emerald-400">
+                        <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/15 px-3 py-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
                             {
                                 categories.find(
                                     (category) => category.id === categoryId,
@@ -396,7 +396,7 @@ export default function ExpensesIndex({
                         </span>
                     )}
                     {sourceId > 0 && (
-                        <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-500/15 px-3 py-1 text-xs font-semibold text-blue-400">
+                        <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-500/15 px-3 py-1 text-xs font-semibold text-blue-600 dark:text-blue-400">
                             {
                                 sources.find((source) => source.id === sourceId)
                                     ?.name
@@ -465,7 +465,7 @@ export default function ExpensesIndex({
                                         <td className="px-4 py-3">
                                             <Link
                                                 href={`/expenses/${expense.id}`}
-                                                className="block max-w-xs truncate text-sm font-semibold text-foreground hover:text-emerald-400"
+                                                className="block max-w-xs truncate text-sm font-semibold text-foreground hover:text-emerald-600 dark:hover:text-emerald-400"
                                             >
                                                 {expense.description}
                                             </Link>

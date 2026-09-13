@@ -9,15 +9,17 @@ use App\Http\Requests\StoreExpenseRequest;
 use App\Http\Requests\UpdateExpenseRequest;
 use App\Models\Category;
 use App\Models\Expense;
+use App\Models\ExpenseReceipt;
 use App\Models\PaymentSource;
 use App\Models\User;
 use App\Services\ExchangeRateService;
 use App\Support\Presenters\ExpensePresenter;
+use App\Support\ReceiptStorage;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ExpenseController extends Controller
 {
@@ -103,8 +105,24 @@ class ExpenseController extends Controller
         $this->authorize('view', $expense);
 
         return Inertia::render('expenses/show', [
-            'expense' => $expense->load(['category', 'paymentSource', 'receipts']),
+            'expense' => ExpensePresenter::present(
+                $expense->load(['category', 'paymentSource', 'receipts', 'items'])
+            ),
         ]);
+    }
+
+    /**
+     * Stream a receipt for its owner. Receipts live on a private disk, so this
+     * is the only way a user reaches one — the policy decides, not the URL.
+     */
+    public function receipt(Request $request, Expense $expense, ExpenseReceipt $receipt): StreamedResponse
+    {
+        $this->authorize('view', $expense);
+
+        // Un recibo de OTRO gasto propio no debe salir por la URL de este.
+        abort_if((int) $receipt->expense_id !== (int) $expense->id, 404);
+
+        return ReceiptStorage::response($receipt->path, $receipt->original_name);
     }
 
     public function edit(Request $request, Expense $expense, ExchangeRateService $rateService): Response
@@ -116,7 +134,9 @@ class ExpenseController extends Controller
         $rateService->ensureFreshRate($user);
 
         return Inertia::render('expenses/edit', [
-            'expense' => $expense->load(['receipts', 'items']),
+            'expense' => ExpensePresenter::present(
+                $expense->load(['category', 'paymentSource', 'receipts', 'items'])
+            ),
             'categories' => $this->selectCategories($user->id),
             'sources' => $this->selectSources($user->id),
             'rate' => $rateService->rateForUser($user),
@@ -218,7 +238,7 @@ class ExpenseController extends Controller
     private function deleteReceipts(Expense $expense): void
     {
         foreach ($expense->receipts as $receipt) {
-            Storage::disk('public')->delete($receipt->path);
+            ReceiptStorage::delete($receipt->path);
             $receipt->delete();
         }
     }

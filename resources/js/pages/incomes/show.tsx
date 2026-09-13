@@ -103,7 +103,7 @@ export default function ShowIncome({ income }: { income: Income }) {
                     {income.description}
                 </h2>
                 <CurrencyChip currency={income.currency} className="mt-1.5" />
-                <p className="mt-3 font-display text-4xl font-extrabold text-blue-400 tabular-nums">
+                <p className="mt-3 font-display text-4xl font-extrabold text-blue-600 tabular-nums dark:text-blue-400">
                     {formatAmount(income.amount)}
                     <span className="ml-2 text-lg font-bold text-muted-foreground">
                         {income.currency.toUpperCase()}
@@ -118,7 +118,7 @@ export default function ShowIncome({ income }: { income: Income }) {
                             <span className="text-sm text-muted-foreground">
                                 {t('incomes.show_in_usd')}
                             </span>
-                            <span className="font-display text-lg font-bold text-blue-400 tabular-nums">
+                            <span className="font-display text-lg font-bold text-blue-600 tabular-nums dark:text-blue-400">
                                 {formatAmount(income.usd_amount)} USD
                             </span>
                         </div>
@@ -126,7 +126,7 @@ export default function ShowIncome({ income }: { income: Income }) {
                             <span className="text-sm text-muted-foreground">
                                 {t('incomes.show_in_usdt')}
                             </span>
-                            <span className="font-display text-lg font-bold text-sky-400 tabular-nums">
+                            <span className="font-display text-lg font-bold text-sky-600 tabular-nums dark:text-sky-400">
                                 {formatAmount(income.usdt_amount)} USDT
                             </span>
                         </div>

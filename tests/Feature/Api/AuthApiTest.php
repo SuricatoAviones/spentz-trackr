@@ -7,8 +7,8 @@ test('a guest can register via the API and receives a token', function () {
     $response = $this->postJson(route('api.v1.auth.register'), [
         'name' => 'Nuevo Usuario',
         'email' => 'nuevo@example.com',
-        'password' => 'password',
-        'password_confirmation' => 'password',
+        'password' => 'Clave-Segura-2026!',
+        'password_confirmation' => 'Clave-Segura-2026!',
     ]);
 
     $response->assertStatus(201)

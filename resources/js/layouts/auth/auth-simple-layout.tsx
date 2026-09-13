@@ -1,6 +1,8 @@
 import { Link } from '@inertiajs/react';
+import { useTranslation } from 'react-i18next';
 import AppLogoIcon from '@/components/app-logo-icon';
 import { home } from '@/routes';
+import { privacy as legalPrivacy, terms as legalTerms } from '@/routes/legal';
 import type { AuthLayoutProps } from '@/types';
 
 export default function AuthSimpleLayout({
@@ -8,6 +10,8 @@ export default function AuthSimpleLayout({
     title,
     description,
 }: AuthLayoutProps) {
+    const { t } = useTranslation();
+
     return (
         <div className="flex min-h-svh flex-col items-center justify-center gap-6 bg-background p-6 md:p-10">
             <div className="w-full max-w-sm">
@@ -31,6 +35,23 @@ export default function AuthSimpleLayout({
                         </div>
                     </div>
                     {children}
+                </div>
+
+                {/* Los documentos legales deben alcanzarse antes de registrarse. */}
+                <div className="mt-8 flex items-center justify-center gap-4 text-[11px] text-muted-foreground">
+                    <Link
+                        href={legalTerms().url}
+                        className="transition-colors hover:text-foreground"
+                    >
+                        {t('legal.terms_link')}
+                    </Link>
+                    <span aria-hidden="true">·</span>
+                    <Link
+                        href={legalPrivacy().url}
+                        className="transition-colors hover:text-foreground"
+                    >
+                        {t('legal.privacy_link')}
+                    </Link>
                 </div>
             </div>
         </div>

@@ -9,11 +9,11 @@ use App\Models\Expense;
 use App\Models\ExpenseReceipt;
 use App\Models\User;
 use App\Support\CsvExporter;
+use App\Support\ReceiptStorage;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -96,13 +96,13 @@ class ExpenseController extends Controller
 
     public function receipt(ExpenseReceipt $receipt): StreamedResponse
     {
-        return Storage::disk('public')->response($receipt->path, $receipt->original_name);
+        return ReceiptStorage::response($receipt->path, $receipt->original_name);
     }
 
     public function destroy(Request $request, Expense $expense): RedirectResponse
     {
         foreach ($expense->receipts as $receipt) {
-            Storage::disk('public')->delete($receipt->path);
+            ReceiptStorage::delete($receipt->path);
             $receipt->delete();
         }
 

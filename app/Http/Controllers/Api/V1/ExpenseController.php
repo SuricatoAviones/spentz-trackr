@@ -11,10 +11,10 @@ use App\Models\Category;
 use App\Models\Expense;
 use App\Models\PaymentSource;
 use App\Support\Presenters\ExpensePresenter;
+use App\Support\ReceiptStorage;
 use Dedoc\Scramble\Attributes\QueryParameter;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 class ExpenseController extends BaseApiController
 {
@@ -207,7 +207,7 @@ class ExpenseController extends BaseApiController
     private function deleteReceipts(Expense $expense): void
     {
         foreach ($expense->receipts as $receipt) {
-            Storage::disk('public')->delete($receipt->path);
+            ReceiptStorage::delete($receipt->path);
             $receipt->delete();
         }
     }

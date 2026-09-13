@@ -118,7 +118,7 @@ export default function ShowExpense({ expense }: { expense: Expense }) {
                             <span className="text-sm text-muted-foreground">
                                 {t('expenses.show_in_usd')}
                             </span>
-                            <span className="font-display text-lg font-bold text-emerald-400 tabular-nums">
+                            <span className="font-display text-lg font-bold text-emerald-600 tabular-nums dark:text-emerald-400">
                                 {formatAmount(expense.usd_amount)} USD
                             </span>
                         </div>
@@ -126,7 +126,7 @@ export default function ShowExpense({ expense }: { expense: Expense }) {
                             <span className="text-sm text-muted-foreground">
                                 {t('expenses.show_in_usdt')}
                             </span>
-                            <span className="font-display text-lg font-bold text-blue-400 tabular-nums">
+                            <span className="font-display text-lg font-bold text-blue-600 tabular-nums dark:text-blue-400">
                                 {formatAmount(expense.usdt_amount)} USDT
                             </span>
                         </div>
@@ -145,7 +145,7 @@ export default function ShowExpense({ expense }: { expense: Expense }) {
                                     <span className="text-sm text-muted-foreground">
                                         {t('expenses.show_commission')}
                                     </span>
-                                    <span className="font-display text-base font-bold text-amber-400 tabular-nums">
+                                    <span className="font-display text-base font-bold text-amber-600 tabular-nums dark:text-amber-400">
                                         {formatAmount(expense.commission)} Bs
                                     </span>
                                 </div>

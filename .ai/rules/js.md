@@ -21,3 +21,15 @@ los bordes desaparecían sobre fondo claro. Usar siempre los tokens: `bg-sidebar
 resto. `white/x` solo se justifica encima de algo que es oscuro en ambos temas (el
 lightbox de recibos, las fichas de color). Los acentos fijos también necesitan par:
 `text-emerald-600 dark:text-emerald-400`, porque emerald-400 no contrasta en claro.
+
+## Toda página pública necesita su rama en el resolvedor de layouts de `app.tsx`
+El `switch` de `createInertiaApp({ layout })` manda al `default` —`TrackerLayout`— todo lo
+que no tenga rama propia, y TrackerLayout lee `auth.user.tracking_type`. En una página
+alcanzable sin sesión `auth.user` es `null`, así que lanza un TypeError y React no pinta
+nada: **pantalla en blanco con respuesta 200 y ni un error en los logs del servidor**. Pasó
+al añadir `/terminos` y `/privacidad`.
+
+Al crear una página fuera del grupo `auth`, añade su `case` (exacto o por prefijo) y
+regístrala en `tests/Feature/PublicPagesLayoutTest.php`, que compara las rutas GET sin
+middleware `auth` contra las ramas presentes en `app.tsx`. Es lo más cerca que se puede
+estar de detectarlo desde PHP: ninguna prueba renderiza React.

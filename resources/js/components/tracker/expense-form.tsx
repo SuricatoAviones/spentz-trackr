@@ -454,7 +454,7 @@ export function ExpenseForm({
                                         <span
                                             className={`block text-xs font-semibold ${
                                                 active
-                                                    ? 'text-emerald-400'
+                                                    ? 'text-emerald-600 dark:text-emerald-400'
                                                     : 'text-foreground'
                                             }`}
                                         >
@@ -488,7 +488,7 @@ export function ExpenseForm({
                                             rate_provider: 'custom',
                                         })
                                     }
-                                    className="mt-1.5 w-full bg-transparent font-display text-xl font-bold text-amber-400 tabular-nums focus:outline-none"
+                                    className="mt-1.5 w-full bg-transparent font-display text-xl font-bold text-amber-600 tabular-nums focus:outline-none dark:text-amber-400"
                                 />
                             </div>
                         )}
@@ -535,7 +535,7 @@ export function ExpenseForm({
                                                 }
                                                 className={`rounded-lg border px-3 py-2 text-xs font-semibold transition-colors ${
                                                     active
-                                                        ? 'border-emerald-500/60 bg-emerald-500/15 text-emerald-400'
+                                                        ? 'border-emerald-500/60 bg-emerald-500/15 text-emerald-600 dark:text-emerald-400'
                                                         : 'border-border bg-surface-low text-foreground'
                                                 }`}
                                             >
@@ -570,7 +570,7 @@ export function ExpenseForm({
                                                 );
                                                 setCommissionTouched(true);
                                             }}
-                                            className="mt-1.5 w-full bg-transparent font-display text-xl font-bold text-amber-400 tabular-nums focus:outline-none disabled:opacity-40"
+                                            className="mt-1.5 w-full bg-transparent font-display text-xl font-bold text-amber-600 tabular-nums focus:outline-none disabled:opacity-40 dark:text-amber-400"
                                         />
                                     </div>
                                     <label className="flex cursor-pointer items-center gap-2 pb-1.5">
@@ -731,7 +731,7 @@ export function ExpenseForm({
                                     {source.name}
                                 </span>
                                 {active && (
-                                    <ChevronRight className="size-4 text-emerald-400" />
+                                    <ChevronRight className="size-4 text-emerald-600 dark:text-emerald-400" />
                                 )}
                             </button>
                         );
@@ -769,7 +769,7 @@ export function ExpenseForm({
 
                 <label className="mt-4 flex cursor-pointer items-center justify-between rounded-lg bg-surface-high px-3 py-3">
                     <span className="flex items-center gap-3">
-                        <span className="flex size-10 items-center justify-center rounded-full bg-blue-500/15 text-blue-400">
+                        <span className="flex size-10 items-center justify-center rounded-full bg-blue-500/15 text-blue-600 dark:text-blue-400">
                             <Camera className="size-5" />
                         </span>
                         <span>
@@ -820,7 +820,7 @@ export function ExpenseForm({
                     <button
                         type="button"
                         onClick={addItem}
-                        className="rounded-lg bg-surface-high px-2.5 py-1 text-[11px] font-semibold text-emerald-400 transition-colors hover:bg-surface-high/70"
+                        className="rounded-lg bg-surface-high px-2.5 py-1 text-[11px] font-semibold text-emerald-600 transition-colors hover:bg-surface-high/70 dark:text-emerald-400"
                     >
                         + {t('expenses.form_mixed_add')}
                     </button>
@@ -915,7 +915,7 @@ export function ExpenseForm({
                                                         rate_provider: 'custom',
                                                     })
                                                 }
-                                                className="h-10 w-full bg-transparent font-display text-xl font-bold text-amber-400 tabular-nums focus:outline-none"
+                                                className="h-10 w-full bg-transparent font-display text-xl font-bold text-amber-600 tabular-nums focus:outline-none dark:text-amber-400"
                                             />
                                         </div>
                                     )}

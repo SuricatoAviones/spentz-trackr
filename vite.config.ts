@@ -7,6 +7,15 @@ import { fontsource } from 'laravel-vite-plugin/fonts';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
+    server: {
+        // IPv4 explícito. Con el `localhost` por defecto, Node (>=17) resuelve
+        // primero ::1 y Vite publica sus assets en `http://[::1]:5173`. La
+        // gramática de CSP no admite literales IPv6 (host-char solo acepta
+        // letras, dígitos y guiones), así que ese origen NO se puede permitir
+        // en `script-src`/`font-src` por mucho que se escriba: el navegador lo
+        // bloquea igual y la app arranca en blanco. Ver SecurityHeaders.
+        host: '127.0.0.1',
+    },
     plugins: [
         laravel({
             input: ['resources/css/app.css', 'resources/js/app.tsx'],

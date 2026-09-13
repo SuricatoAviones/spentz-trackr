@@ -10,10 +10,10 @@ use App\Http\Requests\UpdateIncomeRequest;
 use App\Models\Category;
 use App\Models\Income;
 use App\Support\Presenters\IncomePresenter;
+use App\Support\ReceiptStorage;
 use Dedoc\Scramble\Attributes\QueryParameter;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 class IncomeController extends BaseApiController
 {
@@ -181,7 +181,7 @@ class IncomeController extends BaseApiController
     private function deleteReceipts(Income $income): void
     {
         foreach ($income->receipts as $receipt) {
-            Storage::disk('public')->delete($receipt->path);
+            ReceiptStorage::delete($receipt->path);
             $receipt->delete();
         }
     }

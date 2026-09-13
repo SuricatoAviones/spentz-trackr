@@ -9,13 +9,15 @@ use App\Http\Requests\StoreIncomeRequest;
 use App\Http\Requests\UpdateIncomeRequest;
 use App\Models\Category;
 use App\Models\Income;
+use App\Models\IncomeReceipt;
 use App\Services\ExchangeRateService;
 use App\Support\Presenters\IncomePresenter;
+use App\Support\ReceiptStorage;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class IncomeController extends Controller
 {
@@ -99,6 +101,20 @@ class IncomeController extends Controller
         ]);
     }
 
+    /**
+     * Stream a receipt for its owner. Receipts live on a private disk, so this
+     * is the only way a user reaches one — the policy decides, not the URL.
+     */
+    public function receipt(Request $request, Income $income, IncomeReceipt $receipt): StreamedResponse
+    {
+        $this->authorize('view', $income);
+
+        // Un recibo de OTRO ingreso propio no debe salir por la URL de este.
+        abort_if((int) $receipt->income_id !== (int) $income->id, 404);
+
+        return ReceiptStorage::response($receipt->path, $receipt->original_name);
+    }
+
     public function edit(Request $request, Income $income, ExchangeRateService $rateService): Response
     {
         $this->authorize('update', $income);
@@ -108,7 +124,7 @@ class IncomeController extends Controller
         $rateService->ensureFreshRate($user);
 
         return Inertia::render('incomes/edit', [
-            'income' => $income->load('receipts'),
+            'income' => IncomePresenter::present($income->load(['category', 'receipts'])),
             'categories' => $this->selectCategories($user->id),
             'rate' => $rateService->rateForUser($user),
             'rates' => $rateService->ratesForUser($user),
@@ -190,7 +206,7 @@ class IncomeController extends Controller
     private function deleteReceipts(Income $income): void
     {
         foreach ($income->receipts as $receipt) {
-            Storage::disk('public')->delete($receipt->path);
+            ReceiptStorage::delete($receipt->path);
             $receipt->delete();
         }
     }

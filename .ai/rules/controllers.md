@@ -35,3 +35,28 @@ estándar de Laravel (`.env` a mano → `key:generate` → `migrate --force` →
 persiste la clave en `storage/app.key`, dentro del volumen) y `99-spentz-migrate.sh`
 (migra + `optimize` en cada arranque). `admin:create` NO va en el entrypoint: reescribe la
 contraseña con `ADMIN_PASSWORD` en cada ejecución.
+
+## Las páginas Inertia consumen el Presenter, nunca el modelo Eloquent crudo
+`ExpenseController@show`/`@edit` e `IncomeController@edit` devolvían `$expense->load(...)`
+tal cual. Eloquent serializa las relaciones en snake_case, así que el prop llegaba con
+`payment_source` mientras `pages/expenses/{show,edit}.tsx` leen `expense.source`: la página
+reventaba con `Cannot read properties of undefined (reading 'color')` y **quedaba en blanco,
+sin error en el servidor ni en los logs**. Lo mismo con `spent_at`/`received_at`, que en
+crudo llegan como timestamp ISO completo y los `<input type="date">` esperan `Y-m-d`, y con
+`has_receipt` / `receipts[].url`, que solo existen en el presenter.
+
+Regla: **todo modelo que viaje como prop a una página React pasa por
+`App\Support\Presenters\{Expense,Income}Presenter::present()`** (web y API por igual), con
+sus relaciones precargadas — `['category', 'paymentSource', 'receipts', 'items']` para
+gastos, `['category', 'receipts']` para ingresos. El resto de controladores (categorías,
+orígenes, metas, recurrentes, admin) mapea a mano con `->map()`/`->through()`: si añades un
+prop de modelo nuevo, mapéalo igual; nunca lo pases crudo.
+
+`resources/js/types/global.d.ts` (`Expense`, `Income`) es el contrato de esa forma: si
+cambias el presenter, cambia el tipo, y al revés.
+
+Ojo con el hueco de test: las pruebas de Inertia solo comprueban props del payload, nunca
+renderizan el React, así que una forma equivocada pasa la suite en verde y solo se ve como
+página en blanco en el navegador. Al tocar un presenter o una página de detalle/edición,
+asegura la forma con `assertInertia(...->where('expense.source.id', ...))` — ver
+`tests/Feature/{Expense,Income}CrudTest.php`, test "presenter shape".

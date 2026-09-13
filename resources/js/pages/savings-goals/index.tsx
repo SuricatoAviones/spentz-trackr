@@ -254,7 +254,7 @@ export default function SavingsGoalsIndex({
                         onClick={() => onChange(currency)}
                         className={`rounded-md py-2 text-xs font-semibold transition-colors ${
                             active
-                                ? 'bg-emerald-500/20 text-emerald-400'
+                                ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400'
                                 : 'text-muted-foreground'
                         }`}
                     >
@@ -292,7 +292,7 @@ export default function SavingsGoalsIndex({
 
             {goals.length === 0 ? (
                 <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-surface-low px-6 py-14 text-center">
-                    <div className="mb-3 flex size-14 items-center justify-center rounded-2xl bg-emerald-500/15 text-emerald-400">
+                    <div className="mb-3 flex size-14 items-center justify-center rounded-2xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
                         <PiggyBank className="size-7" />
                     </div>
                     <p className="font-display text-lg font-semibold text-foreground">
@@ -341,7 +341,7 @@ export default function SavingsGoalsIndex({
                                         <button
                                             type="button"
                                             onClick={() => openContribute(goal)}
-                                            className="inline-flex size-8 items-center justify-center rounded-lg text-emerald-400 hover:bg-emerald-500/10"
+                                            className="inline-flex size-8 items-center justify-center rounded-lg text-emerald-600 hover:bg-emerald-500/10 dark:text-emerald-400"
                                             aria-label={t(
                                                 'savings_goals.add_contribution',
                                             )}
@@ -392,7 +392,7 @@ export default function SavingsGoalsIndex({
                                     <div className="mt-1.5 flex items-center justify-between">
                                         <span className="text-[11px] font-medium text-muted-foreground">
                                             {achieved ? (
-                                                <span className="text-emerald-400">
+                                                <span className="text-emerald-600 dark:text-emerald-400">
                                                     {t(
                                                         'savings_goals.achieved',
                                                     )}
@@ -443,7 +443,7 @@ export default function SavingsGoalsIndex({
                                                         className="flex items-center justify-between text-xs"
                                                     >
                                                         <span className="flex min-w-0 items-center gap-2 text-muted-foreground">
-                                                            <CircleDollarSign className="size-3.5 shrink-0 text-emerald-400" />
+                                                            <CircleDollarSign className="size-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
                                                             <span className="truncate">
                                                                 {formatAmount(
                                                                     contribution.usd_amount,

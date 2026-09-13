@@ -10,8 +10,8 @@ use App\Models\Expense;
 use App\Models\User;
 use App\Services\ExchangeRateService;
 use App\Services\ExpenseConversionService;
+use App\Support\ReceiptStorage;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
 /**
@@ -163,7 +163,7 @@ trait PersistsExpense
     protected function storeReceipt(Expense $expense, UploadedFile $receipt): void
     {
         $expense->receipts()->create([
-            'path' => $receipt->store('receipts', 'public'),
+            'path' => ReceiptStorage::store($receipt),
             'original_name' => $receipt->getClientOriginalName(),
         ]);
     }
@@ -171,7 +171,7 @@ trait PersistsExpense
     protected function deleteReceipts(Expense $expense): void
     {
         foreach ($expense->receipts as $receipt) {
-            Storage::disk('public')->delete($receipt->path);
+            ReceiptStorage::delete($receipt->path);
             $receipt->delete();
         }
     }

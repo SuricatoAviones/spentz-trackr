@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Support\ReceiptStorage;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
@@ -46,6 +47,42 @@ class User extends Authenticatable implements PasskeyUser
 {
     /** @use HasFactory<UserFactory> */
     use HasApiTokens, HasFactory, Notifiable, PasskeyAuthenticatable, TwoFactorAuthenticatable;
+
+    /**
+     * Las filas de gastos/ingresos y sus recibos caen por `cascadeOnDelete`,
+     * pero la cascada de la BD no sabe nada del disco: los ficheros quedaban
+     * huérfanos para siempre. Se borran aquí para que valga por igual el
+     * "eliminar mi cuenta" del usuario y el borrado desde el panel admin.
+     */
+    protected static function booted(): void
+    {
+        static::deleting(function (self $user): void {
+            $user->deleteReceiptFiles();
+        });
+    }
+
+    public function deleteReceiptFiles(): void
+    {
+        $this->expenses()
+            ->with('receipts')
+            ->chunkById(100, function ($expenses): void {
+                foreach ($expenses as $expense) {
+                    foreach ($expense->receipts as $receipt) {
+                        ReceiptStorage::delete($receipt->path);
+                    }
+                }
+            });
+
+        $this->incomes()
+            ->with('receipts')
+            ->chunkById(100, function ($incomes): void {
+                foreach ($incomes as $income) {
+                    foreach ($income->receipts as $receipt) {
+                        ReceiptStorage::delete($receipt->path);
+                    }
+                }
+            });
+    }
 
     public function isAdmin(): bool
     {

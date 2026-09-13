@@ -77,10 +77,7 @@ export default function TrackerLayout({
             <Head title={title} />
 
             <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 flex-col border-r border-sidebar-border bg-sidebar md:flex">
-                <div className="flex h-16 items-center gap-3 px-5">
-                    <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 font-display text-lg font-extrabold text-primary-foreground">
-                        S
-                    </span>
+                <div className="flex h-16 items-center px-5">
                     <div className="min-w-0">
                         <p className="font-display text-sm leading-tight font-bold text-foreground">
                             Spentz Trackr
