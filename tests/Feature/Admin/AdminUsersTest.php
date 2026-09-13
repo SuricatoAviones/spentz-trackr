@@ -198,17 +198,17 @@ test('an admin can reset a user password', function () {
     $target = User::factory()->create();
 
     $this->post(route('admin.users.reset-password', $target), [
-        'password' => 'new-password',
-        'password_confirmation' => 'new-password',
+        'password' => 'Clave-Segura-2026!',
+        'password_confirmation' => 'Clave-Segura-2026!',
     ])->assertSessionHas('success');
 
-    expect(Hash::check('new-password', $target->refresh()->password))->toBeTrue();
+    expect(Hash::check('Clave-Segura-2026!', $target->refresh()->password))->toBeTrue();
 });
 
 test('reset password requires a confirmation', function () {
     $target = User::factory()->create();
 
     $this->post(route('admin.users.reset-password', $target), [
-        'password' => 'new-password',
+        'password' => 'Clave-Segura-2026!',
     ])->assertSessionHasErrors('password');
 });

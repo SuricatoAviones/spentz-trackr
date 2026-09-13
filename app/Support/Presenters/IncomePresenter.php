@@ -4,7 +4,6 @@ namespace App\Support\Presenters;
 
 use App\Models\Income;
 use App\Models\IncomeReceipt;
-use Illuminate\Support\Facades\Storage;
 
 /**
  * Single source of truth for the JSON shape of an income, shared by the web
@@ -38,7 +37,9 @@ final class IncomePresenter
             'receipts' => $income->receipts
                 ->map(fn (IncomeReceipt $receipt): array => [
                     'id' => $receipt->id,
-                    'url' => Storage::disk('public')->url($receipt->path),
+                    // Ruta autorizada, no un fichero suelto en public/: la
+                    // política del ingreso decide quién puede verlo.
+                    'url' => route('incomes.receipts.show', [$income->id, $receipt->id]),
                     'original_name' => $receipt->original_name,
                 ])
                 ->values()

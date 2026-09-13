@@ -147,8 +147,21 @@ DB_USERNAME=spenttrackr
 DB_PASSWORD=********
 
 SESSION_DRIVER=database
+SESSION_SECURE_COOKIE=true
 CACHE_STORE=database
 QUEUE_CONNECTION=sync
+
+# Seguridad
+REGISTRATION_ENABLED=true       # false si la instancia es privada (cierra web y API)
+TRUSTED_PROXIES=172.16.0.0/12   # la red de Traefik, NUNCA '*'
+CORS_ALLOWED_ORIGINS=           # vacio desactiva CORS
+
+# Documentos legales (/terminos y /privacidad): el responsable del tratamiento
+# de datos es quien opera la instancia. Rellenalo antes de abrir el registro.
+LEGAL_OPERATOR=
+LEGAL_CONTACT_EMAIL=
+LEGAL_JURISDICTION=
+LEGAL_EFFECTIVE_DATE=2026-09-13
 FILESYSTEM_DISK=public
 
 ADMIN_NAME=Administrador

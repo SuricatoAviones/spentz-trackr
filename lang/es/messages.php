@@ -41,6 +41,8 @@ return [
     'tracking_updated' => 'Modo de seguimiento actualizado.',
     'budget_updated' => 'Presupuesto mensual actualizado.',
     'user_updated' => 'Usuario actualizado.',
+    'admin_cannot_demote_self' => 'No puedes quitarte a ti mismo el rol de administrador.',
+    'admin_last_one' => 'No puedes dejar la instancia sin ningún administrador activo.',
     'user_deleted' => 'Usuario eliminado.',
     'user_already_verified' => 'El usuario ya tiene el email verificado.',
     'user_verified' => 'Email verificado.',

@@ -81,7 +81,9 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
 
     // Exchange Rates
     Route::get('rates', [ExchangeRateController::class, 'ratesForUser'])->name('api.v1.rates.index');
-    Route::post('rates/sync', [ExchangeRateController::class, 'sync'])->name('api.v1.rates.sync');
+    Route::post('rates/sync', [ExchangeRateController::class, 'sync'])
+        ->middleware('throttle:rates.sync')
+        ->name('api.v1.rates.sync');
     Route::put('rates', [ExchangeRateController::class, 'saveManualRate'])->name('api.v1.rates.update');
 
     // Reports

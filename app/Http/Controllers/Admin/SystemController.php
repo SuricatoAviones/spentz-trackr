@@ -7,8 +7,14 @@ use App\Models\AdminAction;
 use App\Models\Category;
 use App\Models\ExchangeRate;
 use App\Models\Expense;
+use App\Models\ExpenseItem;
 use App\Models\ExpenseReceipt;
+use App\Models\Income;
+use App\Models\IncomeReceipt;
 use App\Models\PaymentSource;
+use App\Models\RecurringPayment;
+use App\Models\SavingsContribution;
+use App\Models\SavingsGoal;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -71,7 +77,15 @@ class SystemController extends Controller
                 'payment_sources' => PaymentSource::query()->get()->toArray(),
                 'exchange_rates' => ExchangeRate::query()->get()->toArray(),
                 'expenses' => Expense::query()->get()->toArray(),
+                'expense_items' => ExpenseItem::query()->get()->toArray(),
                 'receipts' => ExpenseReceipt::query()->get()->toArray(),
+                // Estos cinco faltaban: el fichero se llamaba "backup" pero
+                // restaurarlo perdía ingresos, metas y pagos recurrentes.
+                'incomes' => Income::query()->get()->toArray(),
+                'income_receipts' => IncomeReceipt::query()->get()->toArray(),
+                'savings_goals' => SavingsGoal::query()->get()->toArray(),
+                'savings_contributions' => SavingsContribution::query()->get()->toArray(),
+                'recurring_payments' => RecurringPayment::query()->get()->toArray(),
             ];
 
             echo json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);

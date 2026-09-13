@@ -46,7 +46,21 @@ class HandleInertiaRequests extends Middleware
                 'admin' => Lang::get('admin'),
             ],
             'auth' => [
-                'user' => $request->user(),
+                // Lista explícita, no el modelo entero. Antes se compartía
+                // `$request->user()` tal cual, así que cualquier columna nueva
+                // (un token, una nota interna) se habría publicado al cliente en
+                // cada página sin que nadie lo decidiera.
+                'user' => $request->user() === null ? null : [
+                    'id' => $request->user()->id,
+                    'name' => $request->user()->name,
+                    'email' => $request->user()->email,
+                    'is_admin' => $request->user()->isAdmin(),
+                    'email_verified_at' => $request->user()->email_verified_at?->toIso8601String(),
+                    'two_factor_enabled' => $request->user()->hasEnabledTwoFactorAuthentication(),
+                    'tracking_type' => $request->user()->tracking_type,
+                    'created_at' => $request->user()->created_at?->toIso8601String(),
+                    'updated_at' => $request->user()->updated_at?->toIso8601String(),
+                ],
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];

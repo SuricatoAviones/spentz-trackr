@@ -5,7 +5,6 @@ namespace App\Support\Presenters;
 use App\Models\Expense;
 use App\Models\ExpenseItem;
 use App\Models\ExpenseReceipt;
-use Illuminate\Support\Facades\Storage;
 
 /**
  * Single source of truth for the JSON shape of an expense, shared by the web
@@ -58,7 +57,9 @@ final class ExpensePresenter
             'receipts' => $expense->receipts
                 ->map(fn (ExpenseReceipt $receipt): array => [
                     'id' => $receipt->id,
-                    'url' => Storage::disk('public')->url($receipt->path),
+                    // Ruta autorizada, no un fichero suelto en public/: la
+                    // política del gasto decide quién puede verlo.
+                    'url' => route('expenses.receipts.show', [$expense->id, $receipt->id]),
                     'original_name' => $receipt->original_name,
                 ])
                 ->values()

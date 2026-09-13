@@ -203,7 +203,7 @@ export default function RecurringPaymentsIndex({
                         onClick={() => onChange(currency)}
                         className={`rounded-md py-2 text-xs font-semibold transition-colors ${
                             active
-                                ? 'bg-emerald-500/20 text-emerald-400'
+                                ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400'
                                 : 'text-muted-foreground'
                         }`}
                     >
@@ -226,7 +226,7 @@ export default function RecurringPaymentsIndex({
                         onClick={() => form.setData('frequency', frequency)}
                         className={`rounded-lg px-3 py-2 text-xs font-semibold transition-colors ${
                             active
-                                ? 'bg-emerald-500/20 text-emerald-400'
+                                ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400'
                                 : 'bg-surface-high text-muted-foreground'
                         }`}
                     >
@@ -264,7 +264,7 @@ export default function RecurringPaymentsIndex({
 
             {payments.length === 0 ? (
                 <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-surface-low px-6 py-14 text-center">
-                    <div className="mb-3 flex size-14 items-center justify-center rounded-2xl bg-emerald-500/15 text-emerald-400">
+                    <div className="mb-3 flex size-14 items-center justify-center rounded-2xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
                         <Repeat className="size-7" />
                     </div>
                     <p className="font-display text-lg font-semibold text-foreground">
@@ -330,7 +330,7 @@ export default function RecurringPaymentsIndex({
                                                     );
                                                 }
                                             }}
-                                            className="inline-flex size-8 items-center justify-center rounded-lg text-emerald-400 hover:bg-emerald-500/10"
+                                            className="inline-flex size-8 items-center justify-center rounded-lg text-emerald-600 hover:bg-emerald-500/10 dark:text-emerald-400"
                                             aria-label={t(
                                                 'recurring_payments.mark_paid_aria',
                                                 { name: payment.name },
@@ -366,7 +366,7 @@ export default function RecurringPaymentsIndex({
 
                             <div className="mt-4 flex flex-wrap items-center gap-2">
                                 {payment.due ? (
-                                    <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/15 px-2.5 py-1 text-[11px] font-semibold text-amber-400">
+                                    <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/15 px-2.5 py-1 text-[11px] font-semibold text-amber-600 dark:text-amber-400">
                                         {t('recurring_payments.due_badge')}
                                     </span>
                                 ) : null}

@@ -48,8 +48,8 @@ test('a regular user cannot access admin user management', function () {
 
     $this->actingAs($user)
         ->post(route('admin.users.reset-password', $target), [
-            'password' => 'new-password',
-            'password_confirmation' => 'new-password',
+            'password' => 'Clave-Segura-2026!',
+            'password_confirmation' => 'Clave-Segura-2026!',
         ])
         ->assertForbidden();
 

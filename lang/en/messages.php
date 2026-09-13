@@ -42,6 +42,8 @@ return [
     'budget_updated' => 'Monthly budget updated.',
 
     'user_updated' => 'User updated.',
+    'admin_cannot_demote_self' => 'You cannot remove your own administrator role.',
+    'admin_last_one' => 'You cannot leave the instance without an active administrator.',
     'user_deleted' => 'User deleted.',
     'user_already_verified' => 'The user email is already verified.',
     'user_verified' => 'Email verified.',

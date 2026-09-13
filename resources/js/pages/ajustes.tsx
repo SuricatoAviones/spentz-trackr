@@ -131,19 +131,21 @@ export default function Ajustes({
         rate.provider === 'user'
             ? {
                   label: t('rates.provider_manual'),
-                  className: 'bg-blue-500/15 text-blue-400',
+                  className: 'bg-blue-500/15 text-blue-600 dark:text-blue-400',
               }
             : rate.provider === 'paralelo'
               ? {
                     label: t('rates.provider_paralelo'),
-                    className: 'bg-amber-500/15 text-amber-400',
+                    className:
+                        'bg-amber-500/15 text-amber-600 dark:text-amber-400',
                 }
               : {
                     label:
                         rate.provider === 'none'
                             ? t('rates.provider_none')
                             : t('rates.provider_bcv'),
-                    className: 'bg-emerald-500/15 text-emerald-400',
+                    className:
+                        'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400',
                 };
 
     return (
@@ -190,7 +192,7 @@ export default function Ajustes({
                             onChange={(event) =>
                                 setData('rate', event.target.value)
                             }
-                            className="mt-2 w-full bg-transparent font-display text-3xl font-extrabold text-amber-400 tabular-nums focus:outline-none"
+                            className="mt-2 w-full bg-transparent font-display text-3xl font-extrabold text-amber-600 tabular-nums focus:outline-none dark:text-amber-400"
                             aria-label={t('ajustes.rate_aria')}
                         />
                         <p className="mt-1 text-[11px] text-muted-foreground">
@@ -222,7 +224,7 @@ export default function Ajustes({
                             <button
                                 type="button"
                                 onClick={syncRates}
-                                className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-emerald-400"
+                                className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400"
                             >
                                 <RefreshCw className="size-3.5" />
                                 {t('ajustes.sync')}
@@ -255,7 +257,7 @@ export default function Ajustes({
                                             event.target.value,
                                         )
                                     }
-                                    className="mt-1.5 h-11 w-full rounded-lg bg-surface-high px-3 text-sm font-semibold text-amber-400 tabular-nums focus:ring-2 focus:ring-emerald-500/50 focus:outline-none"
+                                    className="mt-1.5 h-11 w-full rounded-lg bg-surface-high px-3 text-sm font-semibold text-amber-600 tabular-nums focus:ring-2 focus:ring-emerald-500/50 focus:outline-none dark:text-amber-400"
                                 />
                             </label>
                             <label className="block">
@@ -274,7 +276,7 @@ export default function Ajustes({
                                             event.target.value,
                                         )
                                     }
-                                    className="mt-1.5 h-11 w-full rounded-lg bg-surface-high px-3 text-sm font-semibold text-amber-400 tabular-nums focus:ring-2 focus:ring-emerald-500/50 focus:outline-none"
+                                    className="mt-1.5 h-11 w-full rounded-lg bg-surface-high px-3 text-sm font-semibold text-amber-600 tabular-nums focus:ring-2 focus:ring-emerald-500/50 focus:outline-none dark:text-amber-400"
                                 />
                             </label>
                         </div>
@@ -369,7 +371,7 @@ export default function Ajustes({
                                             event.target.value,
                                         )
                                     }
-                                    className="mt-1.5 h-11 w-full rounded-lg bg-surface-high px-3 text-sm font-semibold text-emerald-400 tabular-nums focus:ring-2 focus:ring-emerald-500/50 focus:outline-none"
+                                    className="mt-1.5 h-11 w-full rounded-lg bg-surface-high px-3 text-sm font-semibold text-emerald-600 tabular-nums focus:ring-2 focus:ring-emerald-500/50 focus:outline-none dark:text-emerald-400"
                                 />
                             </label>
                             <span className="pb-3 text-xs font-semibold text-muted-foreground">
@@ -392,7 +394,7 @@ export default function Ajustes({
                                     className={
                                         monthlySpent > Number(monthlyBudget)
                                             ? 'font-semibold text-destructive'
-                                            : 'font-semibold text-emerald-400'
+                                            : 'font-semibold text-emerald-600 dark:text-emerald-400'
                                     }
                                 >
                                     {Number(monthlyBudget) > 0

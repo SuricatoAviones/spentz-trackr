@@ -7,6 +7,7 @@ use App\Http\Requests\Admin\ResetAdminUserPasswordRequest;
 use App\Http\Requests\Admin\UpdateAdminUserRequest;
 use App\Models\AdminAction;
 use App\Models\User;
+use App\Support\AccountAccess;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -82,6 +83,8 @@ class UserController extends Controller
         $user->forceFill(collect($data)->except('is_admin')->all())->save();
 
         if (array_key_exists('is_admin', $data)) {
+            $this->guardAdminRoleChange($request, $user, (bool) $data['is_admin']);
+
             $user->forceFill(['is_admin' => (bool) $data['is_admin']])->save();
         }
 
@@ -97,6 +100,8 @@ class UserController extends Controller
         if ($user->is($request->user())) {
             abort(403, 'No puedes eliminar tu propia cuenta.');
         }
+
+        $this->guardLastAdmin($user);
 
         AdminAction::record('user.deleted', $user);
         $user->delete();
@@ -123,6 +128,10 @@ class UserController extends Controller
     {
         $user->forceFill(['password' => $request->validated('password')])->save();
 
+        // Un reset desde el panel suele ser una respuesta a un incidente: si no
+        // se cortan sesiones y tokens, quien estuviera dentro sigue dentro.
+        AccountAccess::revoke($user);
+
         AdminAction::record('user.password_reset', $user);
 
         return back()->with('success', __('messages.user_password_reset'));
@@ -137,6 +146,8 @@ class UserController extends Controller
         if ($user->isSuspended()) {
             return back()->with('error', __('messages.user_already_suspended'));
         }
+
+        $this->guardLastAdmin($user);
 
         $user->forceFill(['suspended_at' => now()])->save();
 
@@ -156,6 +167,43 @@ class UserController extends Controller
         AdminAction::record('user.reactivated', $user);
 
         return back()->with('success', __('messages.user_reactivated'));
+    }
+
+    /**
+     * `destroy` y `suspend` ya se protegían contra uno mismo, pero el rol no:
+     * un admin podía quitarse el suyo (y, siendo el único, dejar la instancia
+     * sin panel — sin `/install` que la rescate, ADR-008).
+     */
+    private function guardAdminRoleChange(Request $request, User $user, bool $makeAdmin): void
+    {
+        if ($makeAdmin) {
+            return;
+        }
+
+        if ($user->is($request->user())) {
+            abort(403, __('messages.admin_cannot_demote_self'));
+        }
+
+        $this->guardLastAdmin($user);
+    }
+
+    /**
+     * Borrar o suspender al último admin deja la instancia sin panel igual que
+     * quitarle el rol, así que las tres puertas comparten la misma guarda.
+     */
+    private function guardLastAdmin(User $user): void
+    {
+        if (! $user->isAdmin()) {
+            return;
+        }
+
+        $remainingAdmins = User::query()
+            ->where('is_admin', true)
+            ->whereNull('suspended_at')
+            ->whereKeyNot($user->getKey())
+            ->count();
+
+        abort_if($remainingAdmins === 0, 403, __('messages.admin_last_one'));
     }
 
     /**

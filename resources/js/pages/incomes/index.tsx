@@ -120,10 +120,10 @@ export default function IncomesIndex({
                         {t('incomes.this_month')}
                     </p>
                     <div className="mt-1.5 flex flex-wrap items-baseline gap-x-4 gap-y-1">
-                        <span className="font-display text-2xl font-extrabold text-blue-400 tabular-nums">
+                        <span className="font-display text-2xl font-extrabold text-blue-600 tabular-nums dark:text-blue-400">
                             {formatAmount(totals.usd)} USD
                         </span>
-                        <span className="font-display text-lg font-bold text-sky-400 tabular-nums">
+                        <span className="font-display text-lg font-bold text-sky-600 tabular-nums dark:text-sky-400">
                             {formatAmount(totals.usdt)} USDT
                         </span>
                     </div>
@@ -278,7 +278,7 @@ export default function IncomesIndex({
             {activeFilterCount > 0 && (
                 <div className="flex flex-wrap gap-2">
                     {currency && (
-                        <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/15 px-3 py-1 text-xs font-semibold text-amber-400">
+                        <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/15 px-3 py-1 text-xs font-semibold text-amber-600 dark:text-amber-400">
                             {currency.toUpperCase()}
                             <button
                                 type="button"
@@ -297,7 +297,7 @@ export default function IncomesIndex({
                         </span>
                     )}
                     {categoryId > 0 && (
-                        <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-500/15 px-3 py-1 text-xs font-semibold text-blue-400">
+                        <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-500/15 px-3 py-1 text-xs font-semibold text-blue-600 dark:text-blue-400">
                             {
                                 categories.find(
                                     (category) => category.id === categoryId,
@@ -364,7 +364,7 @@ export default function IncomesIndex({
                                         <td className="px-4 py-3">
                                             <Link
                                                 href={`/incomes/${income.id}`}
-                                                className="block max-w-xs truncate text-sm font-semibold text-foreground hover:text-blue-400"
+                                                className="block max-w-xs truncate text-sm font-semibold text-foreground hover:text-blue-600 dark:hover:text-blue-400"
                                             >
                                                 {income.description}
                                             </Link>
@@ -385,7 +385,7 @@ export default function IncomesIndex({
                                                 currency={income.currency}
                                             />
                                         </td>
-                                        <td className="px-4 py-3 text-right font-display text-sm font-bold text-blue-400 tabular-nums">
+                                        <td className="px-4 py-3 text-right font-display text-sm font-bold text-blue-600 tabular-nums dark:text-blue-400">
                                             {formatAmount(income.amount)}
                                         </td>
                                         <td className="rounded-r-xl px-2 py-3 text-right">

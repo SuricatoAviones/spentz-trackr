@@ -6,6 +6,7 @@ use App\Models\Expense;
 use App\Models\Income;
 use App\Models\PaymentSource;
 use App\Models\User;
+use App\Support\Presenters\IncomePresenter;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
@@ -194,7 +195,7 @@ test('a user can delete their own income', function () {
 });
 
 test('an income can store a receipt image and remove it', function () {
-    Storage::fake('public');
+    Storage::fake('receipts');
 
     $income = Income::factory()
         ->for($this->user)
@@ -211,7 +212,7 @@ test('an income can store a receipt image and remove it', function () {
     ])->assertRedirect();
 
     expect($income->receipts()->count())->toBe(1);
-    Storage::disk('public')->assertExists($income->receipts()->first()->path);
+    Storage::disk('receipts')->assertExists($income->receipts()->first()->path);
 
     $this->put(route('incomes.update', $income), [
         'category_id' => $this->category->id,
@@ -295,4 +296,31 @@ test('expense pages work for expense only tracking', function () {
         ->create();
 
     $this->get(route('expenses.index'))->assertOk();
+});
+
+test('the income edit page exposes the presenter shape the react page consumes', function () {
+    $income = Income::factory()
+        ->for($this->user)
+        ->for($this->category)
+        ->create(['received_at' => now()]);
+
+    $this->get(route('incomes.edit', $income))
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('incomes/edit')
+            ->where('income.category.id', $this->category->id)
+            ->has('income.category.color')
+            ->where('income.received_at', $income->received_at->toDateString())
+            ->has('income.has_receipt')
+            ->etc()
+        );
+
+    // El set de claves debe ser exactamente el del presenter: si alguien vuelve a
+    // pasar el modelo crudo reaparecen `user_id`, `category_id`, `created_at`…
+    $expected = array_keys(IncomePresenter::present($income->load(['category', 'receipts'])));
+
+    foreach (['incomes.show', 'incomes.edit'] as $route) {
+        $props = $this->get(route($route, $income))->viewData('page')['props'];
+
+        expect(array_keys($props['income']))->toEqualCanonicalizing($expected);
+    }
 });

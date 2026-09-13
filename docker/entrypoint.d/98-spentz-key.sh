@@ -12,10 +12,16 @@ if [ -n "${APP_KEY:-}" ]; then
   exit 0
 fi
 
+# La clave descifra las cookies y todo lo que pase por Crypt: no debe quedar
+# legible para otros usuarios del contenedor por culpa del umask heredado.
+umask 077
+
 if [ ! -f "$KEY_FILE" ]; then
   printf 'base64:%s\n' "$(head -c 32 /dev/urandom | base64)" > "$KEY_FILE"
   echo "🔑 APP_KEY generado y persistido en storage/app.key"
 fi
+
+chmod 600 "$KEY_FILE" 2>/dev/null || true
 
 KEY="$(cat "$KEY_FILE")"
 
@@ -26,3 +32,5 @@ if [ ! -f "$APP_DIR/.env" ]; then
 elif ! grep -q '^APP_KEY=' "$APP_DIR/.env"; then
   printf 'APP_KEY=%s\n' "$KEY" >> "$APP_DIR/.env"
 fi
+
+chmod 600 "$APP_DIR/.env" 2>/dev/null || true

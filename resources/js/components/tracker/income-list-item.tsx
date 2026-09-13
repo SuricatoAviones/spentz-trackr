@@ -122,7 +122,7 @@ export function IncomeListItem({
                 </div>
 
                 <div className="flex shrink-0 flex-col items-end gap-1">
-                    <span className="font-display text-sm font-bold text-blue-400 tabular-nums">
+                    <span className="font-display text-sm font-bold text-blue-600 tabular-nums dark:text-blue-400">
                         {formatAmount(income.amount)}
                     </span>
                     <CurrencyChip currency={income.currency} />

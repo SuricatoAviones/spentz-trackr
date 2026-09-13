@@ -6,6 +6,7 @@ use App\Models\ExchangeRate;
 use App\Models\Expense;
 use App\Models\PaymentSource;
 use App\Models\User;
+use App\Support\Presenters\ExpensePresenter;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -299,7 +300,7 @@ test('a user can delete their own expense', function () {
 });
 
 test('an expense can store a receipt image and remove it', function () {
-    Storage::fake('public');
+    Storage::fake('receipts');
 
     $expense = Expense::factory()
         ->for($this->user)
@@ -318,7 +319,7 @@ test('an expense can store a receipt image and remove it', function () {
     ])->assertRedirect();
 
     expect($expense->receipts()->count())->toBe(1);
-    Storage::disk('public')->assertExists($expense->receipts()->first()->path);
+    Storage::disk('receipts')->assertExists($expense->receipts()->first()->path);
 
     $this->get(route('expenses.show', $expense))
         ->assertInertia(fn (Assert $page) => $page
@@ -570,4 +571,43 @@ test('a mixed ves item requires a valid exchange rate', function () {
     ])->assertSessionHasErrors('items.0.exchange_rate');
 
     expect(Expense::query()->count())->toBe(0);
+});
+
+test('the show and edit pages expose the presenter shape the react pages consume', function () {
+    $expense = Expense::factory()
+        ->for($this->user)
+        ->for($this->category)
+        ->for($this->source, 'paymentSource')
+        ->create(['spent_at' => now()]);
+
+    // The raw model serialises the relation as `payment_source` and `spent_at`
+    // as a full timestamp; the pages read `source` and a plain Y-m-d date.
+    foreach (['expenses.show' => 'expenses/show', 'expenses.edit' => 'expenses/edit'] as $route => $component) {
+        $this->get(route($route, $expense))
+            ->assertInertia(fn (Assert $page) => $page
+                ->component($component)
+                ->where('expense.source.id', $this->source->id)
+                ->has('expense.source.name')
+                ->has('expense.source.icon')
+                ->has('expense.source.color')
+                ->where('expense.category.id', $this->category->id)
+                ->has('expense.category.color')
+                ->where('expense.spent_at', $expense->spent_at->toDateString())
+                ->has('expense.has_receipt')
+                ->has('expense.items')
+                ->etc()
+            );
+    }
+
+    // El set de claves debe ser exactamente el del presenter: si alguien vuelve a
+    // pasar el modelo crudo reaparecen `payment_source`, `user_id`, `created_at`…
+    $expected = array_keys(ExpensePresenter::present(
+        $expense->load(['category', 'paymentSource', 'receipts', 'items'])
+    ));
+
+    foreach (['expenses.show', 'expenses.edit'] as $route) {
+        $props = $this->get(route($route, $expense))->viewData('page')['props'];
+
+        expect(array_keys($props['expense']))->toEqualCanonicalizing($expected);
+    }
 });

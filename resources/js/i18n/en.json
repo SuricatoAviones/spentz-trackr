@@ -810,5 +810,11 @@
             "backup_generating": "Generating...",
             "backup_download": "Download backup"
         }
+    },
+    "legal": {
+        "eyebrow": "Legal",
+        "back_home": "Back to home",
+        "terms_link": "Terms and conditions",
+        "privacy_link": "Data policy"
     }
 }

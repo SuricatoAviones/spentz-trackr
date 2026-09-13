@@ -236,7 +236,7 @@ export default function CategoriesIndex({
                                             category.monthly_spent >
                                             Number(category.budget)
                                                 ? 'text-destructive'
-                                                : 'text-emerald-400'
+                                                : 'text-emerald-600 dark:text-emerald-400'
                                         }`}
                                     >
                                         {t('categories.budget_info', {
@@ -317,7 +317,7 @@ export default function CategoriesIndex({
                                     onClick={() => setData('type', 'expense')}
                                     className={`rounded-md py-2 text-xs font-semibold transition-colors disabled:opacity-60 ${
                                         data.type === 'expense'
-                                            ? 'bg-emerald-500/20 text-emerald-400'
+                                            ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400'
                                             : 'text-muted-foreground'
                                     }`}
                                 >
@@ -329,7 +329,7 @@ export default function CategoriesIndex({
                                     onClick={() => setData('type', 'income')}
                                     className={`rounded-md py-2 text-xs font-semibold transition-colors disabled:opacity-60 ${
                                         data.type === 'income'
-                                            ? 'bg-blue-500/20 text-blue-400'
+                                            ? 'bg-blue-500/20 text-blue-600 dark:text-blue-400'
                                             : 'text-muted-foreground'
                                     }`}
                                 >

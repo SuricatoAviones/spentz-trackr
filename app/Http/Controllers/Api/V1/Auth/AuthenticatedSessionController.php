@@ -9,14 +9,25 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use Laravel\Fortify\Features;
 
 class AuthenticatedSessionController extends BaseApiController
 {
+    /**
+     * Hash de un valor que nadie usa, con el mismo coste que los reales, para
+     * que el login tarde lo mismo exista o no el email. Ver `store()`.
+     */
+    private const DECOY_HASH = '$2y$12$NZKv3FyQKF/t6Z5sVuY6QOc7OydUpFn2L80zi/Um9acSWJDYT7vjq';
+
     /**
      * Register a new user and return a personal access token.
      */
     public function register(Request $request, CreateNewUser $createNewUser): JsonResponse
     {
+        // Mismo interruptor que el formulario web: con REGISTRATION_ENABLED=false
+        // la API no puede ser la puerta de atrás de una instancia cerrada.
+        abort_unless(Features::enabled(Features::registration()), 404);
+
         $user = $createNewUser->create($request->all());
 
         $token = $user->createToken('spent-trackr-api', ['*'], now()->addDays(90));
@@ -45,7 +56,14 @@ class AuthenticatedSessionController extends BaseApiController
 
         $user = User::query()->where('email', $request->string('email'))->first();
 
-        if ($user === null || ! Hash::check($request->string('password'), $user->password)) {
+        // Si el email no existe se compara igualmente contra un hash señuelo:
+        // sin esto la respuesta volvía de inmediato (no se calculaba bcrypt) y
+        // el tiempo delataba qué correos están registrados.
+        $knownHash = $user === null ? self::DECOY_HASH : $user->password;
+
+        $passwordMatches = Hash::check($request->string('password'), $knownHash);
+
+        if ($user === null || ! $passwordMatches) {
             throw ValidationException::withMessages([
                 'email' => [__('auth.failed')],
             ]);

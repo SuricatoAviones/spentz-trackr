@@ -74,6 +74,18 @@ SESSION_SECURE_COOKIE=true      # true solo si el dominio tiene HTTPS
 CACHE_STORE=database
 QUEUE_CONNECTION=database
 
+# Seguridad
+REGISTRATION_ENABLED=true       # false si la instancia es privada (cierra web y API)
+TRUSTED_PROXIES=                # vacio si no hay proxy delante. NUNCA '*'
+CORS_ALLOWED_ORIGINS=           # vacio desactiva CORS
+
+# Documentos legales (/terminos y /privacidad): el responsable del tratamiento
+# de datos es quien opera la instancia. Rellenalo antes de abrir el registro.
+LEGAL_OPERATOR=
+LEGAL_CONTACT_EMAIL=
+LEGAL_JURISDICTION=
+LEGAL_EFFECTIVE_DATE=2026-09-13
+
 # Credenciales del primer administrador (las lee `php artisan admin:create`)
 ADMIN_NAME=Administrador
 ADMIN_EMAIL=admin@tudominio.com

@@ -47,6 +47,21 @@ return [
             'report' => false,
         ],
 
+        /*
+         * Comprobantes de gastos e ingresos. Documentos financieros privados:
+         * viven FUERA de public/ (nada los sirve por sí mismo) y solo salen por
+         * las rutas `{expenses,incomes}.receipts.show`, que comprueban la
+         * política del gasto/ingreso dueño del fichero. No añadir 'url' ni
+         * 'serve' a este disco: reintroduciría el acceso sin autorización.
+         */
+        'receipts' => [
+            'driver' => 'local',
+            'root' => storage_path('app/private'),
+            'visibility' => 'private',
+            'throw' => false,
+            'report' => false,
+        ],
+
         's3' => [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),

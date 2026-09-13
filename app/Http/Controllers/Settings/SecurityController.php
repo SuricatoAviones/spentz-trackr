@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Settings;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Settings\PasswordUpdateRequest;
 use App\Http\Requests\Settings\TwoFactorAuthenticationRequest;
+use App\Support\AccountAccess;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Validation\Rules\Password;
 use Inertia\Inertia;
@@ -55,9 +56,17 @@ class SecurityController extends Controller
      */
     public function update(PasswordUpdateRequest $request): RedirectResponse
     {
-        $request->user()->update([
+        $user = $request->user();
+
+        $user->update([
             'password' => $request->password,
         ]);
+
+        // Cambiar la clave debe echar a quien estuviera dentro: se revocan las
+        // demás sesiones y todos los tokens de API, y se conserva solo esta.
+        AccountAccess::revoke($user, $request->session()->getId());
+
+        $request->session()->regenerate();
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Password updated.')]);
 

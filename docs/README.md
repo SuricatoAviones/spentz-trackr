@@ -22,3 +22,4 @@ son la referencia técnica y de producto.
 | [08-panel-admin.md](08-panel-admin.md) | Panel admin: módulos, rutas, auditoría y backup |
 | [09-despliegue-dokploy.md](09-despliegue-dokploy.md) | Despliegue en VPS con Dokploy (Docker + Traefik) |
 | [10-multilenguaje.md](10-multilenguaje.md) | Planificación ES/EN: decisiones, fases y alcance |
+| [11-seguridad.md](11-seguridad.md) | Controles de seguridad, endurecimiento del despliegue y páginas legales |

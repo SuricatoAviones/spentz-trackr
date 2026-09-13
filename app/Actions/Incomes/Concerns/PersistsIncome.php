@@ -8,8 +8,8 @@ use App\Models\Income;
 use App\Models\User;
 use App\Services\ExchangeRateService;
 use App\Services\ExpenseConversionService;
+use App\Support\ReceiptStorage;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Storage;
 
 /**
  * Shared persistence logic for the income Store/Update actions: rate
@@ -54,7 +54,7 @@ trait PersistsIncome
     protected function storeReceipt(Income $income, UploadedFile $receipt): void
     {
         $income->receipts()->create([
-            'path' => $receipt->store('receipts', 'public'),
+            'path' => ReceiptStorage::store($receipt),
             'original_name' => $receipt->getClientOriginalName(),
         ]);
     }
@@ -62,7 +62,7 @@ trait PersistsIncome
     protected function deleteReceipts(Income $income): void
     {
         foreach ($income->receipts as $receipt) {
-            Storage::disk('public')->delete($receipt->path);
+            ReceiptStorage::delete($receipt->path);
             $receipt->delete();
         }
     }

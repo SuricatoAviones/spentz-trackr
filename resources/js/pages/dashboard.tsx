@@ -97,19 +97,21 @@ export default function Dashboard({
     const sourceBadge = {
         bcv: {
             label: t('rates.provider_bcv'),
-            className: 'bg-emerald-500/15 text-emerald-400',
+            className:
+                'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400',
         },
         paralelo: {
             label: t('rates.provider_paralelo'),
-            className: 'bg-amber-500/15 text-amber-400',
+            className: 'bg-amber-500/15 text-amber-600 dark:text-amber-400',
         },
         user: {
             label: t('rates.provider_manual'),
-            className: 'bg-blue-500/15 text-blue-400',
+            className: 'bg-blue-500/15 text-blue-600 dark:text-blue-400',
         },
         dolarapi: {
             label: t('rates.provider_bcv'),
-            className: 'bg-emerald-500/15 text-emerald-400',
+            className:
+                'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400',
         },
         none: {
             label: t('rates.provider_none'),
@@ -183,15 +185,15 @@ export default function Dashboard({
                             <p className="text-[10px] font-semibold tracking-wider text-muted-foreground uppercase">
                                 {t('dashboard.spent_label')}
                             </p>
-                            <p className="mt-1 font-display text-2xl font-extrabold text-emerald-400 tabular-nums lg:text-3xl">
+                            <p className="mt-1 font-display text-2xl font-extrabold text-emerald-600 tabular-nums lg:text-3xl dark:text-emerald-400">
                                 {formatAmount(totals.usd)}
-                                <span className="ml-1 text-xs font-semibold text-emerald-400/70">
+                                <span className="ml-1 text-xs font-semibold text-emerald-600/70 dark:text-emerald-400/70">
                                     USD
                                 </span>
                             </p>
-                            <p className="text-sm font-semibold text-blue-400 tabular-nums">
+                            <p className="text-sm font-semibold text-blue-600 tabular-nums dark:text-blue-400">
                                 {formatAmount(totals.usdt)}{' '}
-                                <span className="text-[10px] font-medium text-blue-400/70">
+                                <span className="text-[10px] font-medium text-blue-600/70 dark:text-blue-400/70">
                                     USDT
                                 </span>
                             </p>
@@ -200,15 +202,15 @@ export default function Dashboard({
                             <p className="text-[10px] font-semibold tracking-wider text-muted-foreground uppercase">
                                 {t('dashboard.income_label')}
                             </p>
-                            <p className="mt-1 font-display text-2xl font-extrabold text-blue-400 tabular-nums lg:text-3xl">
+                            <p className="mt-1 font-display text-2xl font-extrabold text-blue-600 tabular-nums lg:text-3xl dark:text-blue-400">
                                 {formatAmount(incomeTotals.usd)}
-                                <span className="ml-1 text-xs font-semibold text-blue-400/70">
+                                <span className="ml-1 text-xs font-semibold text-blue-600/70 dark:text-blue-400/70">
                                     USD
                                 </span>
                             </p>
-                            <p className="text-sm font-semibold text-blue-400/80 tabular-nums">
+                            <p className="text-sm font-semibold text-blue-600/80 tabular-nums dark:text-blue-400/80">
                                 {formatAmount(incomeTotals.usdt)}{' '}
-                                <span className="text-[10px] font-medium text-blue-400/70">
+                                <span className="text-[10px] font-medium text-blue-600/70 dark:text-blue-400/70">
                                     USDT
                                 </span>
                             </p>
@@ -220,7 +222,7 @@ export default function Dashboard({
                             <p
                                 className={`mt-1 font-display text-2xl font-extrabold tabular-nums lg:text-3xl ${
                                     (net?.usd ?? 0) >= 0
-                                        ? 'text-white'
+                                        ? 'text-foreground'
                                         : 'text-destructive'
                                 }`}
                             >
@@ -232,7 +234,7 @@ export default function Dashboard({
                             <p
                                 className={`text-sm font-semibold tabular-nums ${
                                     (net?.usdt ?? 0) >= 0
-                                        ? 'text-blue-400/80'
+                                        ? 'text-blue-600/80 dark:text-blue-400/80'
                                         : 'text-destructive/80'
                                 }`}
                             >
@@ -270,18 +272,18 @@ export default function Dashboard({
                         {t('dashboard.total_month', { month })}
                     </p>
                     <div className="mt-2 flex items-baseline gap-2">
-                        <span className="font-display text-4xl font-extrabold text-emerald-400 tabular-nums">
+                        <span className="font-display text-4xl font-extrabold text-emerald-600 tabular-nums dark:text-emerald-400">
                             {formatAmount((totals ?? incomeTotals)?.usd ?? 0)}
                         </span>
-                        <span className="text-sm font-semibold text-emerald-400/80">
+                        <span className="text-sm font-semibold text-emerald-600/80 dark:text-emerald-400/80">
                             USD
                         </span>
                     </div>
                     <div className="mt-1 flex items-baseline gap-2">
-                        <span className="font-display text-2xl font-bold text-blue-400 tabular-nums">
+                        <span className="font-display text-2xl font-bold text-blue-600 tabular-nums dark:text-blue-400">
                             {formatAmount((totals ?? incomeTotals)?.usdt ?? 0)}
                         </span>
-                        <span className="text-xs font-semibold text-blue-400/80">
+                        <span className="text-xs font-semibold text-blue-600/80 dark:text-blue-400/80">
                             USDT
                         </span>
                     </div>
@@ -328,7 +330,7 @@ export default function Dashboard({
                     <div className="px-4 pt-4 pb-4">
                         <div className="flex flex-wrap items-center justify-between gap-2">
                             <span className="flex items-center gap-2 text-sm font-semibold text-foreground">
-                                <Wallet className="size-4 text-emerald-400" />
+                                <Wallet className="size-4 text-emerald-600 dark:text-emerald-400" />
                                 {formatAmount(spentForBudget())}{' '}
                                 <span className="text-xs font-medium text-muted-foreground">
                                     /
@@ -342,7 +344,7 @@ export default function Dashboard({
                                 className={`rounded-full px-2.5 py-0.5 text-[11px] font-bold tabular-nums ${
                                     budgetOver()
                                         ? 'bg-destructive/15 text-destructive'
-                                        : 'bg-emerald-500/15 text-emerald-400'
+                                        : 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400'
                                 }`}
                             >
                                 {budgetPercent().toFixed(0)}%
@@ -376,7 +378,7 @@ export default function Dashboard({
                             </span>
                             <Link
                                 href={ajustesUrl()}
-                                className="text-[11px] font-semibold text-emerald-400"
+                                className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400"
                             >
                                 {t('dashboard.edit_global_budget')}
                             </Link>
@@ -467,7 +469,7 @@ export default function Dashboard({
                         })}
                         <Link
                             href="/categories"
-                            className="flex items-center justify-center gap-1 border-t border-border pt-3 text-xs font-semibold text-emerald-400"
+                            className="flex items-center justify-center gap-1 border-t border-border pt-3 text-xs font-semibold text-emerald-600 dark:text-emerald-400"
                         >
                             {t('dashboard.edit_budgets')}{' '}
                             <ChevronRight className="size-3.5" />
@@ -538,7 +540,7 @@ export default function Dashboard({
                                 onClick={() =>
                                     setShowAllSources((value) => !value)
                                 }
-                                className="text-xs font-medium text-emerald-400"
+                                className="text-xs font-medium text-emerald-600 dark:text-emerald-400"
                             >
                                 {showAllSources
                                     ? t('dashboard.show_less')
@@ -588,7 +590,7 @@ export default function Dashboard({
                                   ? '/incomes'
                                   : '/expenses'
                         }
-                        className="flex items-center justify-center gap-1 border-t border-border py-3 text-xs font-semibold text-emerald-400"
+                        className="flex items-center justify-center gap-1 border-t border-border py-3 text-xs font-semibold text-emerald-600 dark:text-emerald-400"
                     >
                         {t('dashboard.view_all')}{' '}
                         <ChevronRight className="size-3.5" />

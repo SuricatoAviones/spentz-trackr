@@ -111,42 +111,42 @@ export default function ReportsIndex({
                 </p>
                 {showExpenses && (
                     <div className="mt-2 flex items-baseline gap-2">
-                        <span className="font-display text-4xl font-extrabold text-emerald-400 tabular-nums">
+                        <span className="font-display text-4xl font-extrabold text-emerald-600 tabular-nums dark:text-emerald-400">
                             {formatAmount(annual.usd)}
                         </span>
-                        <span className="text-sm font-semibold text-emerald-400/80">
+                        <span className="text-sm font-semibold text-emerald-600/80 dark:text-emerald-400/80">
                             USD
                         </span>
                     </div>
                 )}
                 {showExpenses && (
                     <div className="mt-1 flex items-baseline gap-2">
-                        <span className="font-display text-2xl font-bold text-blue-400 tabular-nums">
+                        <span className="font-display text-2xl font-bold text-blue-600 tabular-nums dark:text-blue-400">
                             {formatAmount(annual.usdt)}
                         </span>
-                        <span className="text-xs font-semibold text-blue-400/80">
+                        <span className="text-xs font-semibold text-blue-600/80 dark:text-blue-400/80">
                             USDT
                         </span>
                     </div>
                 )}
                 {showIncomes && (
                     <div className="flex flex-col gap-2 border-t border-border pt-3 lg:flex-row lg:items-baseline lg:gap-6">
-                        <p className="text-[11px] font-semibold tracking-wider text-blue-400 uppercase">
+                        <p className="text-[11px] font-semibold tracking-wider text-blue-600 uppercase dark:text-blue-400">
                             {t('reports.income_annual')}
                         </p>
                         <div className="flex items-baseline gap-2">
-                            <span className="font-display text-2xl font-extrabold text-blue-400 tabular-nums">
+                            <span className="font-display text-2xl font-extrabold text-blue-600 tabular-nums dark:text-blue-400">
                                 {formatAmount(incomeAnnual.usd)}
                             </span>
-                            <span className="text-xs font-semibold text-blue-400/70">
+                            <span className="text-xs font-semibold text-blue-600/70 dark:text-blue-400/70">
                                 USD
                             </span>
                         </div>
                         <div className="flex items-baseline gap-2">
-                            <span className="font-display text-2xl font-bold text-blue-400/80 tabular-nums">
+                            <span className="font-display text-2xl font-bold text-blue-600/80 tabular-nums dark:text-blue-400/80">
                                 {formatAmount(incomeAnnual.usdt)}
                             </span>
-                            <span className="text-xs font-semibold text-blue-400/70">
+                            <span className="text-xs font-semibold text-blue-600/70 dark:text-blue-400/70">
                                 USDT
                             </span>
                         </div>
@@ -159,7 +159,9 @@ export default function ReportsIndex({
                         </p>
                         <span
                             className={`font-display text-2xl font-extrabold tabular-nums ${
-                                net.usd >= 0 ? 'text-white' : 'text-destructive'
+                                net.usd >= 0
+                                    ? 'text-foreground'
+                                    : 'text-destructive'
                             }`}
                         >
                             {formatAmount(net.usd)} USD
@@ -167,7 +169,7 @@ export default function ReportsIndex({
                         <span
                             className={`font-display text-lg font-bold tabular-nums ${
                                 net.usdt >= 0
-                                    ? 'text-blue-400/80'
+                                    ? 'text-blue-600/80 dark:text-blue-400/80'
                                     : 'text-destructive/80'
                             }`}
                         >
@@ -347,7 +349,7 @@ function VsPrevious({
                         <span
                             className={`inline-flex items-center gap-1 text-xs font-semibold ${
                                 month.variation <= 0
-                                    ? 'text-emerald-400'
+                                    ? 'text-emerald-600 dark:text-emerald-400'
                                     : 'text-destructive'
                             }`}
                         >
