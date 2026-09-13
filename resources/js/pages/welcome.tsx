@@ -14,7 +14,7 @@ function RadarVisual({ t }: { t: (key: string) => string }) {
     return (
         <div className="relative mx-auto w-full max-w-sm">
             <div className="absolute -inset-10 rounded-full bg-[radial-gradient(circle_at_center,rgba(16,185,129,0.12),transparent_70%)]" />
-            <div className="relative rounded-3xl border border-white/5 bg-[#111a2e]/70 p-6 shadow-[0_24px_80px_-32px_rgba(0,0,0,0.7)] backdrop-blur">
+            <div className="relative rounded-3xl border border-border bg-surface-low/70 p-6 shadow-[0_24px_80px_-32px_rgba(0,0,0,0.7)] backdrop-blur">
                 <div className="relative mx-auto aspect-square w-full max-w-[300px]">
                     <svg
                         viewBox="0 0 200 200"
@@ -219,7 +219,7 @@ export default function Welcome() {
 
                 <main className="relative z-10 mx-auto grid w-full max-w-5xl flex-1 items-center gap-12 px-6 py-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-20 lg:py-16">
                     <section>
-                        <span className="inline-flex animate-in items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-xs font-medium text-muted-foreground duration-700 fade-in slide-in-from-bottom-2">
+                        <span className="inline-flex animate-in items-center gap-2 rounded-full border border-border bg-muted/50 px-3 py-1 text-xs font-medium text-muted-foreground duration-700 fade-in slide-in-from-bottom-2">
                             <span className="size-1.5 rounded-full bg-emerald-400" />
                             {t('welcome.made_for')}
                         </span>
@@ -260,7 +260,7 @@ export default function Welcome() {
                             {features.map((feature) => (
                                 <div
                                     key={feature.title}
-                                    className="rounded-2xl border border-white/5 bg-[#111a2e]/60 p-4"
+                                    className="rounded-2xl border border-border bg-surface-low/60 p-4"
                                 >
                                     <feature.icon
                                         className="size-4 text-emerald-400"

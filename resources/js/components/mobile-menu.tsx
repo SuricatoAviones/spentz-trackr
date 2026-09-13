@@ -40,7 +40,7 @@ export function MobileMenu({ children }: { children: ReactNode }) {
             <SheetTrigger asChild>{children}</SheetTrigger>
             <SheetContent
                 side="right"
-                className="flex w-[86%] max-w-xs flex-col gap-0 border-white/10 bg-[#0d1526] p-0 text-foreground"
+                className="flex w-[86%] max-w-xs flex-col gap-0 border-sidebar-border bg-sidebar p-0 text-sidebar-foreground"
             >
                 <SheetHeader className="flex-row items-center gap-3 space-y-0 px-5 py-4 text-left">
                     <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 font-display text-lg font-extrabold text-primary-foreground">
@@ -75,12 +75,12 @@ export function MobileMenu({ children }: { children: ReactNode }) {
                                             className={cn(
                                                 'relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
                                                 active
-                                                    ? 'bg-emerald-500/15 text-emerald-400'
-                                                    : 'text-muted-foreground hover:bg-white/5 hover:text-foreground',
+                                                    ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400'
+                                                    : 'text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
                                             )}
                                         >
                                             {active && (
-                                                <span className="absolute top-1/2 left-0 h-5 w-1 -translate-y-1/2 rounded-r-full bg-emerald-400" />
+                                                <span className="absolute top-1/2 left-0 h-5 w-1 -translate-y-1/2 rounded-r-full bg-emerald-600 dark:bg-emerald-400" />
                                             )}
                                             <item.icon
                                                 className="size-4.5 shrink-0"
@@ -95,7 +95,7 @@ export function MobileMenu({ children }: { children: ReactNode }) {
                     ))}
                 </nav>
 
-                <div className="space-y-3 border-t border-white/10 p-4">
+                <div className="space-y-3 border-t border-sidebar-border p-4">
                     <div className="flex items-center gap-3">
                         <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 text-xs font-bold text-primary-foreground">
                             {initials}
@@ -115,7 +115,7 @@ export function MobileMenu({ children }: { children: ReactNode }) {
                             <button
                                 type="button"
                                 onClick={() => router.post(logout().url)}
-                                className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-white/5 hover:text-destructive"
+                                className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-destructive"
                             >
                                 <LogOut className="size-4" />
                                 {t('shell.user_menu.logout')}

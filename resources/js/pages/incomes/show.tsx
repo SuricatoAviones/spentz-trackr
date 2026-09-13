@@ -97,7 +97,7 @@ export default function ShowIncome({ income }: { income: Income }) {
                     icon={income.category.icon}
                     color={income.category.color}
                     size="lg"
-                    className="ring-4 ring-white/5"
+                    className="ring-4 ring-border"
                 />
                 <h2 className="mt-3 font-display text-lg font-bold text-foreground">
                     {income.description}
@@ -130,7 +130,7 @@ export default function ShowIncome({ income }: { income: Income }) {
                                 {formatAmount(income.usdt_amount)} USDT
                             </span>
                         </div>
-                        <p className="border-t border-white/5 pt-2.5 text-[11px] text-muted-foreground">
+                        <p className="border-t border-border pt-2.5 text-[11px] text-muted-foreground">
                             {t('incomes.show_rate', {
                                 rate: formatRate(income.exchange_rate ?? 0),
                             })}{' '}
@@ -144,7 +144,7 @@ export default function ShowIncome({ income }: { income: Income }) {
             )}
 
             <TrackerCard title={t('incomes.show_details')}>
-                <div className="divide-y divide-white/5 px-4">
+                <div className="divide-y divide-border px-4">
                     <div className="flex items-center justify-between py-3">
                         <span className="text-sm text-muted-foreground">
                             {t('incomes.show_category')}
@@ -182,7 +182,7 @@ export default function ShowIncome({ income }: { income: Income }) {
             <TrackerCard title={t('incomes.show_receipt')}>
                 <div className="px-4 pt-3 pb-4">
                     {receipts.length === 0 ? (
-                        <div className="flex h-28 items-center justify-center rounded-lg border border-dashed border-white/10 bg-white/[0.02]">
+                        <div className="flex h-28 items-center justify-center rounded-lg border border-dashed border-border bg-muted/40">
                             <span className="flex flex-col items-center gap-1.5 text-muted-foreground">
                                 <FileImage className="size-6" />
                                 <span className="text-[11px]">

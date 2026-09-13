@@ -41,6 +41,13 @@ const isDarkMode = (appearance: Appearance): boolean => {
     return appearance === 'dark' || (appearance === 'system' && prefersDark());
 };
 
+// Keeps the mobile browser/PWA chrome in step with the theme; these mirror
+// `--background` in resources/css/app.css.
+const THEME_COLOR: Record<ResolvedAppearance, string> = {
+    light: '#f4f6fb',
+    dark: '#0b1220',
+};
+
 const applyTheme = (appearance: Appearance): void => {
     if (typeof document === 'undefined') {
         return;
@@ -50,6 +57,10 @@ const applyTheme = (appearance: Appearance): void => {
 
     document.documentElement.classList.toggle('dark', isDark);
     document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
+
+    document
+        .querySelector('meta[name="theme-color"]')
+        ?.setAttribute('content', THEME_COLOR[isDark ? 'dark' : 'light']);
 };
 
 const subscribe = (callback: () => void) => {

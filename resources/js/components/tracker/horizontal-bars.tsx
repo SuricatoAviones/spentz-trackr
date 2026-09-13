@@ -17,7 +17,7 @@ export function HorizontalBars({
                             {item.percent}%
                         </span>
                     </div>
-                    <div className="h-2.5 overflow-hidden rounded-full bg-white/5">
+                    <div className="h-2.5 overflow-hidden rounded-full bg-muted">
                         <div
                             className="h-full rounded-full transition-all duration-700"
                             style={{

@@ -97,7 +97,7 @@ export default function ShowExpense({ expense }: { expense: Expense }) {
                     icon={expense.category.icon}
                     color={expense.category.color}
                     size="lg"
-                    className="ring-4 ring-white/5"
+                    className="ring-4 ring-border"
                 />
                 <h2 className="mt-3 font-display text-lg font-bold text-foreground">
                     {expense.description}
@@ -130,7 +130,7 @@ export default function ShowExpense({ expense }: { expense: Expense }) {
                                 {formatAmount(expense.usdt_amount)} USDT
                             </span>
                         </div>
-                        <p className="border-t border-white/5 pt-2.5 text-[11px] text-muted-foreground">
+                        <p className="border-t border-border pt-2.5 text-[11px] text-muted-foreground">
                             {t('expenses.show_rate', {
                                 rate: formatRate(expense.exchange_rate ?? 0),
                             })}{' '}
@@ -152,7 +152,7 @@ export default function ShowExpense({ expense }: { expense: Expense }) {
                             )}
                         {expense.commission &&
                             Number(expense.commission) > 0 && (
-                                <p className="border-t border-white/5 pt-2.5 text-[11px] text-muted-foreground">
+                                <p className="border-t border-border pt-2.5 text-[11px] text-muted-foreground">
                                     {t('expenses.show_total_hint')}
                                 </p>
                             )}
@@ -173,7 +173,7 @@ export default function ShowExpense({ expense }: { expense: Expense }) {
             )}
 
             <TrackerCard title={t('expenses.show_details')}>
-                <div className="divide-y divide-white/5 px-4">
+                <div className="divide-y divide-border px-4">
                     <div className="flex items-center justify-between py-3">
                         <span className="text-sm text-muted-foreground">
                             {t('expenses.show_category')}
@@ -224,7 +224,7 @@ export default function ShowExpense({ expense }: { expense: Expense }) {
             <TrackerCard title={t('expenses.show_receipt')}>
                 <div className="px-4 pt-3 pb-4">
                     {receipts.length === 0 ? (
-                        <div className="flex h-28 items-center justify-center rounded-lg border border-dashed border-white/10 bg-white/[0.02]">
+                        <div className="flex h-28 items-center justify-center rounded-lg border border-dashed border-border bg-muted/40">
                             <span className="flex flex-col items-center gap-1.5 text-muted-foreground">
                                 <FileImage className="size-6" />
                                 <span className="text-[11px]">

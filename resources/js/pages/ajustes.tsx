@@ -212,7 +212,7 @@ export default function Ajustes({
                                 ? t('common.saving')
                                 : t('ajustes.rate_save_button')}
                         </button>
-                        <div className="mt-3 flex items-center justify-between border-t border-white/5 pt-3">
+                        <div className="mt-3 flex items-center justify-between border-t border-border pt-3">
                             <span className="text-[11px] text-muted-foreground">
                                 {t('ajustes.last_sync', {
                                     date: rate.rate_date,
@@ -419,7 +419,7 @@ export default function Ajustes({
                 </TrackerCard>
 
                 <TrackerCard title={t('ajustes.preferences')}>
-                    <div className="divide-y divide-white/5 px-4">
+                    <div className="divide-y divide-border px-4">
                         <Link
                             href={categoriesIndex().url}
                             className="flex items-center justify-between py-3.5"

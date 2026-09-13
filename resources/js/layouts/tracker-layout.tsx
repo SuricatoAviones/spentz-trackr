@@ -76,7 +76,7 @@ export default function TrackerLayout({
         <div className="flex min-h-screen w-full">
             <Head title={title} />
 
-            <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 flex-col border-r border-white/5 bg-[#0d1526] md:flex">
+            <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 flex-col border-r border-sidebar-border bg-sidebar md:flex">
                 <div className="flex h-16 items-center gap-3 px-5">
                     <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 font-display text-lg font-extrabold text-primary-foreground">
                         S
@@ -110,12 +110,12 @@ export default function TrackerLayout({
                                         className={cn(
                                             'relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
                                             active
-                                                ? 'bg-emerald-500/15 text-emerald-400'
-                                                : 'text-muted-foreground hover:bg-white/5 hover:text-foreground',
+                                                ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400'
+                                                : 'text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
                                         )}
                                     >
                                         {active && (
-                                            <span className="absolute top-1/2 left-0 h-5 w-1 -translate-y-1/2 rounded-r-full bg-emerald-400" />
+                                            <span className="absolute top-1/2 left-0 h-5 w-1 -translate-y-1/2 rounded-r-full bg-emerald-600 dark:bg-emerald-400" />
                                         )}
                                         <item.icon
                                             className="size-4.5 shrink-0"
@@ -129,7 +129,7 @@ export default function TrackerLayout({
                     ))}
                 </nav>
 
-                <div className="border-t border-white/5 p-4">
+                <div className="border-t border-sidebar-border p-4">
                     <div className="flex items-center gap-3">
                         <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 text-xs font-bold text-primary-foreground">
                             {initials}
@@ -145,7 +145,7 @@ export default function TrackerLayout({
                         <button
                             type="button"
                             onClick={logoutUser}
-                            className="inline-flex size-8 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-white/5 hover:text-destructive"
+                            className="inline-flex size-8 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-destructive"
                             aria-label={t('shell.tracker.logout_aria')}
                         >
                             <LogOut className="size-4" />
@@ -201,7 +201,7 @@ export default function TrackerLayout({
             </div>
 
             <nav
-                className="fixed inset-x-0 bottom-0 z-40 border-t border-white/5 bg-[#0b1220]/80 backdrop-blur-2xl md:hidden"
+                className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/80 backdrop-blur-2xl md:hidden"
                 aria-label={t('shell.tracker.nav_aria')}
             >
                 <div
@@ -229,7 +229,7 @@ export default function TrackerLayout({
                                         className={cn(
                                             'size-5 transition-colors',
                                             active
-                                                ? 'text-emerald-400'
+                                                ? 'text-emerald-600 dark:text-emerald-400'
                                                 : 'text-muted-foreground',
                                         )}
                                         strokeWidth={active ? 2.4 : 2}
@@ -239,14 +239,14 @@ export default function TrackerLayout({
                                     className={cn(
                                         'text-[10px] font-medium',
                                         active
-                                            ? 'text-emerald-400'
+                                            ? 'text-emerald-600 dark:text-emerald-400'
                                             : 'text-muted-foreground',
                                     )}
                                 >
                                     {item.title}
                                 </span>
                                 {active && (
-                                    <span className="absolute -top-px h-0.5 w-8 rounded-full bg-emerald-400" />
+                                    <span className="absolute -top-px h-0.5 w-8 rounded-full bg-emerald-600 dark:bg-emerald-400" />
                                 )}
                             </Link>
                         );

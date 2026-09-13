@@ -374,7 +374,7 @@ export function IncomeForm({
                                 className={`flex shrink-0 flex-col items-center gap-1.5 rounded-xl px-3 py-2.5 transition-colors ${
                                     active
                                         ? 'bg-surface-high ring-2 ring-blue-500/60'
-                                        : 'bg-white/[0.03]'
+                                        : 'bg-muted/50'
                                 }`}
                             >
                                 <CategoryIcon

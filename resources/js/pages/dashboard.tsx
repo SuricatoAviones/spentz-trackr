@@ -113,11 +113,11 @@ export default function Dashboard({
         },
         none: {
             label: t('rates.provider_none'),
-            className: 'bg-white/10 text-muted-foreground',
+            className: 'bg-muted text-muted-foreground',
         },
     }[rate.provider] ?? {
         label: rate.provider,
-        className: 'bg-white/10 text-muted-foreground',
+        className: 'bg-muted text-muted-foreground',
     };
 
     const displayedSources = showAllSources ? sources : sources.slice(0, 3);
@@ -196,7 +196,7 @@ export default function Dashboard({
                                 </span>
                             </p>
                         </div>
-                        <div className="border-x border-white/5 px-3">
+                        <div className="border-x border-border px-3">
                             <p className="text-[10px] font-semibold tracking-wider text-muted-foreground uppercase">
                                 {t('dashboard.income_label')}
                             </p>
@@ -243,7 +243,7 @@ export default function Dashboard({
                             </p>
                         </div>
                     </div>
-                    <div className="mt-4 flex gap-4 border-t border-white/5 pt-3">
+                    <div className="mt-4 flex gap-4 border-t border-border pt-3">
                         <div className="flex items-center gap-1.5">
                             <span className="size-2 rounded-full bg-emerald-400" />
                             <span className="text-[11px] text-muted-foreground">
@@ -285,7 +285,7 @@ export default function Dashboard({
                             USDT
                         </span>
                     </div>
-                    <div className="mt-4 flex gap-4 border-t border-white/5 pt-3">
+                    <div className="mt-4 flex gap-4 border-t border-border pt-3">
                         <div className="flex items-center gap-1.5">
                             <span className="size-2 rounded-full bg-emerald-400" />
                             <span className="text-[11px] text-muted-foreground">
@@ -348,7 +348,7 @@ export default function Dashboard({
                                 {budgetPercent().toFixed(0)}%
                             </span>
                         </div>
-                        <div className="mt-3 h-2.5 overflow-hidden rounded-full bg-white/5">
+                        <div className="mt-3 h-2.5 overflow-hidden rounded-full bg-muted">
                             <div
                                 className={`h-full rounded-full transition-all ${
                                     budgetOver()
@@ -440,7 +440,7 @@ export default function Dashboard({
                                             {formatAmount(budget.budget)} USD
                                         </span>
                                     </div>
-                                    <div className="h-2 overflow-hidden rounded-full bg-white/5">
+                                    <div className="h-2 overflow-hidden rounded-full bg-muted">
                                         <div
                                             className={`h-full rounded-full transition-all ${
                                                 over
@@ -467,7 +467,7 @@ export default function Dashboard({
                         })}
                         <Link
                             href="/categories"
-                            className="flex items-center justify-center gap-1 border-t border-white/5 pt-3 text-xs font-semibold text-emerald-400"
+                            className="flex items-center justify-center gap-1 border-t border-border pt-3 text-xs font-semibold text-emerald-400"
                         >
                             {t('dashboard.edit_budgets')}{' '}
                             <ChevronRight className="size-3.5" />
@@ -588,7 +588,7 @@ export default function Dashboard({
                                   ? '/incomes'
                                   : '/expenses'
                         }
-                        className="flex items-center justify-center gap-1 border-t border-white/5 py-3 text-xs font-semibold text-emerald-400"
+                        className="flex items-center justify-center gap-1 border-t border-border py-3 text-xs font-semibold text-emerald-400"
                     >
                         {t('dashboard.view_all')}{' '}
                         <ChevronRight className="size-3.5" />

@@ -536,7 +536,7 @@ export function ExpenseForm({
                                                 className={`rounded-lg border px-3 py-2 text-xs font-semibold transition-colors ${
                                                     active
                                                         ? 'border-emerald-500/60 bg-emerald-500/15 text-emerald-400'
-                                                        : 'border-white/10 bg-surface-low text-foreground'
+                                                        : 'border-border bg-surface-low text-foreground'
                                                 }`}
                                             >
                                                 {methodLabel}
@@ -679,7 +679,7 @@ export function ExpenseForm({
                                 className={`flex shrink-0 flex-col items-center gap-1.5 rounded-xl px-3 py-2.5 transition-colors ${
                                     active
                                         ? 'bg-surface-high ring-2 ring-emerald-500/60'
-                                        : 'bg-white/[0.03]'
+                                        : 'bg-muted/50'
                                 }`}
                             >
                                 <CategoryIcon
@@ -719,7 +719,7 @@ export function ExpenseForm({
                                 className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 transition-colors ${
                                     active
                                         ? 'bg-surface-high ring-2 ring-emerald-500/60'
-                                        : 'bg-white/[0.03]'
+                                        : 'bg-muted/50'
                                 }`}
                             >
                                 <CategoryIcon

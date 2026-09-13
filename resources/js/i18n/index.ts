@@ -36,12 +36,25 @@ export function initI18n(props: TranslationProps): void {
     syncI18n(props);
 }
 
-export function syncI18n(props: TranslationProps): void {
-    const locale = props.locale ?? i18n.language;
-
+/**
+ * Switch the interface language on the spot. Both dictionaries ship in the
+ * bundle, so the UI can re-render immediately and the server round-trip that
+ * persists the preference stays in the background.
+ */
+export function applyLocale(locale: string): void {
     if (locale !== i18n.language) {
         void i18n.changeLanguage(locale);
     }
+
+    if (typeof document !== 'undefined') {
+        document.documentElement.lang = locale;
+    }
+}
+
+export function syncI18n(props: TranslationProps): void {
+    const locale = props.locale ?? i18n.language;
+
+    applyLocale(locale);
 
     const translations = props.translations;
 
@@ -57,9 +70,5 @@ export function syncI18n(props: TranslationProps): void {
 
     if (translations?.admin) {
         i18n.addResourceBundle(locale, 'admin', translations.admin, true, true);
-    }
-
-    if (typeof document !== 'undefined') {
-        document.documentElement.lang = locale;
     }
 }

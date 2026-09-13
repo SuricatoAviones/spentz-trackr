@@ -415,7 +415,7 @@ export default function RecurringPaymentsIndex({
             </button>
 
             <Dialog open={open} onOpenChange={setOpen}>
-                <DialogContent className="rounded-2xl border-white/10 bg-surface-low">
+                <DialogContent className="rounded-2xl border-border bg-surface-low">
                     <DialogHeader>
                         <DialogTitle className="font-display">
                             {editing

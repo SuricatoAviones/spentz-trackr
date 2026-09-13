@@ -9,24 +9,33 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { applyLocale } from '@/i18n';
 import { cn } from '@/lib/utils';
 import { update as updateLanguage } from '@/routes/language';
 
 const LOCALES = ['es', 'en'] as const;
 
 function useLanguage() {
-    const { t } = useTranslation();
-    const { locale } = usePage<{ locale: string }>().props;
+    const { t, i18n } = useTranslation();
+    const { locale: persistedLocale } = usePage<{ locale: string }>().props;
+
+    // i18next is what the screen is actually rendering: it flips on click,
+    // while the prop only catches up once the server confirms the preference.
+    const locale = i18n.language || persistedLocale;
 
     const changeLanguage = (code: string): void => {
         if (code === locale) {
             return;
         }
 
+        // Swap the dictionaries first so the whole tree re-renders right away,
+        // then persist in the background without resetting the page.
+        applyLocale(code);
+
         router.post(
             updateLanguage().url,
             { locale: code },
-            { preserveScroll: true },
+            { preserveScroll: true, preserveState: true },
         );
     };
 

@@ -130,7 +130,7 @@ export default function ReportsIndex({
                     </div>
                 )}
                 {showIncomes && (
-                    <div className="flex flex-col gap-2 border-t border-white/5 pt-3 lg:flex-row lg:items-baseline lg:gap-6">
+                    <div className="flex flex-col gap-2 border-t border-border pt-3 lg:flex-row lg:items-baseline lg:gap-6">
                         <p className="text-[11px] font-semibold tracking-wider text-blue-400 uppercase">
                             {t('reports.income_annual')}
                         </p>
@@ -153,7 +153,7 @@ export default function ReportsIndex({
                     </div>
                 )}
                 {showIncomes && showExpenses && (
-                    <div className="flex flex-col gap-1 border-t border-white/5 pt-3 lg:flex-row lg:items-baseline lg:gap-3">
+                    <div className="flex flex-col gap-1 border-t border-border pt-3 lg:flex-row lg:items-baseline lg:gap-3">
                         <p className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
                             {t('reports.net_annual')}
                         </p>
@@ -306,7 +306,7 @@ function MonthlyChart({
                     </span>
                 ))}
             </div>
-            <div className="mt-3 flex items-center justify-center gap-4 border-t border-white/5 pt-3 text-[11px] text-muted-foreground">
+            <div className="mt-3 flex items-center justify-center gap-4 border-t border-border pt-3 text-[11px] text-muted-foreground">
                 {legend.map((item) => (
                     <span
                         key={item.label}
@@ -329,7 +329,7 @@ function VsPrevious({
     monthLabel: (month: number) => string;
 }) {
     return (
-        <div className="divide-y divide-white/5 px-4">
+        <div className="divide-y divide-border px-4">
             {months
                 .filter((month) => month.usd > 0 || month.usdt > 0)
                 .slice(-6)
