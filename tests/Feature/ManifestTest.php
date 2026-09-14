@@ -33,6 +33,31 @@ test('the manifest keeps the brand name untranslated and the PWA fields intact',
         ->assertJsonPath('short_name', config('app.name'))
         ->assertJsonPath('start_url', '/')
         ->assertJsonPath('display', 'standalone')
-        ->assertJsonPath('icons.0.src', '/images/logo.png')
+        ->assertJsonPath('icons.0.src', '/icons/icon-192.png')
         ->assertJsonCount(4, 'icons');
+});
+
+test('maskable icons are their own files, not the wide lockup', function () {
+    // Android recorta los `maskable` al 80 % central. Apuntarlos al lockup
+    // horizontal le cortaba el texto, así que llevan arte propio a sangre.
+    $icons = $this->get('/manifest.webmanifest')->json('icons');
+
+    $maskable = array_values(array_filter(
+        $icons,
+        fn (array $icon): bool => $icon['purpose'] === 'maskable',
+    ));
+
+    expect($maskable)->toHaveCount(2);
+
+    foreach ($maskable as $icon) {
+        expect($icon['src'])->toStartWith('/icons/maskable-')
+            ->and($icon['src'])->not->toBe('/images/logo.png');
+    }
+});
+
+test('every icon the manifest advertises actually exists', function () {
+    // Un icono declarado y ausente rompe la instalación del PWA en silencio.
+    foreach ($this->get('/manifest.webmanifest')->json('icons') as $icon) {
+        expect(public_path(ltrim($icon['src'], '/')))->toBeReadableFile();
+    }
 });

@@ -103,3 +103,23 @@ nombre de ruta (`register`, `register.store`). El endpoint de la API comprueba l
 `App\Support\Features::registrationEnabled()` — si solo se cerrara la web, la API sería la
 puerta de atrás y el interruptor, decorativo.
 
+## Los iconos de marca los genera `scripts/generate-icons.mjs`, no se editan a mano
+`favicon.ico`, `apple-touch-icon.png` y los cuatro `public/icons/*.png` salen de ese script,
+que dibuja la misma marca que `public/favicon.svg`. Si cambias el color o la forma, edita el
+SVG **y** las constantes del script, y vuelve a ejecutarlo (`node scripts/generate-icons.mjs`).
+
+Tres cosas que no son capricho y se rompen fácil al "simplificar":
+
+**`favicon.svg` tiene que ser autocontenido.** La versión anterior era un
+`<image href="/images/logo.png">` y no se veía nada: los navegadores renderizan los SVG de
+favicon sin cargar recursos externos. Y como el `<link type="image/svg+xml">` tiene
+preferencia sobre el `.ico`, el fallo se comía el favicon en Chrome, Firefox y Edge.
+
+**Las tallas pequeñas llevan arte distinto, no la misma imagen escalada.** Por debajo de
+24 px el anillo va continuo y más grueso: con el trazo fino los cuatro huecos desaparecen y
+la marca se empasta con el fondo.
+
+**Los iconos `maskable` del manifest no pueden apuntar a `/images/logo.png`.** Android los
+recorta a un círculo usando solo el 80 % central, y ese fichero es el lockup horizontal con
+el wordmark: el recorte se comía el texto. Llevan arte propio a sangre con la marca al 68 %.
+`tests/Feature/ManifestTest.php` comprueba que son ficheros distintos y que todos existen.

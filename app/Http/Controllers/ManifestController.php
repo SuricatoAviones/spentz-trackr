@@ -16,8 +16,20 @@ class ManifestController extends Controller
     {
         $name = (string) config('app.name', 'Spentz Trackr');
 
-        $icon = fn (string $size, string $purpose): array => [
-            'src' => '/images/logo.png',
+        /*
+         * Dos juegos de iconos distintos, no el mismo fichero repetido:
+         *
+         *  - `any` se muestra tal cual, con sus esquinas redondeadas.
+         *  - `maskable` lo recorta Android a un círculo usando solo el 80 %
+         *    central, así que va a sangre y con la marca más pequeña. Antes los
+         *    cuatro apuntaban a `/images/logo.png` —el lockup horizontal con el
+         *    texto—, de modo que el recorte se comía el wordmark.
+         *
+         * Los generan `scripts/generate-icons.mjs` a partir de la misma marca
+         * que dibuja `public/favicon.svg`.
+         */
+        $icon = fn (string $path, string $size, string $purpose): array => [
+            'src' => $path,
             'sizes' => $size,
             'type' => 'image/png',
             'purpose' => $purpose,
@@ -38,10 +50,10 @@ class ManifestController extends Controller
                 'orientation' => 'portrait-primary',
                 'scope' => '.',
                 'icons' => [
-                    $icon('192x192', 'any'),
-                    $icon('512x512', 'any'),
-                    $icon('192x192', 'maskable'),
-                    $icon('512x512', 'maskable'),
+                    $icon('/icons/icon-192.png', '192x192', 'any'),
+                    $icon('/icons/icon-512.png', '512x512', 'any'),
+                    $icon('/icons/maskable-192.png', '192x192', 'maskable'),
+                    $icon('/icons/maskable-512.png', '512x512', 'maskable'),
                 ],
             ], options: JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)
             ->header('Content-Type', 'application/manifest+json');
