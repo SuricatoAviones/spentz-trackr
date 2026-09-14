@@ -37,6 +37,13 @@ return [
     'recurring_payment_updated' => 'Recurring payment updated.',
     'recurring_payment_deleted' => 'Recurring payment deleted.',
     'recurring_payment_paid' => 'Payment marked as paid.',
+    'credit_card_created' => 'Card created.',
+    'credit_card_updated' => 'Card updated.',
+    'credit_card_deleted' => 'Card deleted.',
+    'credit_card_statement_created' => 'Statement recorded.',
+    'credit_card_statement_deleted' => 'Statement deleted.',
+    'credit_card_payment_created' => 'Payment recorded.',
+    'credit_card_payment_deleted' => 'Payment deleted.',
 
     'tracking_updated' => 'Tracking mode updated.',
     'budget_updated' => 'Monthly budget updated.',

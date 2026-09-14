@@ -3,6 +3,7 @@ import {
     BarChart3,
     ChartPie,
     Coins,
+    CreditCard,
     History,
     Landmark,
     PiggyBank,
@@ -28,6 +29,7 @@ import { index as adminSourcesIndex } from '@/routes/admin/sources';
 import { index as adminSystemIndex } from '@/routes/admin/system';
 import { index as adminUsersIndex } from '@/routes/admin/users';
 import { index as categoriesIndex } from '@/routes/categories';
+import { index as creditCardsIndex } from '@/routes/credit-cards';
 import { index as expensesIndex } from '@/routes/expenses';
 import { index as incomesIndex } from '@/routes/incomes';
 import { index as recurringPaymentsIndex } from '@/routes/recurring-payments';
@@ -104,6 +106,11 @@ export function useNavSections(): NavSection[] {
                     title: t('shell.sidebar.savings_goals'),
                     href: savingsGoalsIndex().url,
                     icon: PiggyBank,
+                },
+                {
+                    title: t('shell.sidebar.credit_cards'),
+                    href: creditCardsIndex().url,
+                    icon: CreditCard,
                 },
                 {
                     title: t('shell.sidebar.recurring_payments'),

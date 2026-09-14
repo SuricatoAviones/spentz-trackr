@@ -14,3 +14,14 @@ User.is_admin requiere el cast 'boolean' (si no, viene 1/0 de la BD y fallan ass
 
 ## is_admin fuera de $fillable
 User no tiene 'is_admin' en #[Fillable] para evitar escalada de privilegios por mass assignment. El rol se asigna solo vía forceFill en acciones de confianza: Installer::createAdminUser, CreateAdmin::handle y Admin\UserController::update (que separa is_admin del resto de datos). No volver a meter is_admin en $fillable.
+
+## Las fechas son `CarbonImmutable`: tipa contra `CarbonInterface`
+`AppServiceProvider` hace `Date::use(CarbonImmutable::class)`, así que todo cast `date` /
+`datetime` de un modelo devuelve `CarbonImmutable`, **no** `Illuminate\Support\Carbon`. Un
+método que reciba una fecha de un modelo y la tipe como `Carbon` revienta con
+`TypeError: must be of type ?Illuminate\Support\Carbon, Carbon\CarbonImmutable given` — y
+solo en ejecución, porque PHPStan no lo ve.
+
+Tipa los parámetros y retornos como `Carbon\CarbonInterface`, y crea fechas con la fachada
+`Date` (`Date::today()`, `Date::parse()`, `Date::create()`) para respetar la clase
+configurada. Ver `App\Services\CreditCardCycleService`.

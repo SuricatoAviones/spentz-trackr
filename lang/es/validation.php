@@ -193,6 +193,11 @@ return [
         'bcv_rate_gt' => 'La tasa BCV debe ser mayor a 0.',
         'paralelo_rate_gt' => 'La tasa paralela debe ser mayor a 0.',
         'rate_required_without' => 'Indica al menos la tasa BCV o la paralela.',
+        'rate_required_ves' => 'Indica la tasa de cambio: la tarjeta opera en Bs.',
+        'card_last_four' => 'Escribe los últimos 4 dígitos de la tarjeta.',
+        'card_day_range' => 'El día debe estar entre 1 y 31.',
+        'card_statement_duplicated' => 'Ya registraste un corte con esa fecha para esta tarjeta.',
+        'card_statement_foreign' => 'El corte seleccionado no pertenece a esta tarjeta.',
     ],
 
     'custom' => [

@@ -123,3 +123,74 @@ export type RateOptions = {
     paralelo: string | number;
     manual: string | number;
 };
+
+export type CreditCardCycle = {
+    last_cut_date: string;
+    next_cut_date: string;
+    next_due_date: string;
+    days_to_cut: number;
+};
+
+export type CreditCardBalance = {
+    /** Saldo del último corte: la cifra del banco. `null` si aún no hay cortes. */
+    closing: number | null;
+    charges_since_cut: number;
+    payments_since_cut: number;
+    /** Corte + consumos − abonos. Estimación cuando `is_estimate` es true. */
+    projected_used: number;
+    available: number;
+    usage_percent: number;
+    is_estimate: boolean;
+    /** Movimientos en otra moneda que no se suman (ver CreditCardCycleService). */
+    foreign_movements: number;
+};
+
+export type CreditCardSummary = {
+    id: number;
+    bank: string;
+    name: string;
+    last_four: string | null;
+    brand: 'visa' | 'mastercard' | 'amex' | 'other';
+    currency: 'usd' | 'ves' | 'usdt';
+    credit_limit: string | number;
+    cut_day: number;
+    due_day: number;
+    annual_interest_rate: string | number | null;
+    minimum_payment_rate: string | number | null;
+    icon: string;
+    color: string;
+    active: boolean;
+    note: string | null;
+    payment_source_id: number | null;
+    cycle: CreditCardCycle;
+    balance: CreditCardBalance;
+    usd: { projected_used: number };
+};
+
+export type CreditCardStatement = {
+    id: number;
+    cut_date: string;
+    due_date: string;
+    closing_balance: string | number;
+    minimum_payment: string | number | null;
+    currency: 'usd' | 'ves' | 'usdt';
+    exchange_rate: string | number | null;
+    usd_amount: string | number;
+    paid_at: string | null;
+    note: string | null;
+};
+
+export type CreditCardPayment = {
+    id: number;
+    amount: string | number;
+    currency: 'usd' | 'ves' | 'usdt';
+    usd_amount: string | number;
+    paid_at: string;
+    statement_id: number | null;
+    note: string | null;
+};
+
+export type CreditCardDetail = CreditCardSummary & {
+    statements: CreditCardStatement[];
+    payments: CreditCardPayment[];
+};

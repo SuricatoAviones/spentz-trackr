@@ -60,3 +60,18 @@ renderizan el React, así que una forma equivocada pasa la suite en verde y solo
 página en blanco en el navegador. Al tocar un presenter o una página de detalle/edición,
 asegura la forma con `assertInertia(...->where('expense.source.id', ...))` — ver
 `tests/Feature/{Expense,Income}CrudTest.php`, test "presenter shape".
+
+## Tarjetas: el abono NO es un gasto, y el saldo proyectado no es el saldo
+Dos invariantes del módulo de tarjetas que es fácil romper "mejorándolo":
+
+**Un `CreditCardPayment` nunca debe crear un `Expense`.** Pagar la tarjeta mueve dinero del
+bolsillo a la deuda; si además contara como gasto, cada consumo se contaría dos veces —al
+comprar y al pagar— y todos los informes mentirían. `tests/Feature/CreditCardTest.php` compara
+los totales de la pantalla de gastos antes y después de un abono.
+
+**`projected_used` es una estimación cuando `is_estimate` es true.** El ancla es el último
+corte, que teclea el usuario desde su estado de cuenta; lo que se suma encima son los gastos
+registrados, que pueden estar incompletos. No presentes esa cifra como el saldo del banco ni
+quites el aviso de la ficha. Un movimiento en otra moneda que la de la tarjeta se cuenta en
+`foreign_movements` pero **no se suma**: convertirlo con la tasa de hoy rompería el congelado
+del ADR-001.

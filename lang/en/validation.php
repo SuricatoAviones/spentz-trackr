@@ -193,6 +193,11 @@ return [
         'bcv_rate_gt' => 'The BCV rate must be greater than 0.',
         'paralelo_rate_gt' => 'The parallel rate must be greater than 0.',
         'rate_required_without' => 'Provide at least the BCV or the parallel rate.',
+        'rate_required_ves' => 'Provide the exchange rate: the card operates in Bs.',
+        'card_last_four' => 'Enter the last 4 digits of the card.',
+        'card_day_range' => 'The day must be between 1 and 31.',
+        'card_statement_duplicated' => 'You already recorded a statement with that date for this card.',
+        'card_statement_foreign' => 'The selected statement does not belong to this card.',
     ],
 
     'custom' => [

@@ -200,3 +200,22 @@ por Fortify. La acción es idempotente (solo crea el set que falte), así que el
 `admin:create` nunca duplica. `DefaultCategoriesSeeder` / `DefaultPaymentSourcesSeeder`
 quedan solo como backfill para usuarios creados antes de esto; el despliegue no los
 necesita.
+
+### ADR-012 — Las tarjetas de crédito tienen saldo; el resto de orígenes no
+Revierte parcialmente "Saldos por cuenta: No" de `docs/01-vision-y-alcance.md`. Un origen de
+pago sigue siendo una etiqueta sin estado; **una tarjeta, no**: tiene límite, ciclo de corte
+y deuda viva.
+
+La tarjeta **posee** un `PaymentSource` (FK única). Así sus consumos son gastos normales
+contra ese origen —sin tabla de movimientos paralela, sin tocar el formulario de gastos y sin
+migrar datos existentes— mientras los diez campos propios de una tarjeta viven en
+`credit_cards` sin inflar `payment_sources`.
+
+El saldo es **híbrido**: el último corte es la verdad (lo dice el banco) y entre cortes se
+proyecta con `corte + consumos − abonos`. La proyección viaja marcada con `is_estimate` y la
+UI nunca la presenta como saldo real. Un consumo en una moneda distinta a la de la tarjeta
+no se suma: convertirlo con la tasa de hoy contradiría el congelado del ADR-001.
+
+Los abonos son entidad propia y **nunca un `Expense`**: si el pago de la tarjeta se registrara
+como gasto, cada consumo se contaría dos veces (al comprar y al pagar) y los informes
+mentirían. Ver `docs/12-tarjetas-de-credito.md`.

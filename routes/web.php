@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AjustesController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\CreditCardController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExchangeRateController;
 use App\Http\Controllers\ExpenseController;
@@ -77,6 +78,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('savings-goals', SavingsGoalController::class)->only(['index', 'store', 'update', 'destroy']);
     Route::post('savings-goals/{goal}/contributions', [SavingsGoalController::class, 'storeContribution'])->name('savings-goals.contributions.store');
     Route::delete('savings-goals/{goal}/contributions/{contribution}', [SavingsGoalController::class, 'destroyContribution'])->name('savings-goals.contributions.destroy');
+
+    // Tarjetas de crédito. Cada tarjeta posee un PaymentSource, así que sus
+    // consumos son gastos normales y no hay movimientos duplicados.
+    Route::resource('credit-cards', CreditCardController::class)->only(['index', 'show', 'store', 'update', 'destroy']);
+    Route::post('credit-cards/{credit_card}/statements', [CreditCardController::class, 'storeStatement'])->name('credit-cards.statements.store');
+    Route::delete('credit-cards/{credit_card}/statements/{statement}', [CreditCardController::class, 'destroyStatement'])->name('credit-cards.statements.destroy');
+    Route::post('credit-cards/{credit_card}/payments', [CreditCardController::class, 'storePayment'])->name('credit-cards.payments.store');
+    Route::delete('credit-cards/{credit_card}/payments/{payment}', [CreditCardController::class, 'destroyPayment'])->name('credit-cards.payments.destroy');
 
     Route::resource('recurring-payments', RecurringPaymentController::class)->only(['index', 'store', 'update', 'destroy']);
     Route::post('recurring-payments/{recurring_payment}/pay', [RecurringPaymentController::class, 'markPaid'])->name('recurring-payments.pay');

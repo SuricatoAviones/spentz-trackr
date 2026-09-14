@@ -23,3 +23,4 @@ son la referencia técnica y de producto.
 | [09-despliegue-dokploy.md](09-despliegue-dokploy.md) | Despliegue en VPS con Dokploy (Docker + Traefik) |
 | [10-multilenguaje.md](10-multilenguaje.md) | Planificación ES/EN: decisiones, fases y alcance |
 | [11-seguridad.md](11-seguridad.md) | Controles de seguridad, endurecimiento del despliegue y páginas legales |
+| [12-tarjetas-de-credito.md](12-tarjetas-de-credito.md) | Módulo de tarjetas: ciclo de corte, saldo híbrido y por qué el pago no es un gasto |

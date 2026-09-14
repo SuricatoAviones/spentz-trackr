@@ -37,6 +37,13 @@ return [
     'recurring_payment_updated' => 'Pago recurrente actualizado.',
     'recurring_payment_deleted' => 'Pago recurrente eliminado.',
     'recurring_payment_paid' => 'Pago registrado como pagado.',
+    'credit_card_created' => 'Tarjeta creada.',
+    'credit_card_updated' => 'Tarjeta actualizada.',
+    'credit_card_deleted' => 'Tarjeta eliminada.',
+    'credit_card_statement_created' => 'Corte registrado.',
+    'credit_card_statement_deleted' => 'Corte eliminado.',
+    'credit_card_payment_created' => 'Abono registrado.',
+    'credit_card_payment_deleted' => 'Abono eliminado.',
 
     'tracking_updated' => 'Modo de seguimiento actualizado.',
     'budget_updated' => 'Presupuesto mensual actualizado.',
