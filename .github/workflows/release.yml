@@ -1,0 +1,63 @@
+name: release
+
+# Se dispara al empujar un tag vX.Y.Z. Publica la release en GitHub tomando las
+# notas del CHANGELOG, para que no haya dos versiones distintas de la verdad.
+on:
+    push:
+        tags:
+            - 'v[0-9]+.[0-9]+.[0-9]+'
+            - 'v[0-9]+.[0-9]+.[0-9]+-*'
+
+permissions:
+    contents: write
+
+jobs:
+    release:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Comprobar que config/app.php coincide con el tag
+              run: |
+                  TAG="${GITHUB_REF_NAME#v}"
+                  # sed y no `grep -P`: éste no existe en todas las plataformas.
+                  APP=$(sed -n "s/.*'version' *=> *'\([^']*\)'.*/\1/p" config/app.php)
+
+                  if [ "$TAG" != "$APP" ]; then
+                    echo "El tag es $TAG pero config/app.php dice $APP."
+                    echo "Actualiza la versión antes de etiquetar."
+                    exit 1
+                  fi
+
+                  echo "Versión $APP correcta."
+
+            - name: Extraer las notas del CHANGELOG
+              id: notes
+              run: |
+                  TAG="${GITHUB_REF_NAME#v}"
+
+                  # Desde el encabezado de esta versión hasta el siguiente "## ".
+                  # Comparación literal con index() y no regex: los corchetes
+                  # del encabezado se interpretarían como una clase de caracteres
+                  # y la sección no se encontraría nunca.
+                  awk -v header="## [$TAG]" '
+                    index($0, header) == 1 { found = 1; next }
+                    found && /^## / { exit }
+                    found { print }
+                  ' CHANGELOG.md > release-notes.md
+
+                  if [ ! -s release-notes.md ]; then
+                    echo "No hay una sección [$TAG] en CHANGELOG.md."
+                    exit 1
+                  fi
+
+                  cat release-notes.md
+
+            - name: Publicar la release
+              uses: softprops/action-gh-release@v2
+              with:
+                  body_path: release-notes.md
+                  draft: false
+                  prerelease: ${{ contains(github.ref_name, '-') }}

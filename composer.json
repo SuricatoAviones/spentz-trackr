@@ -1,11 +1,18 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "laravel/react-starter-kit",
+    "name": "spentz/trackr",
     "type": "project",
-    "description": "The skeleton application for the Laravel framework.",
+    "description": "Control de gastos e ingresos multi-moneda (USD, Bs, USDT) para Venezuela. Auto-hospedable.",
     "keywords": [
+        "finanzas",
+        "gastos",
+        "venezuela",
+        "multi-moneda",
         "laravel",
-        "framework"
+        "inertia",
+        "react",
+        "self-hosted",
+        "pwa"
     ],
     "license": "MIT",
     "require": {
@@ -68,6 +75,7 @@
             "npm run lint:check",
             "npm run format:check",
             "npm run types:check",
+            "npm run test",
             "@test"
         ],
         "types:check": [
@@ -120,5 +128,10 @@
         }
     },
     "minimum-stability": "stable",
-    "prefer-stable": true
+    "prefer-stable": true,
+    "homepage": "https://github.com/SuricatoAviones/spentz-trackr",
+    "support": {
+        "issues": "https://github.com/SuricatoAviones/spentz-trackr/issues",
+        "source": "https://github.com/SuricatoAviones/spentz-trackr"
+    }
 }

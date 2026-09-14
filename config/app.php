@@ -26,6 +26,19 @@ return [
     |
     */
 
+    /*
+    |--------------------------------------------------------------------------
+    | Versión de la aplicación
+    |--------------------------------------------------------------------------
+    |
+    | Se sube a mano al crear un tag (ver CHANGELOG.md). La muestran el panel de
+    | sistema y las copias de seguridad, para poder saber con qué versión se
+    | generó un fichero que se restaura meses después.
+    |
+    */
+
+    'version' => '1.0.0',
+
     'env' => env('APP_ENV', 'production'),
 
     /*

@@ -25,6 +25,7 @@ import { update as systemApiUpdate } from '@/routes/admin/system/api';
 import { update as systemRegistrationUpdate } from '@/routes/admin/system/registration';
 
 type Status = {
+    app_version: string;
     environment: string;
     php_version: string;
     laravel_version: string;
@@ -128,6 +129,14 @@ export default function AdminSystem({
                             </CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-3 text-sm">
+                            <div className="flex items-center justify-between">
+                                <span className="text-muted-foreground">
+                                    {t('admin.system.app_version')}
+                                </span>
+                                <span className="font-medium tabular-nums">
+                                    v{status.app_version}
+                                </span>
+                            </div>
                             <div className="flex items-center justify-between">
                                 <span className="text-muted-foreground">
                                     {t('admin.system.environment')}

@@ -59,7 +59,7 @@ Plan en `10-multilenguaje.md`.
 
 ## Pendiente
 - [ ] Prueba E2E de un despliegue limpio (cPanel + Docker) en staging.
-- [ ] Política de versionado y tags de release.
+- [x] Política de versionado y tags de release (CHANGELOG.md + workflow de release).
 - [ ] Scheduler en el contenedor Docker (hoy la tasa solo se sincroniza al cargar página).
 - [ ] Presupuesto por categoría **con alertas/notificaciones**.
 

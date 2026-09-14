@@ -823,7 +823,8 @@
             "registration_disabled": "Closed",
             "registration_turn_on": "Open",
             "registration_turn_off": "Close",
-            "registration_note": "Closes both the web form and the API registration endpoint. You can still create users from the panel."
+            "registration_note": "Closes both the web form and the API registration endpoint. You can still create users from the panel.",
+            "app_version": "Version"
         }
     },
     "legal": {

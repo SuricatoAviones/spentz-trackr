@@ -42,7 +42,38 @@ Panel completo de administración para la plataforma multi-usuario. Vive bajo el
 ### Sistema y backup (`/admin/system`)
 - Estado: entorno, versiones de PHP/Laravel, driver de BD (con chequeo `SELECT 1`), caché y escritura de `storage`.
 - Volumen de datos por tabla.
-- **Backup** (`POST /admin/backup`): descarga JSON con todas las tablas (usuarios, categorías, orígenes, tasas, gastos y comprobantes). Los archivos de comprobantes no se incluyen. Queda registrado en auditoría.
+- **Backup** (`POST /admin/backup`): descarga un JSON con todas las tablas de datos de
+  usuario. Qué tablas y en qué orden lo decide `AppSupportBackupSchema`, **compartido con
+  la restauración**: cuando eran dos listas separadas se desincronizaban y el fichero llegó a
+  omitir ingresos, metas y tarjetas sin que nada avisara. Queda registrado en auditoría.
+
+  **Al añadir una tabla con datos de usuario, añádela a `BackupSchema`.** Una copia que
+  pierde datos en silencio es peor que no tener ninguna.
+
+- **Restauración** (`php artisan backup:restore fichero.json`): la otra mitad del backup.
+
+  | Opción | Qué hace |
+  |---|---|
+  | *(ninguna)* | Se niega a correr si ya hay datos: los ids chocarían |
+  | `--fresh` | Vacía las tablas primero, en orden inverso al de claves foráneas |
+  | `--force` | No preguntar en producción |
+
+  Todo va en una transacción: si algo falla a mitad, la base queda como estaba. También
+  rechaza ficheros que no son copias de Spentz Trackr y los de un formato más nuevo que el
+  que entiende esta versión, antes de tocar nada.
+
+  **Dos límites, avisados en voz alta y no escondidos:**
+
+  1. La copia **no lleva hashes de contraseña** (ni secretos 2FA), porque un fichero que se
+     descarga y se manda por correo no debe ser también un volcado de credenciales. Al
+     restaurar, cada usuario recibe una clave aleatoria que nadie conoce y debe recuperar la
+     suya. Para el administrador está `php artisan admin:create`.
+  2. Tampoco lleva **los ficheros** de los comprobantes, solo sus filas. Cópialos aparte
+     desde `storage/app/private`.
+
+  Para una recuperación byte a byte —incluidas las contraseñas— usa un volcado de la base de
+  datos (`mysqldump`, `pg_dump`) más una copia de `storage/`. Este backup es una exportación
+  de datos con la que reconstruir la instancia, no un sustituto de aquello.
 
 ## Rutas (resumen)
 

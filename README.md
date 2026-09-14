@@ -124,9 +124,22 @@ Sanctum · Scramble · Pest / Larastan / Pint. Base de datos SQLite, MySQL 8 o P
 
 ## Contribuir
 
-Es un proyecto abierto: issues y pull requests son bienvenidos. Antes de un PR, corre
-`composer run ci:check` (debe quedar en verde). Las decisiones de arquitectura se
-documentan como ADRs en `docs/04`.
+Issues y pull requests son bienvenidos. Lee **[CONTRIBUTING.md](CONTRIBUTING.md)** antes de
+empezar: explica cómo levantar el proyecto, qué comprueba `composer run ci:check` y —lo más
+útil— dónde están las reglas del repositorio, que documentan por qué las cosas son como son.
+
+El proyecto se desarrolla en español; la aplicación es bilingüe (ES/EN).
+
+## Seguridad
+
+¿Encontraste un fallo? **No abras un issue público.** Ver **[SECURITY.md](SECURITY.md)**.
+
+## Versiones
+
+Las versiones publicadas están en **[CHANGELOG.md](CHANGELOG.md)** y siguen SemVer. Si
+auto-hospedas, sitúate en un tag (`git checkout v1.0.0`) en vez de seguir `main`: sabrás qué
+tienes y qué cambia al actualizar. Las entradas marcadas **⚠ Acción requerida** piden algo de
+tu parte.
 
 ## Licencia
 
