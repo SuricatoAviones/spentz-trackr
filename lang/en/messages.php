@@ -65,6 +65,9 @@ return [
     'api_logout_success' => 'Signed out successfully',
     'api_profile_updated' => 'Profile updated successfully',
     'api_locale_updated' => 'Language updated successfully',
+    'api_disabled' => 'The REST API is disabled on this instance.',
+    'api_turned_on' => 'REST API enabled.',
+    'api_turned_off' => 'REST API disabled.',
 
     'pwa_description' => 'Track your spending in USD, Bs and USDT',
 ];

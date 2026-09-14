@@ -74,3 +74,21 @@ nombrar ese origen no protege de nada y solo rompe el desarrollo. En producción
 fichero `hot` y la política vuelve a ser estricta. Si añades un recurso externo (una fuente,
 un CDN de imágenes), añádelo a su directiva concreta: `default-src 'self'` no lo hereda.
 Ver `tests/Feature/SecurityHeadersTest.php`.
+
+## Interruptores de instancia: el .env es el arranque, `app_settings` manda después
+`config/features.php` lee el `.env` y define el **valor por defecto**; la tabla
+`app_settings` guarda lo que un admin cambie desde el panel y **gana** sobre el default.
+Se consulta siempre por `App\Support\Features`, nunca leyendo `config()` a pelo, o el
+interruptor del panel dejaría de tener efecto.
+
+Los ajustes van a caché (`Cache::rememberForever`) porque se leen en cada petición de API;
+`AppSetting::set()` invalida esa caché. Si añades un interruptor nuevo, hazlo por ahí: sin
+el `Cache::forget` el cambio no surtiría efecto hasta que la caché expirase, que es un fallo
+desesperante de diagnosticar.
+
+`AppSetting::map()` comprueba `Schema::hasTable()` antes de consultar y **no cachea el
+vacío**: `migrate` arranca la app para correrse a sí mismo, y cachear `[]` antes de crear la
+tabla dejaría los ajustes invisibles para siempre.
+
+Apagar la API devuelve **503, no 404**: un 404 haría creer a quien integra que se equivocó de
+ruta. Y no revoca tokens — apagar es reversible. Ver `tests/Feature/Admin/ApiToggleTest.php`.

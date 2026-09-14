@@ -64,6 +64,9 @@ return [
     'api_logout_success' => 'Sesión cerrada correctamente',
     'api_profile_updated' => 'Perfil actualizado correctamente',
     'api_locale_updated' => 'Idioma actualizado correctamente',
+    'api_disabled' => 'La API REST está deshabilitada en esta instancia.',
+    'api_turned_on' => 'API REST habilitada.',
+    'api_turned_off' => 'API REST deshabilitada.',
 
     'pwa_description' => 'Controla tus gastos en USD, Bs y USDT',
 ];

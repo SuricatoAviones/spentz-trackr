@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\User;
+use App\Support\Features;
 use Carbon\CarbonImmutable;
 use Dedoc\Scramble\Scramble;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -52,7 +53,9 @@ class AppServiceProvider extends ServiceProvider
      */
     protected function configureApiDocsAccess(): void
     {
-        Gate::define('viewApiDocs', fn (?User $user): bool => ! app()->isProduction());
+        // Con la API apagada tampoco se navega su documentación: enseñar los
+        // endpoints de un servicio que devuelve 503 solo confunde.
+        Gate::define('viewApiDocs', fn (?User $user): bool => ! app()->isProduction() && Features::apiEnabled());
 
         Scramble::configure()
             ->expose(

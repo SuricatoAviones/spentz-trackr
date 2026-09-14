@@ -809,7 +809,14 @@
             "backup_title": "Database backup",
             "backup_desc": "Download a JSON backup with all records (users, categories, sources, rates, expenses and receipts). Receipt files are not included.",
             "backup_generating": "Generating...",
-            "backup_download": "Download backup"
+            "backup_download": "Download backup",
+            "api_title": "REST API",
+            "api_description": "Endpoints at /api/v1 for external apps. If you do not use them, keeping this off reduces your exposed surface.",
+            "api_enabled": "Enabled",
+            "api_disabled": "Disabled",
+            "api_turn_on": "Enable",
+            "api_turn_off": "Disable",
+            "api_tokens_note": "Turning it off does not revoke issued tokens: they keep working when you turn it back on."
         }
     },
     "legal": {

@@ -16,6 +16,8 @@ use App\Models\RecurringPayment;
 use App\Models\SavingsContribution;
 use App\Models\SavingsGoal;
 use App\Models\User;
+use App\Support\Features;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -45,6 +47,9 @@ class SystemController extends Controller
                 'cache_driver' => config('cache.default'),
                 'storage_writable' => is_writable(storage_path()),
             ],
+            'features' => [
+                'api' => Features::apiEnabled(),
+            ],
             'counts' => [
                 'users' => User::count(),
                 'expenses' => Expense::count(),
@@ -54,6 +59,26 @@ class SystemController extends Controller
                 'payment_sources' => PaymentSource::count(),
             ],
         ]);
+    }
+
+    /**
+     * Enciende o apaga la API REST para toda la instancia.
+     *
+     * No revoca los tokens emitidos: apagar es reversible y al volver a
+     * encenderla las integraciones siguen funcionando. Quien quiera cortar el
+     * acceso de verdad tiene el reset de contraseña, que sí los revoca.
+     */
+    public function updateApi(Request $request): RedirectResponse
+    {
+        $enabled = $request->validate([
+            'enabled' => ['required', 'boolean'],
+        ])['enabled'];
+
+        Features::setApiEnabled((bool) $enabled);
+
+        AdminAction::record($enabled ? 'api.enabled' : 'api.disabled');
+
+        return back()->with('success', __($enabled ? 'messages.api_turned_on' : 'messages.api_turned_off'));
     }
 
     public function backup(Request $request): StreamedResponse

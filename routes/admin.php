@@ -42,5 +42,6 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::get('audit', [AuditController::class, 'index'])->name('audit.index');
 
     Route::get('system', [SystemController::class, 'index'])->name('system.index');
+    Route::put('system/api', [SystemController::class, 'updateApi'])->name('system.api.update');
     Route::post('backup', [SystemController::class, 'backup'])->name('system.backup');
 });

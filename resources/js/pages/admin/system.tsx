@@ -4,6 +4,7 @@ import {
     Database,
     Download,
     HardDrive,
+    Plug,
     Server,
     XCircle,
 } from 'lucide-react';
@@ -19,6 +20,7 @@ import {
 } from '@/components/ui/card';
 import { formatAmount } from '@/lib/format';
 import { backup as systemBackup } from '@/routes/admin/system';
+import { update as systemApiUpdate } from '@/routes/admin/system/api';
 
 type Status = {
     environment: string;
@@ -42,12 +44,24 @@ type Counts = {
 export default function AdminSystem({
     status,
     counts,
+    features,
 }: {
     status: Status;
     counts: Counts;
+    features: { api: boolean };
 }) {
     const { t } = useTranslation();
     const [generating, setGenerating] = useState(false);
+    const [togglingApi, setTogglingApi] = useState(false);
+
+    function toggleApi(enabled: boolean) {
+        setTogglingApi(true);
+        router.put(
+            systemApiUpdate().url,
+            { enabled },
+            { onFinish: () => setTogglingApi(false), preserveScroll: true },
+        );
+    }
 
     setLayoutProps({
         title: t('admin.system.title'),
@@ -222,6 +236,54 @@ export default function AdminSystem({
                                         </p>
                                     </div>
                                 ))}
+                            </CardContent>
+                        </Card>
+
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="flex items-center gap-2 text-base">
+                                    <Plug className="size-4" />
+                                    {t('admin.system.api_title')}
+                                </CardTitle>
+                                <CardDescription>
+                                    {t('admin.system.api_description')}
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-3">
+                                <div className="flex items-center justify-between gap-3">
+                                    <span
+                                        className={
+                                            features.api
+                                                ? 'inline-flex items-center gap-1.5 rounded-full bg-emerald-500/15 px-3 py-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400'
+                                                : 'inline-flex items-center gap-1.5 rounded-full bg-muted px-3 py-1 text-xs font-semibold text-muted-foreground'
+                                        }
+                                    >
+                                        {features.api ? (
+                                            <CheckCircle2 className="size-3.5" />
+                                        ) : (
+                                            <XCircle className="size-3.5" />
+                                        )}
+                                        {features.api
+                                            ? t('admin.system.api_enabled')
+                                            : t('admin.system.api_disabled')}
+                                    </span>
+
+                                    <Button
+                                        variant={
+                                            features.api ? 'outline' : 'default'
+                                        }
+                                        disabled={togglingApi}
+                                        onClick={() => toggleApi(!features.api)}
+                                    >
+                                        {features.api
+                                            ? t('admin.system.api_turn_off')
+                                            : t('admin.system.api_turn_on')}
+                                    </Button>
+                                </div>
+
+                                <p className="text-xs text-muted-foreground">
+                                    {t('admin.system.api_tokens_note')}
+                                </p>
                             </CardContent>
                         </Card>
 

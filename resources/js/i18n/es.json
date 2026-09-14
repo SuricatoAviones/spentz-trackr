@@ -809,7 +809,14 @@
             "backup_title": "Backup de la base de datos",
             "backup_desc": "Descarga un respaldo JSON con todos los registros (usuarios, categorías, orígenes, tasas, gastos y comprobantes). Los archivos de comprobantes no se incluyen.",
             "backup_generating": "Generando...",
-            "backup_download": "Descargar backup"
+            "backup_download": "Descargar backup",
+            "api_title": "API REST",
+            "api_description": "Endpoints en /api/v1 para apps externas. Si no los usas, tenerlos apagados reduce la superficie expuesta.",
+            "api_enabled": "Habilitada",
+            "api_disabled": "Deshabilitada",
+            "api_turn_on": "Habilitar",
+            "api_turn_off": "Deshabilitar",
+            "api_tokens_note": "Apagarla no revoca los tokens ya emitidos: al volver a encenderla seguirán funcionando."
         }
     },
     "legal": {

@@ -17,6 +17,8 @@ return [
     'action.source_updated' => 'Payment source updated',
     'action.source_deleted' => 'Payment source deleted',
     'action.backup_generated' => 'Backup generated',
+    'action.api_enabled' => 'REST API enabled',
+    'action.api_disabled' => 'REST API disabled',
 
     'uncategorized' => 'Uncategorized',
 ];

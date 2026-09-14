@@ -17,6 +17,8 @@ return [
     'action.source_updated' => 'Origen actualizado',
     'action.source_deleted' => 'Origen eliminado',
     'action.backup_generated' => 'Backup generado',
+    'action.api_enabled' => 'API REST habilitada',
+    'action.api_disabled' => 'API REST deshabilitada',
 
     'uncategorized' => 'Sin categoría',
 ];

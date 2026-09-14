@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\EnsureApiEnabled;
 use App\Http\Middleware\EnsureApiUserNotSuspended;
 use App\Http\Middleware\EnsureUserIsAdmin;
 use App\Http\Middleware\EnsureUserNotSuspended;
@@ -68,6 +69,9 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $middleware->api(prepend: [
+            // El primero de todos: si la API está apagada no hay que resolver
+            // tokens ni tocar la base de datos para nada más.
+            EnsureApiEnabled::class,
             EnsureApiUserNotSuspended::class,
         ]);
     })
