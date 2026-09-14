@@ -47,9 +47,7 @@ class SystemController extends Controller
                 'cache_driver' => config('cache.default'),
                 'storage_writable' => is_writable(storage_path()),
             ],
-            'features' => [
-                'api' => Features::apiEnabled(),
-            ],
+            'features' => Features::all(),
             'counts' => [
                 'users' => User::count(),
                 'expenses' => Expense::count(),
@@ -79,6 +77,28 @@ class SystemController extends Controller
         AdminAction::record($enabled ? 'api.enabled' : 'api.disabled');
 
         return back()->with('success', __($enabled ? 'messages.api_turned_on' : 'messages.api_turned_off'));
+    }
+
+    /**
+     * Abre o cierra el registro de usuarios de la instancia.
+     *
+     * Cierra a la vez el formulario web y `POST /api/v1/auth/register`: dejar
+     * abierta la puerta de la API convertiría el interruptor en decorativo.
+     */
+    public function updateRegistration(Request $request): RedirectResponse
+    {
+        $enabled = $request->validate([
+            'enabled' => ['required', 'boolean'],
+        ])['enabled'];
+
+        Features::setRegistrationEnabled((bool) $enabled);
+
+        AdminAction::record($enabled ? 'registration.enabled' : 'registration.disabled');
+
+        return back()->with(
+            'success',
+            __($enabled ? 'messages.registration_turned_on' : 'messages.registration_turned_off'),
+        );
     }
 
     public function backup(Request $request): StreamedResponse

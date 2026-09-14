@@ -5,11 +5,11 @@ namespace App\Http\Controllers\Api\V1\Auth;
 use App\Actions\Fortify\CreateNewUser;
 use App\Http\Controllers\Api\V1\BaseApiController;
 use App\Models\User;
+use App\Support\Features as InstanceFeatures;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
-use Laravel\Fortify\Features;
 
 class AuthenticatedSessionController extends BaseApiController
 {
@@ -24,9 +24,9 @@ class AuthenticatedSessionController extends BaseApiController
      */
     public function register(Request $request, CreateNewUser $createNewUser): JsonResponse
     {
-        // Mismo interruptor que el formulario web: con REGISTRATION_ENABLED=false
-        // la API no puede ser la puerta de atrás de una instancia cerrada.
-        abort_unless(Features::enabled(Features::registration()), 404);
+        // Mismo interruptor que el formulario web: con el registro cerrado la
+        // API no puede ser la puerta de atrás de una instancia privada.
+        abort_unless(InstanceFeatures::registrationEnabled(), 404);
 
         $user = $createNewUser->create($request->all());
 

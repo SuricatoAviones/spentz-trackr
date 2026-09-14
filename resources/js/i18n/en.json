@@ -816,7 +816,14 @@
             "api_disabled": "Disabled",
             "api_turn_on": "Enable",
             "api_turn_off": "Disable",
-            "api_tokens_note": "Turning it off does not revoke issued tokens: they keep working when you turn it back on."
+            "api_tokens_note": "Turning it off does not revoke issued tokens: they keep working when you turn it back on.",
+            "registration_title": "User registration",
+            "registration_description": "Lets anyone create an account. Close it if this instance is private.",
+            "registration_enabled": "Open",
+            "registration_disabled": "Closed",
+            "registration_turn_on": "Open",
+            "registration_turn_off": "Close",
+            "registration_note": "Closes both the web form and the API registration endpoint. You can still create users from the panel."
         }
     },
     "legal": {

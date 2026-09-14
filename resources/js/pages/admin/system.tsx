@@ -6,6 +6,7 @@ import {
     HardDrive,
     Plug,
     Server,
+    UserPlus,
     XCircle,
 } from 'lucide-react';
 import { useState } from 'react';
@@ -21,6 +22,7 @@ import {
 import { formatAmount } from '@/lib/format';
 import { backup as systemBackup } from '@/routes/admin/system';
 import { update as systemApiUpdate } from '@/routes/admin/system/api';
+import { update as systemRegistrationUpdate } from '@/routes/admin/system/registration';
 
 type Status = {
     environment: string;
@@ -48,11 +50,12 @@ export default function AdminSystem({
 }: {
     status: Status;
     counts: Counts;
-    features: { api: boolean };
+    features: { api: boolean; registration: boolean };
 }) {
     const { t } = useTranslation();
     const [generating, setGenerating] = useState(false);
     const [togglingApi, setTogglingApi] = useState(false);
+    const [togglingRegistration, setTogglingRegistration] = useState(false);
 
     function toggleApi(enabled: boolean) {
         setTogglingApi(true);
@@ -60,6 +63,18 @@ export default function AdminSystem({
             systemApiUpdate().url,
             { enabled },
             { onFinish: () => setTogglingApi(false), preserveScroll: true },
+        );
+    }
+
+    function toggleRegistration(enabled: boolean) {
+        setTogglingRegistration(true);
+        router.put(
+            systemRegistrationUpdate().url,
+            { enabled },
+            {
+                onFinish: () => setTogglingRegistration(false),
+                preserveScroll: true,
+            },
         );
     }
 
@@ -283,6 +298,68 @@ export default function AdminSystem({
 
                                 <p className="text-xs text-muted-foreground">
                                     {t('admin.system.api_tokens_note')}
+                                </p>
+                            </CardContent>
+                        </Card>
+
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="flex items-center gap-2 text-base">
+                                    <UserPlus className="size-4" />
+                                    {t('admin.system.registration_title')}
+                                </CardTitle>
+                                <CardDescription>
+                                    {t('admin.system.registration_description')}
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-3">
+                                <div className="flex items-center justify-between gap-3">
+                                    <span
+                                        className={
+                                            features.registration
+                                                ? 'inline-flex items-center gap-1.5 rounded-full bg-emerald-500/15 px-3 py-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400'
+                                                : 'inline-flex items-center gap-1.5 rounded-full bg-muted px-3 py-1 text-xs font-semibold text-muted-foreground'
+                                        }
+                                    >
+                                        {features.registration ? (
+                                            <CheckCircle2 className="size-3.5" />
+                                        ) : (
+                                            <XCircle className="size-3.5" />
+                                        )}
+                                        {features.registration
+                                            ? t(
+                                                  'admin.system.registration_enabled',
+                                              )
+                                            : t(
+                                                  'admin.system.registration_disabled',
+                                              )}
+                                    </span>
+
+                                    <Button
+                                        variant={
+                                            features.registration
+                                                ? 'outline'
+                                                : 'default'
+                                        }
+                                        disabled={togglingRegistration}
+                                        onClick={() =>
+                                            toggleRegistration(
+                                                !features.registration,
+                                            )
+                                        }
+                                    >
+                                        {features.registration
+                                            ? t(
+                                                  'admin.system.registration_turn_off',
+                                              )
+                                            : t(
+                                                  'admin.system.registration_turn_on',
+                                              )}
+                                    </Button>
+                                </div>
+
+                                <p className="text-xs text-muted-foreground">
+                                    {t('admin.system.registration_note')}
                                 </p>
                             </CardContent>
                         </Card>

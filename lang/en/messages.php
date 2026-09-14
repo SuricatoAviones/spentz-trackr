@@ -68,6 +68,8 @@ return [
     'api_disabled' => 'The REST API is disabled on this instance.',
     'api_turned_on' => 'REST API enabled.',
     'api_turned_off' => 'REST API disabled.',
+    'registration_turned_on' => 'User registration opened.',
+    'registration_turned_off' => 'User registration closed.',
 
     'pwa_description' => 'Track your spending in USD, Bs and USDT',
 ];

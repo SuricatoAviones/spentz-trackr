@@ -19,6 +19,8 @@ return [
     'action.backup_generated' => 'Backup generated',
     'action.api_enabled' => 'REST API enabled',
     'action.api_disabled' => 'REST API disabled',
+    'action.registration_enabled' => 'Registration opened',
+    'action.registration_disabled' => 'Registration closed',
 
     'uncategorized' => 'Uncategorized',
 ];

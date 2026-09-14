@@ -27,4 +27,16 @@ return [
      */
     'api' => env('API_ENABLED', true),
 
+    /*
+     | Registro de usuarios. Apagarlo devuelve 404 en el formulario web y en
+     | POST /api/v1/auth/register: una instancia privada no debería anunciar
+     | siquiera que existe la puerta.
+     |
+     | No se comprueba desde `config/fortify.php` porque ese array se construye
+     | al cargar la configuración, antes de que la base de datos esté
+     | disponible, y rompería `config:cache`. La feature de Fortify queda
+     | siempre registrada y el corte lo hace `EnsureRegistrationEnabled`.
+     */
+    'registration' => env('REGISTRATION_ENABLED', true),
+
 ];

@@ -91,4 +91,15 @@ vacío**: `migrate` arranca la app para correrse a sí mismo, y cachear `[]` ant
 tabla dejaría los ajustes invisibles para siempre.
 
 Apagar la API devuelve **503, no 404**: un 404 haría creer a quien integra que se equivocó de
-ruta. Y no revoca tokens — apagar es reversible. Ver `tests/Feature/Admin/ApiToggleTest.php`.
+ruta. Y no revoca tokens — apagar es reversible. Cerrar el **registro**, en cambio, devuelve
+**404**: una instancia privada no debería anunciar que tiene una puerta cerrada. Ver
+`tests/Feature/Admin/{ApiToggle,RegistrationToggleAdmin}Test.php`.
+
+El gate del registro **no puede vivir en `config/fortify.php`**: ese array se construye al
+cargar la configuración, sin base de datos disponible y horneado por `config:cache`, así que
+un interruptor en caliente nunca surtiría efecto. `Features::registration()` queda siempre
+registrada y el corte lo hace el middleware `EnsureRegistrationEnabled`, que filtra por
+nombre de ruta (`register`, `register.store`). El endpoint de la API comprueba lo mismo con
+`App\Support\Features::registrationEnabled()` — si solo se cerrara la web, la API sería la
+puerta de atrás y el interruptor, decorativo.
+

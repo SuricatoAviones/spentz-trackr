@@ -109,13 +109,33 @@ que además se regenera) y en el reset que hace un admin (todas).
 
 Tests: `tests/Feature/PasswordRevokesAccessTest.php`.
 
-## 6. Registro cerrable
+## 6. Interruptores de instancia: registro y API REST
 
-`REGISTRATION_ENABLED=false` apaga a la vez el formulario web y `POST /api/v1/auth/register`
-(con `abort_unless` en el controlador, para que la API no sea la puerta de atrás de una
-instancia cerrada).
+Dos interruptores en **Panel admin → Sistema**, sin tocar el servidor:
 
-Tests: `tests/Feature/RegistrationToggleTest.php`.
+| Interruptor | Apagado devuelve | Alcance |
+|---|---|---|
+| Registro de usuarios | **404** en `/register` y en `POST /api/v1/auth/register` | Una instancia privada no anuncia que tiene una puerta cerrada |
+| API REST | **503** en todo `/api/v1` + oculta la documentación | Quien integra necesita distinguir "apagado" de "ruta mal escrita" |
+
+`config/features.php` (que lee `.env`) fija el **valor de arranque**; lo que un admin cambie
+se guarda en `app_settings` y **manda a partir de ahí**. Se consulta siempre por
+`App\Support\Features`, nunca leyendo `config()` a pelo, o el interruptor del panel no
+tendría efecto.
+
+Apagar la API **no revoca los tokens**: es reversible, y al reencenderla las integraciones
+siguen funcionando. Para cortar accesos de verdad está el reset de contraseña, que sí revoca
+(punto 5). Cerrar el registro no impide que un admin siga dando de alta usuarios desde el
+panel, y el login deja de ofrecer el enlace de "crear cuenta" para no mandar a un 404.
+
+El gate del registro **no puede vivir en `config/fortify.php`**: ese array se construye al
+cargar la configuración —sin base de datos y horneado por `config:cache`—, así que un
+interruptor en caliente nunca surtiría efecto. La feature de Fortify queda siempre registrada
+y el corte lo hace `EnsureRegistrationEnabled`.
+
+Ambos cambios quedan en la auditoría del panel.
+
+Tests: `tests/Feature/Admin/{ApiToggle,RegistrationToggleAdmin}Test.php`.
 
 ## 7. Valores por defecto del despliegue
 

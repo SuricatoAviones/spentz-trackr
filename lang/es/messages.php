@@ -67,6 +67,8 @@ return [
     'api_disabled' => 'La API REST está deshabilitada en esta instancia.',
     'api_turned_on' => 'API REST habilitada.',
     'api_turned_off' => 'API REST deshabilitada.',
+    'registration_turned_on' => 'Registro de usuarios abierto.',
+    'registration_turned_off' => 'Registro de usuarios cerrado.',
 
     'pwa_description' => 'Controla tus gastos en USD, Bs y USDT',
 ];

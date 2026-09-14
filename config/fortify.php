@@ -160,11 +160,17 @@ return [
     |
     */
 
-    'features' => array_values(array_filter([
-        // Instancia auto-hospedada: quien la publique en internet debe poder
-        // cerrar el registro. REGISTRATION_ENABLED=false apaga a la vez el
-        // formulario web y POST /api/v1/auth/register.
-        env('REGISTRATION_ENABLED', true) ? Features::registration() : null,
+    'features' => [
+        /*
+         | El registro se queda SIEMPRE registrado aquí; si puede usarse o no lo
+         | decide `App\Support\Features::registrationEnabled()`, que consulta el
+         | ajuste que el admin cambia desde el panel. No se filtra en este array
+         | porque se construye al cargar la configuración —sin base de datos
+         | disponible y horneado por `config:cache`—, así que un interruptor en
+         | caliente nunca surtiría efecto. El corte lo hace el middleware
+         | `EnsureRegistrationEnabled`.
+         */
+        Features::registration(),
         Features::resetPasswords(),
         Features::emailVerification(),
         Features::twoFactorAuthentication([
@@ -175,6 +181,6 @@ return [
         Features::passkeys([
             'confirmPassword' => true,
         ]),
-    ])),
+    ],
 
 ];

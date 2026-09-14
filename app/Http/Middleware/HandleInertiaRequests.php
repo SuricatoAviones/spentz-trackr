@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Support\Features;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Lang;
 use Inertia\Middleware;
@@ -62,6 +63,8 @@ class HandleInertiaRequests extends Middleware
                     'updated_at' => $request->user()->updated_at?->toIso8601String(),
                 ],
             ],
+            // Para que el login no enlace a un registro cerrado (un 404).
+            'features' => Features::all(),
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];
     }

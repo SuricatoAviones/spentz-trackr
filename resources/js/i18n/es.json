@@ -816,7 +816,14 @@
             "api_disabled": "Deshabilitada",
             "api_turn_on": "Habilitar",
             "api_turn_off": "Deshabilitar",
-            "api_tokens_note": "Apagarla no revoca los tokens ya emitidos: al volver a encenderla seguirán funcionando."
+            "api_tokens_note": "Apagarla no revoca los tokens ya emitidos: al volver a encenderla seguirán funcionando.",
+            "registration_title": "Registro de usuarios",
+            "registration_description": "Permite que cualquiera cree una cuenta. Ciérralo si la instancia es privada.",
+            "registration_enabled": "Abierto",
+            "registration_disabled": "Cerrado",
+            "registration_turn_on": "Abrir",
+            "registration_turn_off": "Cerrar",
+            "registration_note": "Cierra a la vez el formulario web y el endpoint de registro de la API. Tú puedes seguir creando usuarios desde el panel."
         }
     },
     "legal": {

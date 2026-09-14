@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\EnsureApiEnabled;
 use App\Http\Middleware\EnsureApiUserNotSuspended;
+use App\Http\Middleware\EnsureRegistrationEnabled;
 use App\Http\Middleware\EnsureUserIsAdmin;
 use App\Http\Middleware\EnsureUserNotSuspended;
 use App\Http\Middleware\HandleAppearance;
@@ -61,6 +62,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->web(append: [
             SecurityHeaders::class,
+            EnsureRegistrationEnabled::class,
             HandleAppearance::class,
             SetLocale::class,
             HandleInertiaRequests::class,
