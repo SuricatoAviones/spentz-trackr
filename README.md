@@ -137,7 +137,7 @@ El proyecto se desarrolla en español; la aplicación es bilingüe (ES/EN).
 ## Versiones
 
 Las versiones publicadas están en **[CHANGELOG.md](CHANGELOG.md)** y siguen SemVer. Si
-auto-hospedas, sitúate en un tag (`git checkout v1.0.0`) en vez de seguir `main`: sabrás qué
+auto-hospedas, sitúate en un tag (`git checkout v1.1.0`) en vez de seguir `main`: sabrás qué
 tienes y qué cambia al actualizar. Las entradas marcadas **⚠ Acción requerida** piden algo de
 tu parte.
 

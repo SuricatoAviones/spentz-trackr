@@ -34,6 +34,7 @@ class StoreRecurringPaymentRequest extends FormRequest
             'category_id' => ['nullable', 'integer', Rule::exists('categories', 'id')->where('user_id', $this->user()?->id)],
             'icon' => ['nullable', 'string', 'max:50'],
             'color' => ['nullable', 'string', 'max:20'],
+            'active' => ['sometimes', 'boolean'],
             'note' => ['nullable', 'string', 'max:2000'],
         ];
     }

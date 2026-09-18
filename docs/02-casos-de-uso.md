@@ -101,7 +101,8 @@ globales con export, tasas del día, categorías/orígenes globales.
 ### UC-20 API REST
 `POST /api/v1/auth/register|login` devuelve un token Sanctum (90 días). Con el token
 (`Authorization: Bearer …`) se accede al CRUD de gastos (incl. ítems mixtos), ingresos,
-categorías, orígenes, reportes y tasas. Rate limit `api` 100/min. Doc OpenAPI en `/api/v1`.
+categorías, orígenes, metas de ahorro (con aportes), pagos recurrentes, tarjetas de crédito
+(con cortes y abonos), reportes y tasas. Rate limit `api` 100/min. Doc OpenAPI en `/api/v1`.
 
 ## Matriz de prioridades (estado actual)
 

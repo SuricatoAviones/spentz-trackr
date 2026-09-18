@@ -54,7 +54,13 @@ return [
         'description' => <<<'MD'
             API REST de Spentz Trackr (versión 1). Permite gestionar gastos e ingresos con conversión
             automática USD/USDT/Bs, categorías, orígenes de pago, tasas de cambio manuales o
-            sincronizadas, dashboard y reportes.
+            sincronizadas, metas de ahorro, pagos recurrentes, tarjetas de crédito, dashboard y
+            reportes.
+
+            Como en el resto de la app, **la conversión se congela al escribir** (ADR-001): el
+            importe en USD/USDT de un gasto, un aporte, un corte o un abono se calcula con la tasa
+            del momento y no se recalcula nunca. Por eso los endpoints que reciben importes en Bs
+            exigen `exchange_rate`.
 
             La mayoría de los endpoints requieren un **Personal Access Token** de Sanctum, enviado
             como `Authorization: Bearer {token}`. Obtén uno con `POST /api/v1/auth/register` o

@@ -188,6 +188,12 @@ Tokens de acceso personal con expiración (90 días), `throttle:api` (100/min) y
 documentación (Scramble) se expone en `/api/v1` y el spec en `/api/v1.json`, cerrada en
 producción por el gate `viewApiDocs`.
 
+La API cubre la misma superficie que la web —gastos, ingresos, categorías, orígenes, metas
+de ahorro, pagos recurrentes y tarjetas— y **comparte con ella las Actions, los Form
+Requests y los Presenters**: un controlador de `Api/V1` no repite ni una regla de negocio.
+Eso es lo que garantiza que el congelado de la conversión (ADR-001) y las invariantes de
+tarjetas (un abono no es un gasto) valgan igual desde un cliente externo.
+
 ### ADR-010 — Auditoría del panel admin (`admin_actions`)
 Cada acción de administrador se registra con `AdminAction::record()`. El `target` es un
 morph sin FK: el registro sobrevive al borrado del objetivo.

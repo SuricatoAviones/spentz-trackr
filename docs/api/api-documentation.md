@@ -455,6 +455,319 @@ Mismo body que `POST /api/v1/expenses`. **Response (201):** `{ "success": true, 
 
 ---
 
+### Metas de Ahorro (Savings Goals)
+
+El objetivo se **congela en USD** al guardarlo: una meta en Bs guarda la tasa con la que se
+creó y no se recalcula con la de hoy. Lo mismo con cada aporte.
+
+La meta se marca (y se desmarca) como cumplida sola, según la suma de los aportes: no hay
+endpoint para "lograrla" a mano.
+
+#### List Savings Goals
+`GET /api/v1/savings-goals`
+
+**Query params:** `achieved` (`1` solo las cumplidas, `0` solo las pendientes).
+
+**Response (200):**
+```json
+{
+    "success": true,
+    "data": {
+        "goals": [
+            {
+                "id": 1,
+                "name": "Viaje",
+                "target_amount": "1000.00",
+                "currency": "usd",
+                "exchange_rate": null,
+                "target_usd_amount": "1000.00",
+                "icon": "piggy-bank",
+                "color": "#10B981",
+                "deadline": "2026-12-31",
+                "note": null,
+                "achieved_at": null,
+                "saved": 250,
+                "percent": 25,
+                "contributions": [
+                    {
+                        "id": 4,
+                        "amount": "250.00",
+                        "currency": "usd",
+                        "usd_amount": "250.00",
+                        "income_id": null,
+                        "contributed_at": "2026-09-01",
+                        "note": null
+                    }
+                ]
+            }
+        ]
+    }
+}
+```
+
+#### Create Savings Goal
+`POST /api/v1/savings-goals`
+
+| Campo | Tipo | Obligatorio | Notas |
+|-------|------|-------------|-------|
+| `name` | string(100) | sí | |
+| `target_amount` | numeric > 0 | sí | En la moneda de `currency` |
+| `currency` | `usd` \| `ves` \| `usdt` | sí | |
+| `exchange_rate` | numeric > 0 | solo si `currency=ves` | Con ella se congela el objetivo en USD |
+| `icon` | string(50) | no | |
+| `color` | string(20) | no | |
+| `deadline` | date | no | Hoy o posterior |
+| `note` | string(2000) | no | |
+
+**Response (201):** `{ "success": true, "data": { "id": 7 }, "message": "Meta de ahorro creada." }`
+
+#### Get Savings Goal
+`GET /api/v1/savings-goals/{id}` — la meta con sus aportes, bajo `data.goal`.
+
+#### Update Savings Goal
+`PUT /api/v1/savings-goals/{id}` — mismos campos que al crear. Subir el objetivo puede
+"desconseguir" una meta ya cumplida: la respuesta trae `achieved_at` ya recalculado.
+
+#### Delete Savings Goal
+`DELETE /api/v1/savings-goals/{id}` — borra también sus aportes.
+
+#### Add Contribution
+`POST /api/v1/savings-goals/{id}/contributions`
+
+| Campo | Tipo | Obligatorio | Notas |
+|-------|------|-------------|-------|
+| `amount` | numeric > 0 | sí | |
+| `currency` | `usd` \| `ves` \| `usdt` | sí | |
+| `exchange_rate` | numeric > 0 | solo si `currency=ves` | |
+| `contributed_at` | date | sí | Hoy o anterior |
+| `income_id` | integer | no | Ingreso propio del que sale el aporte |
+| `note` | string(2000) | no | |
+
+**Response (201):** `{ "success": true, "data": { "id": 12 }, "message": "Aporte registrado." }`
+
+#### Delete Contribution
+`DELETE /api/v1/savings-goals/{id}/contributions/{contribution}`
+
+Devuelve `404` si el aporte no es de esa meta.
+
+---
+
+### Pagos Recurrentes (Recurring Payments)
+
+Un recurrente es **un recordatorio de lo que toca pagar, no el movimiento**: marcarlo como
+pagado no crea ningún gasto. Quien quiera registrarlo crea el gasto aparte.
+
+#### List Recurring Payments
+`GET /api/v1/recurring-payments`
+
+**Query params:** `active` (`1`/`0`), `due` (`1` solo los vencidos y activos).
+Los vencidos van primero; después, por fecha de vencimiento ascendente.
+
+**Response (200):**
+```json
+{
+    "success": true,
+    "data": {
+        "payments": [
+            {
+                "id": 3,
+                "name": "Internet",
+                "amount": "30.00",
+                "currency": "usd",
+                "usd_amount": "30.00",
+                "frequency": "monthly",
+                "next_due_date": "2026-09-17",
+                "last_paid_at": "2026-08-17",
+                "category_id": 2,
+                "icon": "wifi",
+                "color": "#10B981",
+                "active": true,
+                "note": null,
+                "due": true
+            }
+        ]
+    }
+}
+```
+
+#### Create Recurring Payment
+`POST /api/v1/recurring-payments`
+
+| Campo | Tipo | Obligatorio | Notas |
+|-------|------|-------------|-------|
+| `name` | string(100) | sí | |
+| `amount` | numeric > 0 | sí | |
+| `currency` | `usd` \| `ves` \| `usdt` | sí | |
+| `exchange_rate` | numeric > 0 | solo si `currency=ves` | Congela el equivalente en USD |
+| `frequency` | `daily` \| `weekly` \| `monthly` \| `quarterly` \| `yearly` | sí | |
+| `next_due_date` | date | sí | |
+| `category_id` | integer | no | Categoría propia |
+| `icon`, `color`, `note` | string | no | |
+| `active` | boolean | no | Por defecto activo |
+
+#### Get / Update / Delete
+`GET|PUT|DELETE /api/v1/recurring-payments/{id}`. En `PUT`, enviar `active: false` lo pausa
+y `active: true` lo reanuda. La respuesta del `PUT` trae el recurrente ya presentado.
+
+#### Mark as Paid
+`POST /api/v1/recurring-payments/{id}/pay`
+
+Pone `last_paid_at` a hoy y adelanta `next_due_date` un periodo según `frequency`.
+**No crea ningún gasto.**
+
+**Response (200):**
+```json
+{
+    "success": true,
+    "data": { "payment": { "id": 3, "next_due_date": "2026-10-18", "last_paid_at": "2026-09-18", "due": false } },
+    "message": "Pago registrado como pagado."
+}
+```
+
+---
+
+### Tarjetas de Crédito (Credit Cards)
+
+Cada tarjeta crea (y mantiene) el **origen de pago** que la representa, así que sus consumos
+son gastos normales: se registran con `POST /api/v1/expenses` indicando el
+`payment_source_id` de la tarjeta. No hay tabla de movimientos paralela.
+
+Dos cosas que conviene entender antes de pintar una pantalla con esto:
+
+- **`balance.projected_used` es una estimación cuando `balance.is_estimate` es `true`.** El
+  ancla es el último corte (lo que dice el banco); encima se suman los gastos registrados y
+  se restan los abonos, y esos gastos pueden estar incompletos. No la presentes como el
+  saldo del banco.
+- **Un abono no es un gasto.** Pagar la tarjeta mueve dinero del bolsillo a la deuda; si
+  además contara como gasto, cada consumo se contaría dos veces.
+
+Los movimientos en una moneda distinta a la de la tarjeta se cuentan en
+`balance.foreign_movements` pero **no se suman**: convertirlos con la tasa de hoy rompería
+el congelado.
+
+#### List Credit Cards
+`GET /api/v1/credit-cards`
+
+**Query params:** `active` (`1`/`0`).
+
+**Response (200):**
+```json
+{
+    "success": true,
+    "data": {
+        "cards": [
+            {
+                "id": 1,
+                "bank": "Banesco",
+                "name": "Visa Clásica",
+                "last_four": "4321",
+                "brand": "visa",
+                "currency": "ves",
+                "credit_limit": "50000.00",
+                "cut_day": 15,
+                "due_day": 5,
+                "annual_interest_rate": "60.00",
+                "minimum_payment_rate": "5.00",
+                "icon": "credit-card",
+                "color": "#8B5CF6",
+                "active": true,
+                "note": null,
+                "payment_source_id": 9,
+                "cycle": {
+                    "last_cut_date": "2026-09-15",
+                    "next_cut_date": "2026-10-15",
+                    "next_due_date": "2026-11-05",
+                    "days_to_cut": 27
+                },
+                "balance": {
+                    "closing": 3000,
+                    "charges_since_cut": 450,
+                    "payments_since_cut": 0,
+                    "projected_used": 3450,
+                    "available": 46550,
+                    "usage_percent": 7,
+                    "is_estimate": true,
+                    "foreign_movements": 0
+                },
+                "usd": { "projected_used": 115 }
+            }
+        ]
+    }
+}
+```
+
+#### Create Credit Card
+`POST /api/v1/credit-cards`
+
+| Campo | Tipo | Obligatorio | Notas |
+|-------|------|-------------|-------|
+| `bank` | string(100) | sí | |
+| `name` | string(100) | sí | |
+| `last_four` | 4 dígitos | no | Solo los últimos cuatro; el número completo no se guarda |
+| `brand` | `visa` \| `mastercard` \| `amex` \| `other` | no | |
+| `currency` | `usd` \| `ves` \| `usdt` | sí | Moneda de la línea de crédito |
+| `credit_limit` | numeric > 0 | sí | |
+| `cut_day` | 1-31 | sí | Se recorta al último día real del mes |
+| `due_day` | 1-31 | sí | |
+| `annual_interest_rate` | numeric | no | |
+| `minimum_payment_rate` | numeric 0-100 | no | |
+| `icon`, `color`, `note` | string | no | |
+| `active` | boolean | no | |
+
+**Response (201):** `{ "success": true, "data": { "id": 1 }, "message": "Tarjeta creada." }`
+con cabecera `Location`.
+
+#### Get Credit Card
+`GET /api/v1/credit-cards/{id}`
+
+Ficha completa: `data.card` con lo del listado más `statements` y `payments`, y
+`data.recent_charges` con los 25 últimos consumos cargados contra su origen de pago.
+
+#### Update / Delete Credit Card
+`PUT|DELETE /api/v1/credit-cards/{id}`
+
+Al actualizar, el origen de pago se renombra con la tarjeta. Al borrarla se van sus cortes y
+abonos, pero **los gastos hechos con ella se conservan**: son movimientos reales del
+historial. El origen solo desaparece si nunca se usó.
+
+#### Create Statement (corte)
+`POST /api/v1/credit-cards/{id}/statements`
+
+El corte es el saldo que dice el banco en la fecha de cierre — el ancla de todo el cálculo.
+
+| Campo | Tipo | Obligatorio | Notas |
+|-------|------|-------------|-------|
+| `cut_date` | date | sí | Hoy o anterior |
+| `closing_balance` | numeric >= 0 | sí | En la moneda de la tarjeta |
+| `due_date` | date | no | Si falta, se deduce del `due_day` de la tarjeta |
+| `minimum_payment` | numeric >= 0 | no | |
+| `exchange_rate` | numeric > 0 | solo si la tarjeta es en Bs | Congela el corte en USD |
+| `note` | string(2000) | no | |
+
+#### Delete Statement
+`DELETE /api/v1/credit-cards/{id}/statements/{statement}` — `404` si el corte no es de esa
+tarjeta.
+
+#### Create Payment (abono)
+`POST /api/v1/credit-cards/{id}/payments`
+
+| Campo | Tipo | Obligatorio | Notas |
+|-------|------|-------------|-------|
+| `amount` | numeric > 0 | sí | En la moneda de la tarjeta |
+| `paid_at` | date | sí | Hoy o anterior |
+| `credit_card_statement_id` | integer | no | Debe ser un corte de **esa** tarjeta |
+| `exchange_rate` | numeric > 0 | solo si la tarjeta es en Bs | |
+| `note` | string(2000) | no | |
+
+Cuando los abonos que señalan un corte cubren su saldo, el corte se marca pagado. Un pago
+parcial lo deja abierto, como hace el banco.
+
+#### Delete Payment
+`DELETE /api/v1/credit-cards/{id}/payments/{payment}` — `404` si el abono no es de esa
+tarjeta.
+
+---
+
 ### Tasas de Cambio (Exchange Rates)
 
 #### Get Rates
@@ -737,6 +1050,28 @@ curl -X PUT https://your-domain.com/api/v1/rates \
 ```bash
 curl -X POST https://your-domain.com/api/v1/rates/sync \
   -H "Authorization: Bearer tkn_abc123"
+```
+
+### Add a Savings Contribution
+```bash
+curl -X POST https://your-domain.com/api/v1/savings-goals/1/contributions \
+  -H "Authorization: Bearer tkn_abc123" \
+  -H "Content-Type: application/json" \
+  -d '{"amount":50,"currency":"usd","contributed_at":"2026-09-18"}'
+```
+
+### Mark a Recurring Payment as Paid
+```bash
+curl -X POST https://your-domain.com/api/v1/recurring-payments/3/pay \
+  -H "Authorization: Bearer tkn_abc123"
+```
+
+### Register a Credit Card Statement
+```bash
+curl -X POST https://your-domain.com/api/v1/credit-cards/1/statements \
+  -H "Authorization: Bearer tkn_abc123" \
+  -H "Content-Type: application/json" \
+  -d '{"cut_date":"2026-09-15","closing_balance":3000,"exchange_rate":30}'
 ```
 
 ---

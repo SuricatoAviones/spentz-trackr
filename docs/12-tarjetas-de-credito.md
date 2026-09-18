@@ -120,9 +120,16 @@ saldo; los parciales lo dejan abierto, como hace el banco.
   (una compra que genera N cargos futuros), no un parche.
 - **No se conecta al banco.** Como el resto de la app: todo lo introduce el usuario.
 
+## En la API REST
+
+El módulo vive también en `/api/v1/credit-cards` (listado, ficha, alta, edición, borrado,
+cortes y abonos), sobre **las mismas Actions, Form Requests y `CreditCardPresenter`** que la
+web: las dos invariantes de arriba no se pueden romper desde un cliente externo porque no
+hay una segunda implementación donde romperlas. Detalle de cada endpoint en
+`docs/api/api-documentation.md`.
+
 ## Fase 3, pendiente
 
 - Compras a cuotas.
 - Estimación del costo de no pagar completo.
 - Avisos de corte y vencimiento próximos en el dashboard.
-- Endpoints de API (hoy el módulo es solo web, igual que metas de ahorro y pagos recurrentes).

@@ -23,6 +23,8 @@
 ## Fase 4 — API REST ✅
 - [x] Auth con tokens Sanctum (register/login/logout/me), expiración 90 días.
 - [x] CRUD de gastos, ingresos, categorías y orígenes bajo `/api/v1`.
+- [x] Metas de ahorro (con aportes), pagos recurrentes (con `/pay`) y tarjetas de crédito
+      (con cortes y abonos), sobre las mismas Actions que la web.
 - [x] Gastos mixtos (`items`) soportados también por la API.
 - [x] Reportes (`/reports`, `/reports/monthly-summary`) y tasas (`/rates`, `/rates/sync`).
 - [x] Rate limiting (`api` 100/min, `api.auth` 5/min) y CORS por `CORS_ALLOWED_ORIGINS`.
