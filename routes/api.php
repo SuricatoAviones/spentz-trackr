@@ -2,13 +2,16 @@
 
 use App\Http\Controllers\Api\V1\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Api\V1\CategoryController;
+use App\Http\Controllers\Api\V1\CreditCardController;
 use App\Http\Controllers\Api\V1\DashboardController;
 use App\Http\Controllers\Api\V1\ExchangeRateController;
 use App\Http\Controllers\Api\V1\ExpenseController;
 use App\Http\Controllers\Api\V1\IncomeController;
 use App\Http\Controllers\Api\V1\PaymentSourceController;
 use App\Http\Controllers\Api\V1\ProfileController;
+use App\Http\Controllers\Api\V1\RecurringPaymentController;
 use App\Http\Controllers\Api\V1\ReportController;
+use App\Http\Controllers\Api\V1\SavingsGoalController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -75,6 +78,52 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
             'update' => 'api.v1.sources.update',
             'destroy' => 'api.v1.sources.destroy',
         ]);
+
+    // Savings Goals
+    Route::apiResource('savings-goals', SavingsGoalController::class)
+        ->names([
+            'index' => 'api.v1.savings-goals.index',
+            'store' => 'api.v1.savings-goals.store',
+            'show' => 'api.v1.savings-goals.show',
+            'update' => 'api.v1.savings-goals.update',
+            'destroy' => 'api.v1.savings-goals.destroy',
+        ]);
+    Route::post('savings-goals/{savings_goal}/contributions', [SavingsGoalController::class, 'storeContribution'])
+        ->name('api.v1.savings-goals.contributions.store');
+    Route::delete('savings-goals/{savings_goal}/contributions/{contribution}', [SavingsGoalController::class, 'destroyContribution'])
+        ->name('api.v1.savings-goals.contributions.destroy');
+
+    // Recurring Payments
+    Route::apiResource('recurring-payments', RecurringPaymentController::class)
+        ->names([
+            'index' => 'api.v1.recurring-payments.index',
+            'store' => 'api.v1.recurring-payments.store',
+            'show' => 'api.v1.recurring-payments.show',
+            'update' => 'api.v1.recurring-payments.update',
+            'destroy' => 'api.v1.recurring-payments.destroy',
+        ]);
+    Route::post('recurring-payments/{recurring_payment}/pay', [RecurringPaymentController::class, 'markPaid'])
+        ->name('api.v1.recurring-payments.pay');
+
+    // Credit Cards. El parámetro tiene que llamarse {credit_card}: los Form
+    // Requests de corte y abono leen la tarjeta con $this->route('credit_card')
+    // para exigir la tasa en tarjetas en Bs y comprobar que el corte es suyo.
+    Route::apiResource('credit-cards', CreditCardController::class)
+        ->names([
+            'index' => 'api.v1.credit-cards.index',
+            'store' => 'api.v1.credit-cards.store',
+            'show' => 'api.v1.credit-cards.show',
+            'update' => 'api.v1.credit-cards.update',
+            'destroy' => 'api.v1.credit-cards.destroy',
+        ]);
+    Route::post('credit-cards/{credit_card}/statements', [CreditCardController::class, 'storeStatement'])
+        ->name('api.v1.credit-cards.statements.store');
+    Route::delete('credit-cards/{credit_card}/statements/{statement}', [CreditCardController::class, 'destroyStatement'])
+        ->name('api.v1.credit-cards.statements.destroy');
+    Route::post('credit-cards/{credit_card}/payments', [CreditCardController::class, 'storePayment'])
+        ->name('api.v1.credit-cards.payments.store');
+    Route::delete('credit-cards/{credit_card}/payments/{payment}', [CreditCardController::class, 'destroyPayment'])
+        ->name('api.v1.credit-cards.payments.destroy');
 
     // Dashboard
     Route::get('dashboard', [DashboardController::class, 'index'])->name('api.v1.dashboard');

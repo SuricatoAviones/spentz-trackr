@@ -491,7 +491,7 @@ export default function Ajustes({
                 </button>
 
                 <p className="pb-2 text-center text-[11px] text-muted-foreground/70">
-                    Spentz Trackr v1.0.0
+                    Spentz Trackr v1.1.0
                 </p>
             </div>
         </div>
