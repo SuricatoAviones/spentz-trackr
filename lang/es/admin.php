@@ -21,6 +21,8 @@ return [
     'action.api_disabled' => 'API REST deshabilitada',
     'action.registration_enabled' => 'Registro abierto',
     'action.registration_disabled' => 'Registro cerrado',
+    'action.ai_enabled' => 'Asistente de IA habilitado',
+    'action.ai_disabled' => 'Asistente de IA deshabilitado',
 
     'uncategorized' => 'Sin categoría',
 ];

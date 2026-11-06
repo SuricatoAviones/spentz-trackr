@@ -2,6 +2,7 @@ import { setLayoutProps } from '@inertiajs/react';
 import { useTranslation } from 'react-i18next';
 import { ExpenseForm } from '@/components/tracker/expense-form';
 import type {
+    AiScanCapabilities,
     CategoryOption,
     CommissionDefaults,
     RateInfo,
@@ -15,12 +16,14 @@ export default function CreateExpense({
     rate,
     rates,
     commissionDefaults,
+    aiScan,
 }: {
     categories: CategoryOption[];
     sources: SourceOption[];
     rate: RateInfo;
     rates: RateOptions;
     commissionDefaults: CommissionDefaults;
+    aiScan?: AiScanCapabilities;
 }) {
     const { t } = useTranslation();
 
@@ -35,6 +38,7 @@ export default function CreateExpense({
                 rate={rate}
                 rates={rates}
                 commissionDefaults={commissionDefaults}
+                aiScan={aiScan ?? null}
             />
         </div>
     );

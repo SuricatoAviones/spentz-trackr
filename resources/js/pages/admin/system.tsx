@@ -6,6 +6,7 @@ import {
     HardDrive,
     Plug,
     Server,
+    Sparkles,
     UserPlus,
     XCircle,
 } from 'lucide-react';
@@ -21,6 +22,7 @@ import {
 } from '@/components/ui/card';
 import { formatAmount } from '@/lib/format';
 import { backup as systemBackup } from '@/routes/admin/system';
+import { update as systemAiUpdate } from '@/routes/admin/system/ai';
 import { update as systemApiUpdate } from '@/routes/admin/system/api';
 import { update as systemRegistrationUpdate } from '@/routes/admin/system/registration';
 
@@ -48,12 +50,24 @@ export default function AdminSystem({
     status,
     counts,
     features,
+    ai,
 }: {
     status: Status;
     counts: Counts;
-    features: { api: boolean; registration: boolean };
+    features: { api: boolean; registration: boolean; ai: boolean };
+    ai: { custom_endpoints: boolean; connected_users: number };
 }) {
     const { t } = useTranslation();
+    const [togglingAi, setTogglingAi] = useState(false);
+
+    function toggleAi(enabled: boolean) {
+        setTogglingAi(true);
+        router.put(
+            systemAiUpdate().url,
+            { enabled },
+            { onFinish: () => setTogglingAi(false), preserveScroll: true },
+        );
+    }
     const [generating, setGenerating] = useState(false);
     const [togglingApi, setTogglingApi] = useState(false);
     const [togglingRegistration, setTogglingRegistration] = useState(false);
@@ -369,6 +383,62 @@ export default function AdminSystem({
 
                                 <p className="text-xs text-muted-foreground">
                                     {t('admin.system.registration_note')}
+                                </p>
+                            </CardContent>
+                        </Card>
+
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="flex items-center gap-2 text-base">
+                                    <Sparkles className="size-4" />
+                                    {t('admin.system.ai_title')}
+                                </CardTitle>
+                                <CardDescription>
+                                    {t('admin.system.ai_description')}
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-3">
+                                <div className="flex items-center justify-between gap-3">
+                                    <span
+                                        className={
+                                            features.ai
+                                                ? 'inline-flex items-center gap-1.5 rounded-full bg-emerald-500/15 px-3 py-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400'
+                                                : 'inline-flex items-center gap-1.5 rounded-full bg-muted px-3 py-1 text-xs font-semibold text-muted-foreground'
+                                        }
+                                    >
+                                        {features.ai ? (
+                                            <CheckCircle2 className="size-3.5" />
+                                        ) : (
+                                            <XCircle className="size-3.5" />
+                                        )}
+                                        {features.ai
+                                            ? t('admin.system.ai_enabled')
+                                            : t('admin.system.ai_disabled')}
+                                    </span>
+
+                                    <Button
+                                        variant={
+                                            features.ai ? 'outline' : 'default'
+                                        }
+                                        disabled={togglingAi}
+                                        onClick={() => toggleAi(!features.ai)}
+                                    >
+                                        {features.ai
+                                            ? t('admin.system.ai_turn_off')
+                                            : t('admin.system.ai_turn_on')}
+                                    </Button>
+                                </div>
+
+                                <p className="text-xs text-muted-foreground">
+                                    {t('admin.system.ai_connected', {
+                                        count: ai.connected_users,
+                                    })}{' '}
+                                    {ai.custom_endpoints
+                                        ? t('admin.system.ai_custom_on')
+                                        : t('admin.system.ai_custom_off')}
+                                </p>
+                                <p className="text-xs text-muted-foreground">
+                                    {t('admin.system.ai_note')}
                                 </p>
                             </CardContent>
                         </Card>

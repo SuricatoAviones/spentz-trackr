@@ -1,5 +1,5 @@
 import { Link, router, setLayoutProps } from '@inertiajs/react';
-import { ArrowDownRight, ArrowUpRight, Download } from 'lucide-react';
+import { ArrowDownRight, ArrowUpRight, Download, FileText } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { HorizontalBars } from '@/components/tracker/horizontal-bars';
 import { TrackerCard } from '@/components/tracker/tracker-card';
@@ -7,6 +7,7 @@ import { formatAmount, formatIsoMonthLabel } from '@/lib/format';
 import {
     exportMethod as reportsExport,
     index as reportsIndex,
+    statement as reportsStatement,
 } from '@/routes/reports';
 
 type MonthSeries = {
@@ -96,13 +97,22 @@ export default function ReportsIndex({
                         </button>
                     ))}
                 </div>
-                <Link
-                    href={reportsExport().url}
-                    className="inline-flex items-center gap-1.5 rounded-full bg-surface-low px-3.5 py-2 text-xs font-semibold text-foreground"
-                >
-                    <Download className="size-3.5" />
-                    CSV
-                </Link>
+                <div className="flex shrink-0 gap-2">
+                    <Link
+                        href={reportsStatement().url}
+                        className="inline-flex items-center gap-1.5 rounded-full bg-surface-low px-3.5 py-2 text-xs font-semibold text-foreground"
+                    >
+                        <FileText className="size-3.5" />
+                        {t('reports.statement_link')}
+                    </Link>
+                    <Link
+                        href={reportsExport().url}
+                        className="inline-flex items-center gap-1.5 rounded-full bg-surface-low px-3.5 py-2 text-xs font-semibold text-foreground"
+                    >
+                        <Download className="size-3.5" />
+                        CSV
+                    </Link>
+                </div>
             </div>
 
             <section className="rounded-xl bg-gradient-to-br from-surface-high to-surface-low p-5 lg:col-span-2">

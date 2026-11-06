@@ -78,6 +78,23 @@ class AppServiceProvider extends ServiceProvider
         // amplificador contra ese servicio (y cargarse la suya de paso). Las
         // tasas se publican cada pocos minutos: 6/min por usuario sobra.
         RateLimiter::for('rates.sync', fn (Request $request) => Limit::perMinute(6)->by($request->user()?->id ?: $request->ip()));
+
+        // Cada petición a la IA gasta la cuota (y el dinero) del propio usuario
+        // en su proveedor y ocupa un worker hasta un minuto. El tope
+        // protege a ambos de un bucle en un cliente o de un abuso.
+        RateLimiter::for('ai', function (Request $request): array {
+            $key = 'ai:'.($request->user()?->id ?: $request->ip());
+            $tooMany = fn () => response()->json([
+                'success' => false,
+                'message' => __('messages.ai_rate_limited_local'),
+                'reason' => 'local_rate_limited',
+            ], 429);
+
+            return [
+                Limit::perMinute(max(1, (int) config('ai.rate_limit.per_minute', 10)))->by($key)->response($tooMany),
+                Limit::perDay(max(1, (int) config('ai.rate_limit.per_day', 300)))->by($key.':day')->response($tooMany),
+            ];
+        });
     }
 
     /**

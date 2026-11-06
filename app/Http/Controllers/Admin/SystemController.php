@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\AdminAction;
+use App\Models\AiSetting;
 use App\Models\Category;
 use App\Models\ExchangeRate;
 use App\Models\Expense;
@@ -43,6 +44,10 @@ class SystemController extends Controller
                 'storage_writable' => is_writable(storage_path()),
             ],
             'features' => Features::all(),
+            'ai' => [
+                'custom_endpoints' => (bool) config('ai.allow_custom_endpoints', false),
+                'connected_users' => AiSetting::query()->count(),
+            ],
             'counts' => [
                 'users' => User::count(),
                 'expenses' => Expense::count(),
@@ -94,6 +99,25 @@ class SystemController extends Controller
             'success',
             __($enabled ? 'messages.registration_turned_on' : 'messages.registration_turned_off'),
         );
+    }
+
+    /**
+     * Enciende o apaga el asistente de IA para toda la instancia.
+     *
+     * Las claves de los usuarios se conservan: apagar es reversible. Mientras
+     * está apagado ninguna ruta de IA llama a un proveedor.
+     */
+    public function updateAi(Request $request): RedirectResponse
+    {
+        $enabled = $request->validate([
+            'enabled' => ['required', 'boolean'],
+        ])['enabled'];
+
+        Features::setAiEnabled((bool) $enabled);
+
+        AdminAction::record($enabled ? 'ai.enabled' : 'ai.disabled');
+
+        return back()->with('success', __($enabled ? 'messages.ai_turned_on' : 'messages.ai_turned_off'));
     }
 
     public function backup(Request $request): StreamedResponse

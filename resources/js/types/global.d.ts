@@ -194,3 +194,161 @@ export type CreditCardDetail = CreditCardSummary & {
     statements: CreditCardStatement[];
     payments: CreditCardPayment[];
 };
+
+/* ------------------------------------------------------------------ */
+/* Asistente de IA. Contrato de App\Support\Presenters\AiSettingPresenter,
+ * App\Actions\Ai\* y App\Services\AccountStatementService: si cambia uno,
+ * cambia el otro. */
+
+export type AiProviderCode =
+    | 'openai'
+    | 'anthropic'
+    | 'gemini'
+    | 'mistral'
+    | 'groq'
+    | 'deepseek'
+    | 'openrouter'
+    | 'ollama'
+    | 'custom';
+
+export type AiProviderOption = {
+    value: AiProviderCode;
+    label: string;
+    default_model: string | null;
+    models: string[];
+    default_base_url: string | null;
+    requires_key: boolean;
+    requires_base_url: boolean;
+    supports_vision: boolean;
+    supports_pdf: boolean;
+    key_url: string | null;
+    available: boolean;
+};
+
+export type AiSettingSummary = {
+    provider: AiProviderCode;
+    provider_label: string;
+    model: string | null;
+    resolved_model: string;
+    base_url: string | null;
+    has_key: boolean;
+    masked_key: string | null;
+    ready: boolean;
+    supports_vision: boolean;
+    supports_pdf: boolean;
+    last_verified_at: string | null;
+    updated_at: string | null;
+};
+
+export type AiScanCapabilities = {
+    available: boolean;
+    pdf: boolean;
+};
+
+export type ReceiptDraftWarning =
+    'not_receipt' | 'no_total' | 'low_confidence' | 'date_future';
+
+export type ReceiptDraft = {
+    description: string | null;
+    amount: string | null;
+    currency: 'usd' | 'ves' | 'usdt' | null;
+    spent_at: string | null;
+    category_id: number | null;
+    payment_source_id: number | null;
+    payment_method: PaymentMethodCode | null;
+    exchange_rate: number | null;
+    note: string | null;
+    merchant: string | null;
+    items: { description: string; amount: number | null }[];
+    confidence: number | null;
+    warnings: ReceiptDraftWarning[];
+};
+
+export type ExpenseProposal = {
+    description: string;
+    amount: number;
+    currency: 'usd' | 'ves' | 'usdt';
+    spent_at: string;
+    category_id: number;
+    category_name: string | null;
+    payment_source_id: number;
+    source_name: string | null;
+    payment_method: PaymentMethodCode | null;
+    note: string | null;
+};
+
+export type AssistantReply = {
+    reply: string;
+    proposals: ExpenseProposal[];
+    usage: { input_tokens: number; output_tokens: number };
+};
+
+export type StatementBreakdownRow = {
+    id: number | null;
+    name: string;
+    color: string;
+    icon: string;
+    total_usd: number;
+    count: number;
+    percent: number;
+};
+
+export type StatementMovement = {
+    type: 'income' | 'expense';
+    id: number;
+    date: string;
+    description: string;
+    category: string | null;
+    source: string | null;
+    currency: 'usd' | 'ves' | 'usdt';
+    amount: number;
+    usd_amount: number;
+    running_usd: number;
+};
+
+export type AccountStatement = {
+    period: { from: string; to: string; days: number };
+    tracking: { expenses: boolean; incomes: boolean };
+    totals: {
+        incomes: { usd: number; usdt: number; count: number };
+        expenses: {
+            usd: number;
+            usdt: number;
+            count: number;
+            commissions_ves: number;
+        };
+        net: { usd: number; usdt: number };
+        savings_rate: number | null;
+        daily_average_expense_usd: number;
+    };
+    by_currency: {
+        expenses: Record<'usd' | 'ves' | 'usdt', number>;
+        incomes: Record<'usd' | 'ves' | 'usdt', number>;
+    };
+    expense_categories: StatementBreakdownRow[];
+    income_categories: StatementBreakdownRow[];
+    sources: StatementBreakdownRow[];
+    largest_expenses: {
+        id: number;
+        date: string;
+        description: string;
+        category: string | null;
+        usd_amount: number;
+    }[];
+    previous: {
+        from: string;
+        to: string;
+        expenses_usd: number;
+        incomes_usd: number;
+        expenses_variation: number | null;
+        incomes_variation: number | null;
+    };
+    budget: {
+        monthly: number;
+        spent: number;
+        percent: number;
+        remaining: number;
+    } | null;
+    movements: StatementMovement[];
+    movements_truncated: boolean;
+};

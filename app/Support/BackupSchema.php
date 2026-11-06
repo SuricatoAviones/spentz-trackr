@@ -47,6 +47,8 @@ final class BackupSchema
             'credit_cards' => 'credit_cards',
             'credit_card_statements' => 'credit_card_statements',
             'credit_card_payments' => 'credit_card_payments',
+
+            'ai_settings' => 'ai_settings',
         ];
     }
 
@@ -58,6 +60,10 @@ final class BackupSchema
      * contrapartida está documentada: al restaurar, los usuarios tienen que
      * recuperar su contraseña.
      *
+     * `api_key` es la clave del proveedor de IA de cada usuario. Va cifrada con
+     * APP_KEY, pero un backup suele viajar junto a un `.env` y entonces sería
+     * texto plano: se omite y el usuario la vuelve a pegar tras restaurar.
+     *
      * @return list<string>
      */
     public static function secretColumns(): array
@@ -67,6 +73,7 @@ final class BackupSchema
             'two_factor_secret',
             'two_factor_recovery_codes',
             'remember_token',
+            'api_key',
         ];
     }
 }

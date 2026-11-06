@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
@@ -37,6 +38,7 @@ use Laravel\Sanctum\HasApiTokens;
  * @property string|null $remember_token
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
+ * @property-read AiSetting|null $aiSetting
  * @property-read int|null $expenses_count aggregate helper (withCount)
  * @property-read string|null $expenses_sum_usd_amount aggregate helper (withSum)
  * @property-read string|null $expenses_max_spent_at aggregate helper (withMax)
@@ -140,6 +142,16 @@ class User extends Authenticatable implements PasskeyUser
     public function recurringPayments(): HasMany
     {
         return $this->hasMany(RecurringPayment::class);
+    }
+
+    /**
+     * Proveedor de IA que el usuario conectó con su propia clave.
+     *
+     * @return HasOne<AiSetting, $this>
+     */
+    public function aiSetting(): HasOne
+    {
+        return $this->hasOne(AiSetting::class);
     }
 
     /**

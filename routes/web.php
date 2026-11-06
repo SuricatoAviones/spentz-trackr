@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Controllers\Ai\AiSettingsController;
+use App\Http\Controllers\Ai\AssistantController;
+use App\Http\Controllers\Ai\ReceiptScanController;
 use App\Http\Controllers\AjustesController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CreditCardController;
@@ -14,6 +17,8 @@ use App\Http\Controllers\PaymentSourceController;
 use App\Http\Controllers\RecurringPaymentController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SavingsGoalController;
+use App\Http\Controllers\StatementController;
+use App\Http\Middleware\EnsureAiEnabled;
 use App\Http\Middleware\EnsureTrackingFeature;
 use Illuminate\Support\Facades\Route;
 
@@ -69,6 +74,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('reports', [ReportController::class, 'index'])->name('reports.index');
     Route::get('reports/export', [ReportController::class, 'export'])->name('reports.export');
+    Route::get('reports/estado-de-cuenta', [StatementController::class, 'index'])->name('reports.statement');
+    Route::get('reports/estado-de-cuenta/export', [StatementController::class, 'export'])->name('reports.statement.export');
 
     Route::put('exchange-rate', [ExchangeRateController::class, 'update'])->name('exchange-rate.update');
     Route::post('exchange-rate/sync', [ExchangeRateController::class, 'sync'])
@@ -89,6 +96,22 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::resource('recurring-payments', RecurringPaymentController::class)->only(['index', 'store', 'update', 'destroy']);
     Route::post('recurring-payments/{recurring_payment}/pay', [RecurringPaymentController::class, 'markPaid'])->name('recurring-payments.pay');
+
+    // Asistente de IA. Cada usuario conecta su propio proveedor y clave; las
+    // rutas que llaman al proveedor llevan su propio limitador (`ai`).
+    Route::middleware(EnsureAiEnabled::class)->group(function () {
+        Route::get('ia/ajustes', [AiSettingsController::class, 'edit'])->name('ai.settings.edit');
+        Route::put('ia/ajustes', [AiSettingsController::class, 'update'])->name('ai.settings.update');
+        Route::delete('ia/ajustes', [AiSettingsController::class, 'destroy'])->name('ai.settings.destroy');
+        Route::get('asistente', [AssistantController::class, 'index'])->name('ai.assistant');
+
+        Route::middleware('throttle:ai')->group(function () {
+            Route::post('ia/ajustes/probar', [AiSettingsController::class, 'test'])->name('ai.settings.test');
+            Route::post('ia/facturas/leer', ReceiptScanController::class)->name('ai.receipts.scan');
+            Route::post('asistente/mensajes', [AssistantController::class, 'ask'])->name('ai.assistant.ask');
+            Route::post('ia/estado-de-cuenta/analizar', [AssistantController::class, 'analyzeStatement'])->name('ai.statement.analyze');
+        });
+    });
 });
 
 require __DIR__.'/settings.php';

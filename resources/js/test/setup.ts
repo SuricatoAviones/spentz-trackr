@@ -67,6 +67,15 @@ vi.mock('@inertiajs/react', async () => {
                 transform: vi.fn(),
             };
         },
+        // Peticiones sueltas (IA): en los tests de render no se lanza ninguna.
+        useHttp: (initial: Record<string, unknown> = {}) => ({
+            data: initial,
+            errors: {} as Record<string, string>,
+            processing: false,
+            setData: () => undefined,
+            post: vi.fn(async () => null),
+            cancel: () => undefined,
+        }),
     };
 });
 

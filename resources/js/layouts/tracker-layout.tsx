@@ -76,7 +76,7 @@ export default function TrackerLayout({
         <div className="flex min-h-screen w-full">
             <Head title={title} />
 
-            <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 flex-col border-r border-sidebar-border bg-sidebar md:flex">
+            <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 flex-col border-r border-sidebar-border bg-sidebar md:flex print:hidden">
                 <div className="flex h-16 items-center px-5">
                     <div className="min-w-0">
                         <p className="font-display text-sm leading-tight font-bold text-foreground">
@@ -151,8 +151,8 @@ export default function TrackerLayout({
                 </div>
             </aside>
 
-            <div className="flex w-full flex-col md:pl-64">
-                <header className="sticky top-0 z-40 border-b border-border/60 bg-background/80 backdrop-blur-xl">
+            <div className="flex w-full flex-col md:pl-64 print:pl-0">
+                <header className="sticky top-0 z-40 border-b border-border/60 bg-background/80 backdrop-blur-xl print:static print:border-0">
                     <div className="mx-auto flex h-16 w-full max-w-md items-center justify-between gap-3 px-4 md:max-w-3xl md:px-6 lg:max-w-6xl lg:px-8">
                         <div className="min-w-0">
                             <h1 className="truncate font-display text-lg font-bold text-foreground">
@@ -165,7 +165,7 @@ export default function TrackerLayout({
                             )}
                         </div>
                         {showQuickActions && quickActions.length > 0 && (
-                            <div className="flex shrink-0 items-center gap-2">
+                            <div className="flex shrink-0 items-center gap-2 print:hidden">
                                 {quickActions.map((action) => (
                                     <Link
                                         key={action.key}
@@ -198,7 +198,7 @@ export default function TrackerLayout({
             </div>
 
             <nav
-                className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/80 backdrop-blur-2xl md:hidden"
+                className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/80 backdrop-blur-2xl md:hidden print:hidden"
                 aria-label={t('shell.tracker.nav_aria')}
             >
                 <div
