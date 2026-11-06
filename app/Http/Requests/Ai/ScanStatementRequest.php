@@ -23,7 +23,7 @@ class ScanStatementRequest extends FormRequest
     {
         return [
             'files' => ['required', 'array', 'min:1', 'max:'.(int) config('ai.import.max_files', 5)],
-            'files.*' => ['required', 'file', 'mimes:jpg,jpeg,png,webp,pdf', 'max:'.(int) config('ai.max_upload_kb', 10240)],
+            'files.*' => ['required', 'file', 'mimes:jpg,jpeg,png,webp,pdf', 'max:7168'],
         ];
     }
 
@@ -35,7 +35,7 @@ class ScanStatementRequest extends FormRequest
         return [
             'files.max' => __('validation.app.import_files_max', ['max' => (int) config('ai.import.max_files', 5)]),
             'files.*.mimes' => __('validation.app.ai_file_mimes'),
-            'files.*.max' => __('validation.app.ai_file_max', ['mb' => (int) round(config('ai.max_upload_kb', 10240) / 1024)]),
+            'files.*.max' => __('validation.app.ai_file_max', ['mb' => intdiv(ScanReceiptRequest::MAX_KB, 1024)]),
         ];
     }
 

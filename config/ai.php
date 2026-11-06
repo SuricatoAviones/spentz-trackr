@@ -57,11 +57,6 @@ return [
     ],
 
     /*
-     | Tamaño máximo (KB) de una factura o recibo a leer.
-     */
-    'max_upload_kb' => (int) env('AI_MAX_UPLOAD_KB', 10240),
-
-    /*
      | Las fotos se reducen a este lado mayor (px) antes de enviarse, si la
      | extensión GD está disponible: menos tokens, menos latencia y por debajo
      | del límite de 5 MB por imagen de algunos proveedores.

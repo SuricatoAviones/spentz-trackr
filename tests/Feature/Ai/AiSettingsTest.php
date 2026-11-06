@@ -85,7 +85,7 @@ test('switching provider requires a new key', function () {
 test('custom endpoints are refused unless the operator allows them', function () {
     $this->put(route('ai.settings.update'), [
         'provider' => 'ollama',
-        'base_url' => 'http://localhost:11434/v1',
+        'base_url' => 'https://localhost:11434/v1',
         'model' => 'llama3.2-vision',
     ])->assertSessionHasErrors('provider');
 
@@ -97,13 +97,13 @@ test('custom endpoints work when the operator allows them', function () {
 
     $this->put(route('ai.settings.update'), [
         'provider' => 'ollama',
-        'base_url' => 'http://192.168.1.20:11434/v1/',
+        'base_url' => 'https://192.168.1.20:11434/v1/',
         'model' => 'qwen2.5vl:7b',
     ])->assertSessionHasNoErrors();
 
     $setting = $this->user->fresh()->aiSetting;
 
-    expect($setting->base_url)->toBe('http://192.168.1.20:11434/v1')
+    expect($setting->base_url)->toBe('https://192.168.1.20:11434/v1')
         ->and($setting->isReady())->toBeTrue();
 });
 
@@ -215,7 +215,7 @@ test('opencode refuses any url outside its plans', function () {
     $this->put(route('ai.settings.update'), [
         'provider' => 'opencode',
         'api_key' => 'oc-console-key-12345',
-        'base_url' => 'http://10.0.0.5/v1',
+        'base_url' => 'https://10.0.0.5/v1',
     ])->assertSessionHasErrors('base_url');
 
     expect($this->user->fresh()->aiSetting)->toBeNull();

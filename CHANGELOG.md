@@ -65,7 +65,8 @@ no exige ninguna variable de entorno — todas las `AI_*` son opcionales.
 `AI_ENABLED` (true), `AI_ALLOW_CUSTOM_ENDPOINTS` (false — activarlo permite que los usuarios
 hagan que el servidor conecte a cualquier URL), `AI_TIMEOUT` (60), `AI_IMPORT_TIMEOUT` (120),
 `AI_CONNECT_TIMEOUT` (10),
-`AI_RATE_LIMIT_PER_MINUTE` (10), `AI_RATE_LIMIT_PER_DAY` (300), `AI_MAX_UPLOAD_KB` (10240).
+`AI_RATE_LIMIT_PER_MINUTE` (10), `AI_RATE_LIMIT_PER_DAY` (300). Cada factura o captura que
+se sube a la IA puede pesar hasta 7 MB.
 Ver `.env.example`.
 
 ### Cambiado

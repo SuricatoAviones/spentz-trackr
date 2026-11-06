@@ -200,3 +200,15 @@ test('a provider without vision does not offer receipt scanning', function () {
     $this->get(route('expenses.create'))
         ->assertInertia(fn (Assert $page) => $page->where('aiScan.available', false));
 });
+
+test('files above 7 MB are refused before reaching the provider', function () {
+    $this->postJson(route('ai.receipts.scan'), ['file' => UploadedFile::fake()->create('enorme.pdf', 7169, 'application/pdf')])
+        ->assertStatus(422)
+        ->assertJsonValidationErrors('file');
+
+    $this->postJson(route('ai.import.scan'), ['files' => [UploadedFile::fake()->create('enorme.pdf', 7169, 'application/pdf')]])
+        ->assertStatus(422)
+        ->assertJsonValidationErrors('files.0');
+
+    Http::assertNothingSent();
+});
