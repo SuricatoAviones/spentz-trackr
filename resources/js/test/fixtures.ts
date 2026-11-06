@@ -130,3 +130,129 @@ export const rateFixture = {
     source: 'api',
     rate_date: '2026-09-13',
 };
+
+/** Forma de App\Services\AccountStatementService::build(). */
+export function statementFixture(overrides: Record<string, unknown> = {}) {
+    return {
+        period: { from: '2026-10-01', to: '2026-10-31', days: 31 },
+        tracking: { expenses: true, incomes: true },
+        totals: {
+            incomes: { usd: 500, usdt: 500, count: 1 },
+            expenses: { usd: 60, usdt: 60, count: 3, commissions_ves: 14 },
+            net: { usd: 440, usdt: 440 },
+            savings_rate: 88,
+            daily_average_expense_usd: 1.94,
+        },
+        by_currency: {
+            expenses: { usd: 50, ves: 374, usdt: 0 },
+            incomes: { usd: 500, ves: 0, usdt: 0 },
+        },
+        expense_categories: [
+            {
+                id: 3,
+                name: 'Comida',
+                color: '#10B981',
+                icon: 'utensils',
+                total_usd: 60,
+                count: 3,
+                percent: 100,
+            },
+        ],
+        income_categories: [],
+        sources: [
+            {
+                id: 5,
+                name: 'Efectivo',
+                color: '#3B82F6',
+                icon: 'wallet',
+                total_usd: 60,
+                count: 3,
+                percent: 100,
+            },
+        ],
+        largest_expenses: [
+            {
+                id: 1,
+                date: '2026-10-03',
+                description: 'Mercado',
+                category: 'Comida',
+                usd_amount: 30,
+            },
+        ],
+        previous: {
+            from: '2026-08-31',
+            to: '2026-09-30',
+            expenses_usd: 40,
+            incomes_usd: 0,
+            expenses_variation: 50,
+            incomes_variation: null,
+        },
+        budget: { monthly: 200, spent: 60, percent: 30, remaining: 140 },
+        movements: [
+            {
+                type: 'income' as const,
+                id: 1,
+                date: '2026-10-03',
+                description: 'Sueldo de octubre',
+                category: 'Sueldo',
+                source: null,
+                currency: 'usd' as const,
+                amount: 500,
+                usd_amount: 500,
+                running_usd: 500,
+            },
+            {
+                type: 'expense' as const,
+                id: 1,
+                date: '2026-10-03',
+                description: 'Mercado',
+                category: 'Comida',
+                source: 'Efectivo',
+                currency: 'usd' as const,
+                amount: 30,
+                usd_amount: 30,
+                running_usd: 470,
+            },
+        ],
+        movements_truncated: false,
+        ...overrides,
+    };
+}
+
+/** Forma de App\Support\Presenters\AiSettingPresenter::present(). */
+export function aiSettingFixture(overrides: Record<string, unknown> = {}) {
+    return {
+        provider: 'anthropic' as const,
+        provider_label: 'Anthropic (Claude)',
+        model: null,
+        resolved_model: 'claude-opus-5-5',
+        base_url: null,
+        has_key: true,
+        masked_key: '••••abcd',
+        ready: true,
+        supports_vision: true,
+        supports_pdf: true,
+        last_verified_at: null,
+        updated_at: '2026-11-06T12:00:00+00:00',
+        ...overrides,
+    };
+}
+
+/** Un proveedor de AiSettingPresenter::providers(). */
+export function aiProviderFixture(overrides: Record<string, unknown> = {}) {
+    return {
+        value: 'anthropic' as const,
+        label: 'Anthropic (Claude)',
+        default_model: 'claude-opus-5-5',
+        models: ['claude-opus-5-5', 'claude-sonnet-5-5', 'claude-haiku-5-5'],
+        default_base_url: null,
+        endpoint_options: [] as { key: string; value: string }[],
+        requires_key: true,
+        requires_base_url: false,
+        supports_vision: true,
+        supports_pdf: true,
+        key_url: 'https://console.anthropic.com/settings/keys',
+        available: true,
+        ...overrides,
+    };
+}

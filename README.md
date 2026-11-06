@@ -47,6 +47,14 @@ Alrededor de esa idea:
   global y por categoría.
 - **Reportes** con exportación CSV, **API REST** (tokens Sanctum + OpenAPI) y
   **panel de administración** multiusuario.
+- **Estado de cuenta** por periodo: movimientos con neto acumulado, desgloses, CSV e
+  impresión.
+- **Asistente de IA con tu propia clave** (OpenAI, Claude, Gemini, Mistral, Groq, DeepSeek,
+  OpenRouter, OpenCode u Ollama): lee facturas y comprobantes para rellenar el gasto,
+  importa de una vez los movimientos de un estado de cuenta bancario (PDF o capturas),
+  responde preguntas sobre tus finanzas, arma estados de cuenta y propone gastos que tú
+  confirmas.
+  Las cifras las calcula la app; la IA solo las interpreta.
 - **PWA** instalable, interfaz en **español e inglés**, 2FA y passkeys.
 
 ## Instalación
@@ -137,7 +145,7 @@ El proyecto se desarrolla en español; la aplicación es bilingüe (ES/EN).
 ## Versiones
 
 Las versiones publicadas están en **[CHANGELOG.md](CHANGELOG.md)** y siguen SemVer. Si
-auto-hospedas, sitúate en un tag (`git checkout v1.1.0`) en vez de seguir `main`: sabrás qué
+auto-hospedas, sitúate en un tag (`git checkout v1.2.0`) en vez de seguir `main`: sabrás qué
 tienes y qué cambia al actualizar. Las entradas marcadas **⚠ Acción requerida** piden algo de
 tu parte.
 

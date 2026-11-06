@@ -147,7 +147,8 @@ return [
             'third_parties' => [
                 'heading' => '4. Third parties',
                 'body' => [
-                    'The application makes a single outbound call: it reads the exchange rates published at ve.dolarapi.com. That request contains none of your data — it only asks for the price of the dollar.',
+                    'On its own, the application makes a single outbound call: it reads the exchange rates published at ve.dolarapi.com. That request contains none of your data — it only asks for the price of the dollar.',
+                    'If you connect an artificial intelligence provider (OpenAI, Anthropic, Google or another) with your own key, every time you use an AI feature it receives what is needed to answer: the invoice or statement you upload, your question and the movement data the answer requires. You decide to send it, it goes to your account with that provider and is governed by its privacy policy. You can disconnect it at any time from Settings > Artificial intelligence.',
                     'The rest depends on how :operator deployed the instance: the hosting provider and, if configured, the mail service that sends verification and password-recovery messages will process data on the operator\'s behalf.',
                 ],
             ],
@@ -156,6 +157,7 @@ return [
                 'heading' => '5. How it is protected',
                 'body' => [
                     'Passwords are stored with bcrypt; nobody, not even the administrator, can read them.',
+                    'Your AI provider key is stored encrypted, is never shown back in the application and is not included in backups.',
                     'Each account can only see its own data: queries are scoped per user and checked by access policies.',
                     'Receipts are stored outside the server\'s public directory and are only served after checking that whoever asks owns the movement.',
                     'Changing your password closes every other session and revokes API tokens.',

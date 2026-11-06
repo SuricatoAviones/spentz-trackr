@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\V1\AiController;
 use App\Http\Controllers\Api\V1\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Api\V1\CategoryController;
 use App\Http\Controllers\Api\V1\CreditCardController;
@@ -12,6 +13,7 @@ use App\Http\Controllers\Api\V1\ProfileController;
 use App\Http\Controllers\Api\V1\RecurringPaymentController;
 use App\Http\Controllers\Api\V1\ReportController;
 use App\Http\Controllers\Api\V1\SavingsGoalController;
+use App\Http\Middleware\EnsureAiEnabled;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -138,4 +140,22 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     // Reports
     Route::get('reports', [ReportController::class, 'index'])->name('api.v1.reports.index');
     Route::get('reports/monthly-summary', [ReportController::class, 'monthlySummary'])->name('api.v1.reports.monthly-summary');
+    Route::get('reports/statement', [ReportController::class, 'statement'])->name('api.v1.reports.statement');
+
+    // Asistente de IA: mismos Actions y Form Requests que la web. Las rutas
+    // que llaman al proveedor suman el limitador `ai` al general de la API.
+    Route::middleware(EnsureAiEnabled::class)->prefix('ai')->group(function () {
+        Route::get('settings', [AiController::class, 'settings'])->name('api.v1.ai.settings');
+        Route::put('settings', [AiController::class, 'updateSettings'])->name('api.v1.ai.settings.update');
+        Route::delete('settings', [AiController::class, 'destroySettings'])->name('api.v1.ai.settings.destroy');
+        Route::post('statements/import', [AiController::class, 'importStatement'])->name('api.v1.ai.statements.import');
+
+        Route::middleware('throttle:ai')->group(function () {
+            Route::post('settings/test', [AiController::class, 'test'])->name('api.v1.ai.settings.test');
+            Route::post('receipts/scan', [AiController::class, 'scanReceipt'])->name('api.v1.ai.receipts.scan');
+            Route::post('chat', [AiController::class, 'ask'])->name('api.v1.ai.chat');
+            Route::post('statement/analyze', [AiController::class, 'analyzeStatement'])->name('api.v1.ai.statement.analyze');
+            Route::post('statements/scan', [AiController::class, 'scanStatement'])->name('api.v1.ai.statements.scan');
+        });
+    });
 });

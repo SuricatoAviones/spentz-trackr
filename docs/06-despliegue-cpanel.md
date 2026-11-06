@@ -142,6 +142,7 @@ lo creas tú por File Manager o Terminal, así que la raíz no necesita ser escr
 - [ ] Gasto en Bs → el selector BCV / Paralelo / Personalizada muestra tasas reales.
 - [ ] Subir un comprobante y verlo en el detalle (⇒ `storage:link` ok).
 - [ ] `storage/logs/laravel.log` sin errores.
+- [ ] (Opcional) **Ajustes → Inteligencia artificial**: conectar un proveedor y pulsar **Probar**. Algunos hostings compartidos bloquean conexiones salientes o cortan las peticiones a los 30–60 s; si la prueba falla con "no respondió a tiempo", pide al proveedor que permita la salida HTTPS o baja `AI_TIMEOUT`. Ollama y los endpoints propios están desactivados por defecto (`AI_ALLOW_CUSTOM_ENDPOINTS=false`).
 
 ## 11. Actualizar
 

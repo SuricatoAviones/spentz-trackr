@@ -1,8 +1,9 @@
-import { Link, router, setLayoutProps } from '@inertiajs/react';
+import { Link, router, setLayoutProps, usePage } from '@inertiajs/react';
 import {
     ChevronLeft,
     ChevronRight,
     Download,
+    FileUp,
     Search,
     SlidersHorizontal,
     Trash2,
@@ -20,6 +21,7 @@ import {
     isToday,
     isYesterday,
 } from '@/lib/format';
+import { create as aiImportCreate } from '@/routes/ai/import';
 import {
     destroy as expensesDestroy,
     index as expensesIndex,
@@ -61,6 +63,8 @@ export default function ExpensesIndex({
 }: ExpensesIndexProps) {
     const { t } = useTranslation();
     const [search, setSearch] = useState(filters.search ?? '');
+
+    const { features } = usePage<{ features?: { ai?: boolean } }>().props;
 
     setLayoutProps({ title: t('expenses.title') });
     const [currency, setCurrency] = useState(filters.currency ?? '');
@@ -223,6 +227,17 @@ export default function ExpensesIndex({
                             <Download className="size-3.5" />
                             {t('expenses.export')}
                         </a>
+
+                        {features?.ai && (
+                            <Link
+                                href={aiImportCreate().url}
+                                className="inline-flex items-center gap-2 rounded-full bg-surface-low px-3.5 py-2 text-xs font-semibold text-foreground"
+                                title={t('expenses.import_title')}
+                            >
+                                <FileUp className="size-3.5" />
+                                {t('expenses.import')}
+                            </Link>
+                        )}
                     </div>
 
                     {activeFilterCount > 0 && (

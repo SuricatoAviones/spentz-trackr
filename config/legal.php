@@ -25,6 +25,6 @@ return [
      | cuando modifiques el texto: es lo que permite a un usuario saber si lo
      | que aceptó sigue siendo lo que está publicado.
      */
-    'effective_date' => env('LEGAL_EFFECTIVE_DATE', '2026-09-13'),
+    'effective_date' => env('LEGAL_EFFECTIVE_DATE', '2026-11-06'),
 
 ];

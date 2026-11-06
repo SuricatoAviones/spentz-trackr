@@ -39,4 +39,12 @@ return [
      */
     'registration' => env('REGISTRATION_ENABLED', true),
 
+    /*
+     | Asistente de IA: lectura de facturas, chat sobre las finanzas propias y
+     | análisis de estados de cuenta. Cada usuario usa SU clave de proveedor;
+     | la instancia no paga el consumo. Apagarlo devuelve 503 en sus rutas y
+     | oculta el menú, sin borrar las claves guardadas.
+     */
+    'ai' => env('AI_ENABLED', true),
+
 ];

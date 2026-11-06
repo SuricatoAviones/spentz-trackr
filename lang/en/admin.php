@@ -21,6 +21,8 @@ return [
     'action.api_disabled' => 'REST API disabled',
     'action.registration_enabled' => 'Registration opened',
     'action.registration_disabled' => 'Registration closed',
+    'action.ai_enabled' => 'AI assistant enabled',
+    'action.ai_disabled' => 'AI assistant disabled',
 
     'uncategorized' => 'Uncategorized',
 ];

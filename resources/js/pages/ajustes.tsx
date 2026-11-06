@@ -11,12 +11,14 @@ import {
     LogOut,
     RefreshCw,
     Settings2,
+    Sparkles,
     Tag,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { TrackerCard } from '@/components/tracker/tracker-card';
 import { formatAmount, formatRate } from '@/lib/format';
 import { logout } from '@/routes';
+import { edit as aiSettingsEdit } from '@/routes/ai/settings';
 import { update as budgetPreferenceUpdate } from '@/routes/budget-preference';
 import { index as categoriesIndex } from '@/routes/categories';
 import { update as commissionPreferencesUpdate } from '@/routes/commission-preferences';
@@ -49,7 +51,9 @@ export default function Ajustes({
     monthlyIncomeCount: number;
 }) {
     const { t } = useTranslation();
-    const { auth } = usePage().props;
+    const { auth, features } = usePage<{
+        features?: { ai?: boolean };
+    }>().props;
     const user = auth.user;
 
     setLayoutProps({ title: t('ajustes.title') });
@@ -422,6 +426,18 @@ export default function Ajustes({
 
                 <TrackerCard title={t('ajustes.preferences')}>
                     <div className="divide-y divide-border px-4">
+                        {features?.ai && (
+                            <Link
+                                href={aiSettingsEdit().url}
+                                className="flex items-center justify-between py-3.5"
+                            >
+                                <span className="flex items-center gap-3 text-sm text-foreground">
+                                    <Sparkles className="size-4 text-violet-500" />
+                                    {t('ajustes.ai')}
+                                </span>
+                                <ChevronRight className="size-4 text-muted-foreground" />
+                            </Link>
+                        )}
                         <Link
                             href={categoriesIndex().url}
                             className="flex items-center justify-between py-3.5"
@@ -491,7 +507,7 @@ export default function Ajustes({
                 </button>
 
                 <p className="pb-2 text-center text-[11px] text-muted-foreground/70">
-                    Spentz Trackr v1.1.0
+                    Spentz Trackr v1.2.0
                 </p>
             </div>
         </div>

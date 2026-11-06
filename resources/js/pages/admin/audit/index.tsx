@@ -43,6 +43,12 @@ const ACTION_KEYS: Record<string, string> = {
     'source.updated': 'admin.audit.action_source_updated',
     'source.deleted': 'admin.audit.action_source_deleted',
     'backup.generated': 'admin.audit.action_backup_generated',
+    'api.enabled': 'admin.audit.action_api_enabled',
+    'api.disabled': 'admin.audit.action_api_disabled',
+    'registration.enabled': 'admin.audit.action_registration_enabled',
+    'registration.disabled': 'admin.audit.action_registration_disabled',
+    'ai.enabled': 'admin.audit.action_ai_enabled',
+    'ai.disabled': 'admin.audit.action_ai_disabled',
 };
 
 export default function AdminAuditIndex({

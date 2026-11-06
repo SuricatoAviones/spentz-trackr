@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Http\Requests\StatementRequest;
 use App\Models\Category;
 use App\Models\Expense;
 use App\Models\Income;
 use App\Models\PaymentSource;
 use App\Models\User;
+use App\Services\AccountStatementService;
 use Carbon\CarbonImmutable;
 use Dedoc\Scramble\Attributes\QueryParameter;
 use Illuminate\Http\JsonResponse;
@@ -107,6 +109,18 @@ class ReportController extends BaseApiController
             'incomeCategories' => $incomeCategories,
             'sources' => $sources,
         ]);
+    }
+
+    /**
+     * Estado de cuenta de un periodo: totales, desgloses y movimientos con el neto acumulado en USD.
+     *
+     * Sin fechas devuelve el mes en curso. El periodo no puede superar 366 días.
+     */
+    #[QueryParameter('from', description: 'Inicio del periodo (YYYY-MM-DD). Por defecto, el primer día del mes.', type: 'string', format: 'date', example: '2026-10-01')]
+    #[QueryParameter('to', description: 'Fin del periodo (YYYY-MM-DD). Por defecto, hoy.', type: 'string', format: 'date', example: '2026-10-31')]
+    public function statement(StatementRequest $request, AccountStatementService $statements): JsonResponse
+    {
+        return $this->apiResponse($statements->build($request->user(), $request->from(), $request->to()));
     }
 
     /**

@@ -147,7 +147,8 @@ return [
             'third_parties' => [
                 'heading' => '4. Terceros',
                 'body' => [
-                    'La aplicación hace una única llamada saliente: consulta las tasas de cambio publicadas en ve.dolarapi.com. Esa petición no incluye ningún dato tuyo — solo pregunta el precio del dólar.',
+                    'Por sí sola, la aplicación hace una única llamada saliente: consulta las tasas de cambio publicadas en ve.dolarapi.com. Esa petición no incluye ningún dato tuyo — solo pregunta el precio del dólar.',
+                    'Si tú conectas un proveedor de inteligencia artificial (OpenAI, Anthropic, Google u otro) con tu propia clave, cada vez que uses una función de IA se le envía lo necesario para responder: la factura o el estado de cuenta que subas, tu pregunta y los datos de tus movimientos que la respuesta requiera. Ese envío lo decides tú, va a tu cuenta con ese proveedor y se rige por su política de privacidad. Puedes desconectarlo en cualquier momento desde Ajustes > Inteligencia artificial.',
                     'El resto depende de cómo :operator haya desplegado la instancia: el proveedor de alojamiento y, si está configurado, el servicio de correo que envía los mensajes de verificación y recuperación de contraseña tratarán datos por cuenta del operador.',
                 ],
             ],
@@ -156,6 +157,7 @@ return [
                 'heading' => '5. Cómo se protegen',
                 'body' => [
                     'Las contraseñas se guardan con bcrypt; nadie, ni el administrador, puede leerlas.',
+                    'La clave de tu proveedor de IA se guarda cifrada, nunca se muestra de vuelta en la aplicación y no se incluye en las copias de seguridad.',
                     'Cada cuenta solo puede ver sus propios datos: las consultas están limitadas por usuario y comprobadas por políticas de acceso.',
                     'Los comprobantes se guardan fuera del directorio público del servidor y solo se sirven tras comprobar que quien los pide es el dueño del movimiento.',
                     'Al cambiar la contraseña se cierran las demás sesiones y se revocan los tokens de API.',

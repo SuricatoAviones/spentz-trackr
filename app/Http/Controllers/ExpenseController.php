@@ -13,6 +13,8 @@ use App\Models\ExpenseReceipt;
 use App\Models\PaymentSource;
 use App\Models\User;
 use App\Services\ExchangeRateService;
+use App\Support\Features;
+use App\Support\Presenters\AiSettingPresenter;
 use App\Support\Presenters\ExpensePresenter;
 use App\Support\ReceiptStorage;
 use Illuminate\Http\RedirectResponse;
@@ -84,6 +86,11 @@ class ExpenseController extends Controller
             'rate' => $rateService->rateForUser($user),
             'rates' => $rateService->ratesForUser($user),
             'commissionDefaults' => $this->commissionDefaults($user),
+            // "Leer factura con IA": solo si la instancia tiene la IA encendida
+            // y el usuario conectó un proveedor que acepta imágenes.
+            'aiScan' => Features::aiEnabled()
+                ? AiSettingPresenter::scanCapabilities($user->aiSetting)
+                : ['available' => false, 'pdf' => false],
         ]);
     }
 

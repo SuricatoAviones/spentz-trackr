@@ -4,6 +4,8 @@ import {
     ChartPie,
     Coins,
     CreditCard,
+    FileText,
+    FileUp,
     History,
     Landmark,
     PiggyBank,
@@ -12,10 +14,12 @@ import {
     Server,
     Settings,
     Shield,
+    Sparkles,
     Tag,
     TrendingUp,
     Users,
     Wallet,
+    WandSparkles,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -28,12 +32,18 @@ import { index as adminRatesIndex } from '@/routes/admin/rates';
 import { index as adminSourcesIndex } from '@/routes/admin/sources';
 import { index as adminSystemIndex } from '@/routes/admin/system';
 import { index as adminUsersIndex } from '@/routes/admin/users';
+import { assistant as aiAssistant } from '@/routes/ai';
+import { create as aiImportCreate } from '@/routes/ai/import';
+import { edit as aiSettingsEdit } from '@/routes/ai/settings';
 import { index as categoriesIndex } from '@/routes/categories';
 import { index as creditCardsIndex } from '@/routes/credit-cards';
 import { index as expensesIndex } from '@/routes/expenses';
 import { index as incomesIndex } from '@/routes/incomes';
 import { index as recurringPaymentsIndex } from '@/routes/recurring-payments';
-import { index as reportsIndex } from '@/routes/reports';
+import {
+    index as reportsIndex,
+    statement as reportsStatement,
+} from '@/routes/reports';
 import { index as savingsGoalsIndex } from '@/routes/savings-goals';
 import { index as sourcesIndex } from '@/routes/sources';
 import type { Auth } from '@/types';
@@ -57,7 +67,10 @@ export type NavSection = {
  */
 export function useNavSections(): NavSection[] {
     const { t } = useTranslation();
-    const { auth } = usePage<{ auth: Auth }>().props;
+    const { auth, features } = usePage<{
+        auth: Auth;
+        features?: { ai?: boolean };
+    }>().props;
 
     const trackingType = auth.user.tracking_type ?? 'both';
     const showExpenses = trackingType !== 'income';
@@ -96,6 +109,44 @@ export function useNavSections(): NavSection[] {
                     href: reportsIndex().url,
                     icon: BarChart3,
                 },
+            ],
+        },
+        {
+            id: 'ai',
+            label: t('shell.nav.ai_section'),
+            items: [
+                ...(features?.ai
+                    ? [
+                          {
+                              title: t('shell.nav.ai_assistant'),
+                              href: aiAssistant().url,
+                              icon: Sparkles,
+                          },
+                      ]
+                    : []),
+                ...(features?.ai
+                    ? [
+                          {
+                              title: t('shell.nav.ai_import'),
+                              href: aiImportCreate().url,
+                              icon: FileUp,
+                          },
+                      ]
+                    : []),
+                {
+                    title: t('shell.nav.statement'),
+                    href: reportsStatement().url,
+                    icon: FileText,
+                },
+                ...(features?.ai
+                    ? [
+                          {
+                              title: t('shell.nav.ai_settings'),
+                              href: aiSettingsEdit().url,
+                              icon: WandSparkles,
+                          },
+                      ]
+                    : []),
             ],
         },
         {

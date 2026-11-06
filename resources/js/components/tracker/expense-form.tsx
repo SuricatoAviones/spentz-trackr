@@ -2,6 +2,7 @@ import { useForm } from '@inertiajs/react';
 import { Camera, ChevronRight } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { ReceiptScanner } from '@/components/ai/receipt-scanner';
 import { CategoryIcon } from '@/components/tracker/category-icon';
 import { CURRENCY_META, formatRate, todayInputValue } from '@/lib/format';
 import type { CurrencyCode } from '@/lib/format';
@@ -10,13 +11,18 @@ import {
     update as expensesUpdate,
 } from '@/routes/expenses';
 import type {
+    AiScanCapabilities,
     CategoryOption,
     CommissionDefaults,
     PaymentMethodCode,
     RateInfo,
     RateOptions,
+    ReceiptDraft,
     SourceOption,
 } from '@/types';
+
+/** Límite del comprobante en StoreExpenseRequest (`receipt` max:5120). */
+const RECEIPT_MAX_BYTES = 5 * 1024 * 1024;
 
 type RateChoice = 'bcv' | 'paralelo' | 'custom';
 
@@ -32,6 +38,7 @@ export function ExpenseForm({
     rates,
     commissionDefaults,
     initial = null,
+    aiScan = null,
 }: {
     mode: 'create' | 'edit';
     categories: CategoryOption[];
@@ -61,6 +68,7 @@ export function ExpenseForm({
             usd_amount: string | null;
         }[];
     } | null;
+    aiScan?: AiScanCapabilities | null;
 }) {
     const { t } = useTranslation();
     const [commissionTouched, setCommissionTouched] = useState(false);
@@ -338,6 +346,68 @@ export function ExpenseForm({
         });
     }
 
+    /**
+     * Rellena el formulario con lo que leyó la IA. Solo pisa los campos que
+     * vinieron en el borrador; el resto conserva lo que el usuario tuviera.
+     * La foto se adjunta como comprobante si cabe en el límite del gasto (el
+     * PDF no: el comprobante solo admite imágenes).
+     */
+    function applyDraft(draft: ReceiptDraft, file: File): void {
+        setData((values) => {
+            const currency = (draft.currency ??
+                values.currency) as CurrencyCode;
+            const amount = draft.amount ?? values.amount;
+            let exchangeRate = currency === 'ves' ? values.exchange_rate : '';
+            let rateProvider = currency === 'ves' ? values.rate_provider : '';
+
+            if (currency === 'ves' && draft.exchange_rate !== null) {
+                exchangeRate = String(draft.exchange_rate);
+                rateProvider = 'custom';
+            } else if (currency === 'ves' && !exchangeRate) {
+                const choice = resolveChoice(values.rate_provider);
+
+                exchangeRate =
+                    choice === 'bcv'
+                        ? String(rates.bcv)
+                        : choice === 'paralelo'
+                          ? String(rates.paralelo)
+                          : Number(rate.rate) > 0
+                            ? String(rate.rate)
+                            : '';
+                rateProvider = choice;
+            }
+
+            const paymentMethod =
+                currency === 'ves'
+                    ? (draft.payment_method ?? values.payment_method)
+                    : '';
+
+            const attachable =
+                file.type.startsWith('image/') &&
+                file.size <= RECEIPT_MAX_BYTES;
+
+            return {
+                ...values,
+                description: draft.description ?? values.description,
+                amount,
+                currency,
+                spent_at: draft.spent_at ?? values.spent_at,
+                category_id: draft.category_id ?? values.category_id,
+                payment_source_id:
+                    draft.payment_source_id ?? values.payment_source_id,
+                note: draft.note ?? values.note,
+                exchange_rate: exchangeRate,
+                rate_provider: rateProvider,
+                payment_method: paymentMethod,
+                commission: paymentMethod
+                    ? String(computedCommissionFor(amount))
+                    : '',
+                receipt: attachable ? file : values.receipt,
+            };
+        });
+        setCommissionTouched(false);
+    }
+
     function submit(event: React.FormEvent) {
         event.preventDefault();
 
@@ -359,6 +429,10 @@ export function ExpenseForm({
 
     return (
         <form onSubmit={submit} className="space-y-4">
+            {mode === 'create' && aiScan && (
+                <ReceiptScanner capabilities={aiScan} onDraft={applyDraft} />
+            )}
+
             {errors.receipt && (
                 <p className="text-xs text-destructive">{errors.receipt}</p>
             )}
