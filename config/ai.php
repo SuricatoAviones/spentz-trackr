@@ -32,6 +32,21 @@ return [
     'connect_timeout' => (int) env('AI_CONNECT_TIMEOUT', 10),
 
     /*
+     | Leer un estado de cuenta de varias páginas tarda bastante más que una
+     | factura: esa petición concreta puede esperar hasta este tope.
+     */
+    'import_timeout' => (int) env('AI_IMPORT_TIMEOUT', 120),
+
+    /*
+     | Importación de movimientos desde un estado de cuenta: archivos por
+     | lectura (PDF o capturas) y filas máximas por importación.
+     */
+    'import' => [
+        'max_files' => 5,
+        'max_rows' => 200,
+    ],
+
+    /*
      | Límite por usuario de peticiones a la IA (lectura de facturas, chat,
      | análisis). Protege la clave del propio usuario de un bucle o un abuso y
      | el servidor de peticiones largas encadenadas.

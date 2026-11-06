@@ -211,6 +211,14 @@ return [
         'ai_message_too_long' => 'The message cannot be longer than :max characters.',
         'statement_order' => 'The end date must be the same as or after the start date.',
         'statement_range' => 'The period cannot be longer than :days days.',
+        'ai_endpoint_option' => 'Choose one of the available plans.',
+        'import_files_max' => 'Upload at most :max files at once.',
+        'import_rows_required' => 'Select at least one movement to import.',
+        'import_rows_max' => 'You can import at most :max movements at once.',
+        'import_category_type' => 'Choose a category of the movement type (expense or income).',
+        'import_type_not_tracked' => 'Your tracking mode does not include this kind of movement.',
+        'import_source_required' => 'Choose the payment source of the imported expenses.',
+        'import_no_rate' => 'There is no exchange rate recorded for :date. Type it in the row.',
     ],
 
     'custom' => [

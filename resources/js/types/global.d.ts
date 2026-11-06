@@ -208,6 +208,7 @@ export type AiProviderCode =
     | 'groq'
     | 'deepseek'
     | 'openrouter'
+    | 'opencode'
     | 'ollama'
     | 'custom';
 
@@ -217,6 +218,8 @@ export type AiProviderOption = {
     default_model: string | null;
     models: string[];
     default_base_url: string | null;
+    /** Endpoints fijos entre los que elegir (p. ej. el plan de OpenCode). */
+    endpoint_options: { key: string; value: string }[];
     requires_key: boolean;
     requires_base_url: boolean;
     supports_vision: boolean;
@@ -275,6 +278,44 @@ export type ExpenseProposal = {
     source_name: string | null;
     payment_method: PaymentMethodCode | null;
     note: string | null;
+};
+
+export type ImportRowWarning =
+    | 'duplicate'
+    | 'invalid_date'
+    | 'no_currency'
+    | 'no_rate'
+    | 'type_not_tracked';
+
+/** Contrato de App\Actions\Ai\ScanStatementAction. */
+export type ImportRow = {
+    key: number;
+    type: 'expense' | 'income';
+    date: string | null;
+    description: string;
+    amount: string;
+    currency: 'usd' | 'ves' | 'usdt' | null;
+    category_id: number | null;
+    payment_method: PaymentMethodCode | null;
+    exchange_rate: number | null;
+    rate_provider: string | null;
+    note: string | null;
+    duplicate_of: number | null;
+    selected: boolean;
+    warnings: ImportRowWarning[];
+};
+
+export type StatementImportDraft = {
+    bank: string | null;
+    currency: 'usd' | 'ves' | 'usdt' | null;
+    payment_source_id: number | null;
+    tracking: { expenses: boolean; incomes: boolean };
+    warnings: ('not_statement' | 'truncated' | 'no_rows')[];
+    rows: ImportRow[];
+};
+
+export type ImportCategoryOption = CategoryOption & {
+    type: 'expense' | 'income';
 };
 
 export type AssistantReply = {

@@ -3,6 +3,7 @@
 use App\Http\Controllers\Ai\AiSettingsController;
 use App\Http\Controllers\Ai\AssistantController;
 use App\Http\Controllers\Ai\ReceiptScanController;
+use App\Http\Controllers\Ai\StatementImportController;
 use App\Http\Controllers\AjustesController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CreditCardController;
@@ -104,12 +105,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('ia/ajustes', [AiSettingsController::class, 'update'])->name('ai.settings.update');
         Route::delete('ia/ajustes', [AiSettingsController::class, 'destroy'])->name('ai.settings.destroy');
         Route::get('asistente', [AssistantController::class, 'index'])->name('ai.assistant');
+        Route::get('ia/importar', [StatementImportController::class, 'create'])->name('ai.import.create');
+        // Confirmar no llama al proveedor (crea los registros revisados), así
+        // que no gasta del limitador `ai`.
+        Route::post('ia/importar', [StatementImportController::class, 'store'])->name('ai.import.store');
 
         Route::middleware('throttle:ai')->group(function () {
             Route::post('ia/ajustes/probar', [AiSettingsController::class, 'test'])->name('ai.settings.test');
             Route::post('ia/facturas/leer', ReceiptScanController::class)->name('ai.receipts.scan');
             Route::post('asistente/mensajes', [AssistantController::class, 'ask'])->name('ai.assistant.ask');
             Route::post('ia/estado-de-cuenta/analizar', [AssistantController::class, 'analyzeStatement'])->name('ai.statement.analyze');
+            Route::post('ia/importar/leer', [StatementImportController::class, 'scan'])->name('ai.import.scan');
         });
     });
 });

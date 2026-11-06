@@ -84,9 +84,15 @@ abstract class AiDriver
         }
     }
 
-    protected function http(): PendingRequest
+    /**
+     * Cliente HTTP con timeout. Una petición puede pedir más margen (leer un
+     * estado de cuenta de varias páginas tarda más que una factura).
+     */
+    protected function http(?AiRequest $request = null): PendingRequest
     {
-        return Http::timeout(max(5, (int) config('ai.timeout', 90)))
+        $timeout = max(5, (int) config('ai.timeout', 60), (int) ($request->timeout ?? 0));
+
+        return Http::timeout($timeout)
             ->connectTimeout(max(2, (int) config('ai.connect_timeout', 10)))
             ->acceptJson()
             ->asJson()

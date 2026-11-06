@@ -56,7 +56,7 @@ class GeminiDriver extends AiDriver
             $body['generationConfig']['responseMimeType'] = 'application/json';
         }
 
-        return $this->http()
+        return $this->http($request)
             ->withHeaders(['x-goog-api-key' => $this->apiKey()])
             ->post($this->url('models/'.$model.':generateContent'), $body);
     }

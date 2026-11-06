@@ -18,6 +18,8 @@ use App\Services\Ai\AiRequest;
 use App\Services\Ai\AiTool;
 use App\Services\Ai\AiToolCall;
 use App\Services\Ai\Drivers\AiDriver;
+use App\Services\Ai\Drivers\OpenAiDriver;
+use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
 
@@ -294,4 +296,67 @@ test('tool results keep their order and ids', function () {
     expect($message->toolCallId)->toBe('id-9')
         ->and($message->toolName)->toBe('get_savings_goals')
         ->and($message->text)->toBe('{"goals":[{"saved":1.0}]}');
+});
+
+test('opencode goes through the openai chat endpoint with a stable session per user', function () {
+    Http::fake(['opencode.ai/*' => Http::response(['choices' => [['message' => ['content' => 'ok']]]])]);
+
+    $driver = driverFor($this->user, AiProvider::OpenCode, 'claude-sonnet-5-5');
+    $driver->send(new AiRequest('sys', [AiMessage::user('hola')], maxTokens: 400));
+    $driver->send(new AiRequest('sys', [AiMessage::user('otra vez')]));
+
+    $other = driverFor(User::factory()->create(), AiProvider::OpenCode);
+    $other->send(new AiRequest('sys', [AiMessage::user('hola')]));
+
+    [$first, $second, $third] = array_map(fn (array $pair) => $pair[0], Http::recorded()->all());
+
+    expect($first->url())->toBe('https://opencode.ai/inference/openai/v1/chat/completions')
+        ->and($first->header('Authorization')[0])->toStartWith('Bearer key-')
+        ->and($first['model'])->toBe('claude-sonnet-5-5')
+        ->and($first['max_tokens'])->toBe(400)
+        ->and(isset($first['max_completion_tokens']))->toBeFalse()
+        ->and($first->header('x-opencode-session')[0])->toMatch('/^ses_[0-9a-f]{26}$/')
+        // Estable para el mismo usuario, distinta entre usuarios.
+        ->and($second->header('x-opencode-session')[0])->toBe($first->header('x-opencode-session')[0])
+        ->and($third->header('x-opencode-session')[0])->not->toBe($first->header('x-opencode-session')[0]);
+});
+
+test('the opencode go plan uses its own base url', function () {
+    Http::fake(['opencode.ai/*' => Http::response(['choices' => [['message' => ['content' => 'ok']]]])]);
+
+    $setting = AiSetting::factory()->for($this->user)->provider(AiProvider::OpenCode)->create([
+        'base_url' => 'https://opencode.ai/inference/go/openai/v1',
+    ]);
+
+    app(AiManager::class)->driverFor($setting)->send(new AiRequest('sys', [AiMessage::user('hola')]));
+
+    Http::assertSent(fn (Request $request) => $request->url() === 'https://opencode.ai/inference/go/openai/v1/chat/completions');
+});
+
+test('a tampered opencode base url falls back to the official endpoint', function () {
+    $setting = AiSetting::factory()->for($this->user)->provider(AiProvider::OpenCode)->create([
+        'base_url' => 'http://169.254.169.254/latest',
+    ]);
+
+    expect($setting->resolvedBaseUrl())->toBe('https://opencode.ai/inference/openai/v1');
+});
+
+test('opencode does not take pdf files directly', function () {
+    driverFor($this->user, AiProvider::OpenCode)->send(new AiRequest('sys', [AiMessage::user('x', [new AiAttachment('application/pdf', 'AA')])]));
+})->throws(AiException::class, 'PDF');
+
+test('a request can ask for a longer timeout than the default', function () {
+    config(['ai.timeout' => 60]);
+
+    $driver = new class(AiSetting::factory()->for($this->user)->create()) extends OpenAiDriver
+    {
+        public function client(?AiRequest $request): PendingRequest
+        {
+            return $this->http($request);
+        }
+    };
+
+    expect($driver->client(new AiRequest('sys', [], timeout: 120))->getOptions()['timeout'])->toBe(120)
+        ->and($driver->client(new AiRequest('sys', [], timeout: 10))->getOptions()['timeout'])->toBe(60)
+        ->and($driver->client(null)->getOptions()['timeout'])->toBe(60);
 });

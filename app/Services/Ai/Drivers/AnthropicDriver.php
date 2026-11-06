@@ -66,7 +66,7 @@ class AnthropicDriver extends AiDriver
             $body['fallbacks'] = 'default';
         }
 
-        return $this->http()->withHeaders($headers)->post($this->url('messages'), $body);
+        return $this->http($request)->withHeaders($headers)->post($this->url('messages'), $body);
     }
 
     /**

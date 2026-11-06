@@ -27,7 +27,13 @@ class UpdateAiSettingsAction
 
         $newKey = trim((string) ($data['api_key'] ?? ''));
         $model = trim((string) ($data['model'] ?? ''));
-        $baseUrl = $provider->requiresBaseUrl() ? rtrim(trim((string) ($data['base_url'] ?? '')), '/') : null;
+        $baseUrl = match (true) {
+            $provider->requiresBaseUrl() => rtrim(trim((string) ($data['base_url'] ?? '')), '/'),
+            $provider->endpointOptions() !== [] => in_array($data['base_url'] ?? null, $provider->endpointOptions(), true)
+                ? (string) $data['base_url']
+                : null,
+            default => null,
+        };
 
         $setting->provider = $provider;
         $setting->model = $model !== '' ? $model : null;

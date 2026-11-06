@@ -10,6 +10,7 @@ import {
     CheckCircle2,
     ExternalLink,
     FileText,
+    FileUp,
     KeyRound,
     Loader2,
     MessageSquare,
@@ -25,6 +26,7 @@ import { TrackerCard } from '@/components/tracker/tracker-card';
 import { aiFailure, isCancelled } from '@/lib/ai';
 import { cn } from '@/lib/utils';
 import { assistant as aiAssistant } from '@/routes/ai';
+import { create as aiImportCreate } from '@/routes/ai/import';
 import {
     destroy as aiSettingsDestroy,
     test as aiSettingsTest,
@@ -239,6 +241,57 @@ export default function AiSettings({
                                     </span>
                                 )}
                             </label>
+                        )}
+
+                        {selected.endpoint_options.length > 0 && (
+                            <div>
+                                <span className="text-xs font-medium text-muted-foreground">
+                                    {t('ai.settings.plan')}
+                                </span>
+                                <div className="mt-1.5 grid grid-cols-2 gap-2">
+                                    {selected.endpoint_options.map((option) => {
+                                        const active =
+                                            (data.base_url ||
+                                                selected.default_base_url) ===
+                                            option.value;
+
+                                        return (
+                                            <button
+                                                key={option.key}
+                                                type="button"
+                                                aria-pressed={active}
+                                                onClick={() =>
+                                                    setData(
+                                                        'base_url',
+                                                        option.value,
+                                                    )
+                                                }
+                                                className={cn(
+                                                    'rounded-lg px-3 py-2 text-xs font-semibold transition-colors',
+                                                    active
+                                                        ? 'bg-emerald-500/15 text-emerald-700 ring-1 ring-emerald-500/50 dark:text-emerald-400'
+                                                        : 'bg-surface-high text-muted-foreground',
+                                                )}
+                                            >
+                                                {t(
+                                                    `ai.settings.plan_${option.key}`,
+                                                )}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                                {errors.base_url && (
+                                    <span className="mt-1 block text-xs text-destructive">
+                                        {errors.base_url}
+                                    </span>
+                                )}
+                            </div>
+                        )}
+
+                        {selected.value === 'opencode' && (
+                            <p className="rounded-lg bg-violet-500/10 px-3 py-2 text-[11px] text-violet-700 dark:text-violet-300">
+                                {t('ai.settings.opencode_hint')}
+                            </p>
                         )}
 
                         <label className="block">
@@ -477,6 +530,12 @@ export default function AiSettings({
                             icon={<ScanLine className="size-4" />}
                             title={t('ai.settings.feature_scan')}
                             description={t('ai.settings.feature_scan_desc')}
+                        />
+                        <FeatureLink
+                            href={aiImportCreate().url}
+                            icon={<FileUp className="size-4" />}
+                            title={t('ai.settings.feature_import')}
+                            description={t('ai.settings.feature_import_desc')}
                         />
                         <FeatureLink
                             href={aiAssistant().url}

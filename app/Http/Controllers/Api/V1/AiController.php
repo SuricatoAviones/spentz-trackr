@@ -5,11 +5,15 @@ namespace App\Http\Controllers\Api\V1;
 use App\Actions\Ai\AnalyzeStatementAction;
 use App\Actions\Ai\AskAssistantAction;
 use App\Actions\Ai\ScanReceiptAction;
+use App\Actions\Ai\ScanStatementAction;
 use App\Actions\Ai\UpdateAiSettingsAction;
 use App\Actions\Ai\VerifyAiConnectionAction;
+use App\Actions\Transactions\ImportTransactionsAction;
 use App\Http\Requests\Ai\AskAssistantRequest;
 use App\Http\Requests\Ai\ScanReceiptRequest;
+use App\Http\Requests\Ai\ScanStatementRequest;
 use App\Http\Requests\Ai\UpdateAiSettingsRequest;
+use App\Http\Requests\ImportTransactionsRequest;
 use App\Http\Requests\StatementRequest;
 use App\Support\Presenters\AiSettingPresenter;
 use Illuminate\Http\JsonResponse;
@@ -74,6 +78,34 @@ class AiController extends BaseApiController
     public function scanReceipt(ScanReceiptRequest $request, ScanReceiptAction $action): JsonResponse
     {
         return $this->apiResponse($action->handle($request->user(), $request->file('file')));
+    }
+
+    /**
+     * Lee un estado de cuenta (un PDF o hasta 5 capturas en `files[]`) y devuelve sus movimientos como borradores.
+     *
+     * No crea nada. Cada fila trae la tasa del día del movimiento, la categoría sugerida y `duplicate_of`
+     * si coincide con un registro existente. Las filas revisadas se confirman con `POST /ai/statements/import`.
+     */
+    public function scanStatement(ScanStatementRequest $request, ScanStatementAction $action): JsonResponse
+    {
+        return $this->apiResponse($action->handle($request->user(), $request->uploads()));
+    }
+
+    /**
+     * Registra los movimientos confirmados de un estado de cuenta (todo o nada).
+     *
+     * Cada fila pasa por las mismas reglas que un gasto o ingreso creado a mano. Una fila en Bs sin
+     * `exchange_rate` toma la tasa del día del movimiento.
+     */
+    public function importStatement(ImportTransactionsRequest $request, ImportTransactionsAction $action): JsonResponse
+    {
+        $counts = $action->handle($request->user(), $request->validated());
+
+        return response()->json([
+            'success' => true,
+            'data' => $counts,
+            'message' => __('messages.import_done', ['expenses' => $counts['expenses'], 'incomes' => $counts['incomes']]),
+        ], 201);
     }
 
     /**

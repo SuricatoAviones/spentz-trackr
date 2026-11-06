@@ -25,7 +25,9 @@ final class AiSettingPresenter
             'provider_label' => $setting->provider->label(),
             'model' => $setting->model,
             'resolved_model' => $setting->resolvedModel(),
-            'base_url' => $setting->provider->requiresBaseUrl() ? $setting->base_url : null,
+            'base_url' => $setting->provider->requiresBaseUrl() || $setting->provider->endpointOptions() !== []
+                ? $setting->resolvedBaseUrl()
+                : null,
             'has_key' => $setting->hasApiKey(),
             'masked_key' => $setting->maskedKey(),
             'ready' => $setting->isReady(),
@@ -48,7 +50,12 @@ final class AiSettingPresenter
             'label' => $provider->label(),
             'default_model' => $provider->defaultModel(),
             'models' => $provider->suggestedModels(),
-            'default_base_url' => $provider->requiresBaseUrl() ? $provider->defaultBaseUrl() : null,
+            'default_base_url' => $provider->requiresBaseUrl() || $provider->endpointOptions() !== [] ? $provider->defaultBaseUrl() : null,
+            'endpoint_options' => array_map(
+                fn (string $key, string $url): array => ['key' => $key, 'value' => $url],
+                array_keys($provider->endpointOptions()),
+                array_values($provider->endpointOptions()),
+            ),
             'requires_key' => $provider->requiresApiKey(),
             'requires_base_url' => $provider->requiresBaseUrl(),
             'supports_vision' => $provider->supportsVision(),

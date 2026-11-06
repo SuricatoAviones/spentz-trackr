@@ -98,4 +98,9 @@ return [
     'ai_note_invoice' => 'Invoice :value',
     'statement_income' => 'Income',
     'statement_expense' => 'Expense',
+    'ai_import_default_description' => 'Bank movement',
+    'ai_import_note_reference' => 'Ref. :value',
+    'ai_import_note_bank' => 'Imported from the :value statement',
+    'ai_import_note' => 'Imported from an account statement',
+    'import_done' => 'Imported :expenses expenses and :incomes incomes.',
 ];

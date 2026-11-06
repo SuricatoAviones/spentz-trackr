@@ -49,6 +49,13 @@ class UpdateAiSettingsRequest extends FormRequest
                 $validator->errors()->add('base_url', __('validation.app.ai_base_url_required'));
             }
 
+            $options = $provider->endpointOptions();
+            $baseUrl = $this->input('base_url');
+
+            if ($options !== [] && $baseUrl !== null && $baseUrl !== '' && ! in_array($baseUrl, $options, true)) {
+                $validator->errors()->add('base_url', __('validation.app.ai_endpoint_option'));
+            }
+
             if ($provider === AiProvider::Custom && trim((string) $this->input('model')) === '') {
                 $validator->errors()->add('model', __('validation.app.ai_model_required'));
             }

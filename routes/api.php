@@ -148,12 +148,14 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
         Route::get('settings', [AiController::class, 'settings'])->name('api.v1.ai.settings');
         Route::put('settings', [AiController::class, 'updateSettings'])->name('api.v1.ai.settings.update');
         Route::delete('settings', [AiController::class, 'destroySettings'])->name('api.v1.ai.settings.destroy');
+        Route::post('statements/import', [AiController::class, 'importStatement'])->name('api.v1.ai.statements.import');
 
         Route::middleware('throttle:ai')->group(function () {
             Route::post('settings/test', [AiController::class, 'test'])->name('api.v1.ai.settings.test');
             Route::post('receipts/scan', [AiController::class, 'scanReceipt'])->name('api.v1.ai.receipts.scan');
             Route::post('chat', [AiController::class, 'ask'])->name('api.v1.ai.chat');
             Route::post('statement/analyze', [AiController::class, 'analyzeStatement'])->name('api.v1.ai.statement.analyze');
+            Route::post('statements/scan', [AiController::class, 'scanStatement'])->name('api.v1.ai.statements.scan');
         });
     });
 });

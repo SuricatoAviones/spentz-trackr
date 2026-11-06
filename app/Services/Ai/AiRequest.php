@@ -14,6 +14,7 @@ final class AiRequest
         public readonly array $tools = [],
         public readonly bool $json = false,
         public readonly int $maxTokens = 8000,
+        public readonly ?int $timeout = null,
     ) {}
 
     /**
@@ -21,7 +22,7 @@ final class AiRequest
      */
     public function withMessages(array $messages): self
     {
-        return new self($this->system, $messages, $this->tools, $this->json, $this->maxTokens);
+        return new self($this->system, $messages, $this->tools, $this->json, $this->maxTokens, $this->timeout);
     }
 
     public function hasAttachments(): bool

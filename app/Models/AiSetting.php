@@ -52,9 +52,15 @@ class AiSetting extends Model
 
     public function resolvedBaseUrl(): string
     {
-        $url = $this->provider->requiresBaseUrl()
-            ? (string) ($this->base_url ?: $this->provider->defaultBaseUrl())
-            : (string) $this->provider->defaultBaseUrl();
+        $options = $this->provider->endpointOptions();
+
+        $url = match (true) {
+            $this->provider->requiresBaseUrl() => (string) ($this->base_url ?: $this->provider->defaultBaseUrl()),
+            // Endpoints fijos: solo vale uno de la lista; cualquier otro valor
+            // guardado (p. ej. de un backup manipulado) cae al por defecto.
+            $options !== [] && in_array($this->base_url, $options, true) => (string) $this->base_url,
+            default => (string) $this->provider->defaultBaseUrl(),
+        };
 
         return rtrim($url, '/');
     }

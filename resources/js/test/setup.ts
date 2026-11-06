@@ -25,6 +25,13 @@ export function setPageProps(props: Record<string, unknown>): void {
     pageProps = props;
 }
 
+/** Lo que devuelve `useHttp().post()` en el siguiente test (por defecto, nada). */
+let httpResponse: unknown = null;
+
+export function setHttpResponse(response: unknown): void {
+    httpResponse = response;
+}
+
 vi.mock('@inertiajs/react', async () => {
     const React = await import('react');
 
@@ -73,7 +80,7 @@ vi.mock('@inertiajs/react', async () => {
             errors: {} as Record<string, string>,
             processing: false,
             setData: () => undefined,
-            post: vi.fn(async () => null),
+            post: vi.fn(async () => httpResponse),
             cancel: () => undefined,
         }),
     };
@@ -82,4 +89,5 @@ vi.mock('@inertiajs/react', async () => {
 afterEach(() => {
     cleanup();
     pageProps = {};
+    httpResponse = null;
 });

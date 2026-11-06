@@ -97,4 +97,9 @@ return [
     'ai_note_invoice' => 'Factura :value',
     'statement_income' => 'Ingreso',
     'statement_expense' => 'Gasto',
+    'ai_import_default_description' => 'Movimiento bancario',
+    'ai_import_note_reference' => 'Ref. :value',
+    'ai_import_note_bank' => 'Importado del estado de cuenta de :value',
+    'ai_import_note' => 'Importado de un estado de cuenta',
+    'import_done' => 'Importados :expenses gastos y :incomes ingresos.',
 ];

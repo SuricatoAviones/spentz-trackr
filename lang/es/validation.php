@@ -211,6 +211,14 @@ return [
         'ai_message_too_long' => 'El mensaje no puede superar los :max caracteres.',
         'statement_order' => 'La fecha final debe ser igual o posterior a la inicial.',
         'statement_range' => 'El periodo no puede superar los :days días.',
+        'ai_endpoint_option' => 'Elige uno de los planes disponibles.',
+        'import_files_max' => 'Sube como máximo :max archivos a la vez.',
+        'import_rows_required' => 'Selecciona al menos un movimiento para importar.',
+        'import_rows_max' => 'Puedes importar como máximo :max movimientos a la vez.',
+        'import_category_type' => 'Elige una categoría del tipo del movimiento (gasto o ingreso).',
+        'import_type_not_tracked' => 'Tu modo de seguimiento no incluye este tipo de movimiento.',
+        'import_source_required' => 'Elige el origen de pago de los gastos importados.',
+        'import_no_rate' => 'No hay tasa de cambio registrada para el :date. Escríbela en la fila.',
     ],
 
     'custom' => [

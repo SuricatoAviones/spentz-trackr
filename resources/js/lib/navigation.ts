@@ -5,6 +5,7 @@ import {
     Coins,
     CreditCard,
     FileText,
+    FileUp,
     History,
     Landmark,
     PiggyBank,
@@ -32,6 +33,7 @@ import { index as adminSourcesIndex } from '@/routes/admin/sources';
 import { index as adminSystemIndex } from '@/routes/admin/system';
 import { index as adminUsersIndex } from '@/routes/admin/users';
 import { assistant as aiAssistant } from '@/routes/ai';
+import { create as aiImportCreate } from '@/routes/ai/import';
 import { edit as aiSettingsEdit } from '@/routes/ai/settings';
 import { index as categoriesIndex } from '@/routes/categories';
 import { index as creditCardsIndex } from '@/routes/credit-cards';
@@ -119,6 +121,15 @@ export function useNavSections(): NavSection[] {
                               title: t('shell.nav.ai_assistant'),
                               href: aiAssistant().url,
                               icon: Sparkles,
+                          },
+                      ]
+                    : []),
+                ...(features?.ai
+                    ? [
+                          {
+                              title: t('shell.nav.ai_import'),
+                              href: aiImportCreate().url,
+                              icon: FileUp,
                           },
                       ]
                     : []),

@@ -22,6 +22,7 @@ enum AiProvider: string
     case Groq = 'groq';
     case DeepSeek = 'deepseek';
     case OpenRouter = 'openrouter';
+    case OpenCode = 'opencode';
     case Ollama = 'ollama';
     case Custom = 'custom';
 
@@ -35,6 +36,7 @@ enum AiProvider: string
             self::Groq => 'Groq',
             self::DeepSeek => 'DeepSeek',
             self::OpenRouter => 'OpenRouter',
+            self::OpenCode => 'OpenCode',
             self::Ollama => 'Ollama',
             self::Custom => 'OpenAI-compatible',
         };
@@ -62,6 +64,7 @@ enum AiProvider: string
             self::Groq => 'https://api.groq.com/openai/v1',
             self::DeepSeek => 'https://api.deepseek.com/v1',
             self::OpenRouter => 'https://openrouter.ai/api/v1',
+            self::OpenCode => 'https://opencode.ai/inference/openai/v1',
             self::Ollama => 'http://localhost:11434/v1',
             self::Custom => null,
         };
@@ -85,6 +88,9 @@ enum AiProvider: string
             self::Groq => ['meta-llama/llama-4-scout-17b-16e-instruct', 'meta-llama/llama-4-maverick-17b-128e-instruct', 'llama-3.3-70b-versatile'],
             self::DeepSeek => ['deepseek-chat', 'deepseek-reasoner'],
             self::OpenRouter => ['openai/gpt-4.1-mini', 'google/gemini-2.5-flash', 'meta-llama/llama-4-scout'],
+            // Solo modelos de pago: los gratuitos de OpenCode Console solo
+            // responden dentro de la app OpenCode, no a una API key suelta.
+            self::OpenCode => ['claude-opus-5-5', 'claude-sonnet-5-5', 'gpt-5.4-mini', 'gemini-3.5-flash', 'kimi-k2.6', 'glm-5.3', 'deepseek-v4-pro', 'qwen3.8-max'],
             self::Ollama => ['llama3.2-vision', 'qwen2.5vl', 'gemma3'],
             self::Custom => [],
         };
@@ -106,6 +112,25 @@ enum AiProvider: string
     public function requiresBaseUrl(): bool
     {
         return in_array($this, [self::Ollama, self::Custom], true);
+    }
+
+    /**
+     * Endpoints fijos entre los que el usuario puede elegir (p. ej. el plan de
+     * OpenCode). A diferencia de `requiresBaseUrl()`, la URL nunca la escribe
+     * el usuario: solo se acepta una de estas, así que no abre la puerta a
+     * conexiones arbitrarias.
+     *
+     * @return array<string, string> clave estable => URL base
+     */
+    public function endpointOptions(): array
+    {
+        return match ($this) {
+            self::OpenCode => [
+                'payg' => 'https://opencode.ai/inference/openai/v1',
+                'go' => 'https://opencode.ai/inference/go/openai/v1',
+            ],
+            default => [],
+        };
     }
 
     /**
@@ -155,6 +180,7 @@ enum AiProvider: string
             self::Groq => 'https://console.groq.com/keys',
             self::DeepSeek => 'https://platform.deepseek.com/api_keys',
             self::OpenRouter => 'https://openrouter.ai/keys',
+            self::OpenCode => 'https://opencode.ai/docs/console/harnesses/',
             self::Ollama, self::Custom => null,
         };
     }

@@ -48,7 +48,8 @@
             "ai_section": "Artificial intelligence",
             "ai_assistant": "AI assistant",
             "statement": "Account statement",
-            "ai_settings": "AI settings"
+            "ai_settings": "AI settings",
+            "ai_import": "Import statement"
         }
     },
     "rates": {
@@ -185,7 +186,9 @@
         "edit_title": "Edit expense",
         "show_title": "Expense detail",
         "word_one": "expense",
-        "word_other": "expenses"
+        "word_other": "expenses",
+        "import": "Import",
+        "import_title": "Import movements from an account statement"
     },
     "incomes": {
         "delete_confirm": "Delete \"{{description}}\"? This action cannot be undone.",
@@ -981,7 +984,13 @@
             "privacy_title": "Your key and your data",
             "privacy_key": "The key is stored encrypted and never goes back to the browser or into backups.",
             "privacy_data": "When you use the AI, the invoice or the data needed to answer is sent to your provider, under your account and its privacy policy.",
-            "privacy_costs": "Usage is billed by your provider directly; this app charges nothing for the AI."
+            "privacy_costs": "Usage is billed by your provider directly; this app charges nothing for the AI.",
+            "plan": "Plan",
+            "plan_payg": "Pay as you go",
+            "plan_go": "Go",
+            "opencode_hint": "Use an OpenCode Console API key (Account → Personal API keys). Free models only work inside the OpenCode app: choose a paid model.",
+            "feature_import": "Import account statement",
+            "feature_import_desc": "A bank PDF or screenshots: every movement in one go."
         },
         "assistant": {
             "title": "AI assistant",
@@ -1012,6 +1021,60 @@
             "disclaimer": "AI can make mistakes. Figures come from your records; double-check before deciding.",
             "proposal_title": "Proposed expense",
             "proposal_save": "Save expense"
+        },
+        "import": {
+            "title": "Import account statement",
+            "subtitle": "Record your bank movements in one go",
+            "setup_title": "Connect your AI provider",
+            "setup_desc": "The AI reads your statement PDF or screenshots of your banking app and proposes the movements so you can import them in one go.",
+            "upload_title": "Account statement",
+            "upload_hint": "Upload up to {{max}} screenshots of your banking app's movements.",
+            "upload_hint_pdf": "Upload the statement PDF or up to {{max}} screenshots of your banking app's movements.",
+            "drop": "Tap to choose files or drop them here",
+            "remove_file": "Remove file",
+            "read": "Read movements",
+            "reading": "Reading the statement…",
+            "reading_hint": "A long statement can take up to a couple of minutes.",
+            "error_generic": "The statement could not be read. Try again.",
+            "privacy": "Nothing is recorded until you review and confirm. Movements you already recorded are flagged as possible duplicates.",
+            "unknown_bank": "Account statement",
+            "summary": "{{count}} movements read · {{selected}} selected",
+            "select_all": "All",
+            "select_none": "None",
+            "select_row": "Import this movement",
+            "source": "Payment source for the expenses",
+            "source_placeholder": "Choose the bank or account",
+            "source_hint": "Every imported expense is assigned to this source.",
+            "warning_not_statement": "The document does not look like an account statement.",
+            "warning_truncated": "There were more movements: the first {{max}} were read. Import the rest in another batch.",
+            "warning_no_rows": "No movements were found.",
+            "type_expense": "Expense",
+            "type_income": "Income",
+            "category_placeholder": "Choose a category",
+            "rate": "Rate",
+            "rate_auto": "of the day",
+            "duplicate": "Already recorded",
+            "row_warning_invalid_date": "Invalid date",
+            "row_warning_no_currency": "No currency",
+            "row_warning_no_rate": "No rate that day",
+            "row_warning_type_not_tracked": "You don't track this type",
+            "row_missing": "Missing: {{fields}}",
+            "field_date": "date",
+            "field_currency": "currency",
+            "field_category": "category",
+            "field_amount": "amount",
+            "field_description": "description",
+            "col_description": "Description",
+            "col_date": "Date",
+            "col_amount": "Amount",
+            "col_currency": "Currency",
+            "col_category": "Category",
+            "needs_source": "Choose the payment source",
+            "incomplete_one": "{{count}} incomplete movement",
+            "incomplete_other": "{{count}} incomplete movements",
+            "confirm_one": "Import {{count}} movement",
+            "confirm_other": "Import {{count}} movements",
+            "back": "Another file"
         }
     },
     "statement": {

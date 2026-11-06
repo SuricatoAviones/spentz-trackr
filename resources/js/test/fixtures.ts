@@ -246,6 +246,7 @@ export function aiProviderFixture(overrides: Record<string, unknown> = {}) {
         default_model: 'claude-opus-5-5',
         models: ['claude-opus-5-5', 'claude-sonnet-5-5', 'claude-haiku-5-5'],
         default_base_url: null,
+        endpoint_options: [] as { key: string; value: string }[],
         requires_key: true,
         requires_base_url: false,
         supports_vision: true,

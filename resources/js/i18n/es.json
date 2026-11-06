@@ -48,7 +48,8 @@
             "ai_section": "Inteligencia artificial",
             "ai_assistant": "Asistente IA",
             "statement": "Estado de cuenta",
-            "ai_settings": "Configurar IA"
+            "ai_settings": "Configurar IA",
+            "ai_import": "Importar estado de cuenta"
         }
     },
     "rates": {
@@ -185,7 +186,9 @@
         "edit_title": "Editar gasto",
         "show_title": "Detalle del gasto",
         "word_one": "gasto",
-        "word_other": "gastos"
+        "word_other": "gastos",
+        "import": "Importar",
+        "import_title": "Importar movimientos desde un estado de cuenta"
     },
     "incomes": {
         "delete_confirm": "¿Eliminar \"{{description}}\"? Esta acción no se puede deshacer.",
@@ -981,7 +984,13 @@
             "privacy_title": "Tu clave y tus datos",
             "privacy_key": "La clave se guarda cifrada y nunca vuelve al navegador ni viaja en los backups.",
             "privacy_data": "Al usar la IA, la factura o los datos necesarios para responder se envían a tu proveedor, bajo tu cuenta y su política de privacidad.",
-            "privacy_costs": "El consumo lo factura tu proveedor directamente; esta app no cobra nada por la IA."
+            "privacy_costs": "El consumo lo factura tu proveedor directamente; esta app no cobra nada por la IA.",
+            "plan": "Plan",
+            "plan_payg": "Pago por uso",
+            "plan_go": "Go",
+            "opencode_hint": "Usa una API key de OpenCode Console (Account → Personal API keys). Los modelos gratuitos solo funcionan dentro de la app OpenCode: elige un modelo de pago.",
+            "feature_import": "Importar estado de cuenta",
+            "feature_import_desc": "PDF o capturas del banco: todos los movimientos de una vez."
         },
         "assistant": {
             "title": "Asistente IA",
@@ -1012,6 +1021,60 @@
             "disclaimer": "La IA puede equivocarse. Las cifras salen de tus registros; verifica antes de decidir.",
             "proposal_title": "Gasto propuesto",
             "proposal_save": "Guardar gasto"
+        },
+        "import": {
+            "title": "Importar estado de cuenta",
+            "subtitle": "Registra de una vez los movimientos de tu banco",
+            "setup_title": "Conecta tu proveedor de IA",
+            "setup_desc": "La IA lee el PDF de tu estado de cuenta o las capturas de tu app del banco y te propone los movimientos para importarlos de una vez.",
+            "upload_title": "Estado de cuenta",
+            "upload_hint": "Sube hasta {{max}} capturas de los movimientos de tu app del banco.",
+            "upload_hint_pdf": "Sube el PDF del estado de cuenta o hasta {{max}} capturas de los movimientos de tu app del banco.",
+            "drop": "Toca para elegir archivos o arrástralos aquí",
+            "remove_file": "Quitar archivo",
+            "read": "Leer movimientos",
+            "reading": "Leyendo el estado de cuenta…",
+            "reading_hint": "Un estado de cuenta largo puede tardar hasta un par de minutos.",
+            "error_generic": "No se pudo leer el estado de cuenta. Inténtalo de nuevo.",
+            "privacy": "Nada se registra hasta que revises y confirmes. Los movimientos que ya tienes registrados salen marcados como posibles duplicados.",
+            "unknown_bank": "Estado de cuenta",
+            "summary": "{{count}} movimientos leídos · {{selected}} seleccionados",
+            "select_all": "Todos",
+            "select_none": "Ninguno",
+            "select_row": "Importar este movimiento",
+            "source": "Origen de pago de los gastos",
+            "source_placeholder": "Elige el banco o cuenta",
+            "source_hint": "Todos los gastos importados se asignan a este origen.",
+            "warning_not_statement": "El documento no parece un estado de cuenta.",
+            "warning_truncated": "Había más movimientos: se leyeron los primeros {{max}}. Importa el resto en otra tanda.",
+            "warning_no_rows": "No se encontraron movimientos.",
+            "type_expense": "Gasto",
+            "type_income": "Ingreso",
+            "category_placeholder": "Elige categoría",
+            "rate": "Tasa",
+            "rate_auto": "del día",
+            "duplicate": "Ya registrado",
+            "row_warning_invalid_date": "Fecha no válida",
+            "row_warning_no_currency": "Sin moneda",
+            "row_warning_no_rate": "Sin tasa ese día",
+            "row_warning_type_not_tracked": "No registras este tipo",
+            "row_missing": "Falta: {{fields}}",
+            "field_date": "fecha",
+            "field_currency": "moneda",
+            "field_category": "categoría",
+            "field_amount": "monto",
+            "field_description": "concepto",
+            "col_description": "Concepto",
+            "col_date": "Fecha",
+            "col_amount": "Monto",
+            "col_currency": "Moneda",
+            "col_category": "Categoría",
+            "needs_source": "Elige el origen de pago",
+            "incomplete_one": "{{count}} movimiento incompleto",
+            "incomplete_other": "{{count}} movimientos incompletos",
+            "confirm_one": "Importar {{count}} movimiento",
+            "confirm_other": "Importar {{count}} movimientos",
+            "back": "Otro archivo"
         }
     },
     "statement": {

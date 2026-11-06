@@ -53,7 +53,7 @@ class OpenAiDriver extends AiDriver
             $body['response_format'] = ['type' => 'json_object'];
         }
 
-        $http = $this->http();
+        $http = $this->http($request);
 
         if ($this->apiKey() !== '') {
             $http = $http->withToken($this->apiKey());
@@ -66,7 +66,21 @@ class OpenAiDriver extends AiDriver
             ]);
         }
 
+        if ($provider === AiProvider::OpenCode) {
+            $http = $http->withHeaders(['x-opencode-session' => $this->openCodeSession()]);
+        }
+
         return $http->post($this->url('chat/completions'), $body);
+    }
+
+    /**
+     * OpenCode Console pide un id de sesión estable en cada petición (el plan
+     * Go lo exige). Se deriva del usuario y de APP_KEY: estable entre
+     * peticiones, distinto por usuario y sin revelar el id interno.
+     */
+    private function openCodeSession(): string
+    {
+        return 'ses_'.substr(hash_hmac('sha256', 'opencode-session:'.$this->setting->user_id, (string) config('app.key')), 0, 26);
     }
 
     /**

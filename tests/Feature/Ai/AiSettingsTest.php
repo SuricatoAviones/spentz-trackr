@@ -195,3 +195,35 @@ test('deleting the account removes the ai settings', function () {
 
     expect(AiSetting::query()->count())->toBe(0);
 });
+
+test('opencode is saved with one of its fixed plans', function () {
+    $this->put(route('ai.settings.update'), [
+        'provider' => 'opencode',
+        'api_key' => 'oc-console-key-12345',
+        'model' => 'kimi-k2.6',
+        'base_url' => 'https://opencode.ai/inference/go/openai/v1',
+    ])->assertSessionHasNoErrors();
+
+    $setting = $this->user->fresh()->aiSetting;
+
+    expect($setting->provider)->toBe(AiProvider::OpenCode)
+        ->and($setting->resolvedBaseUrl())->toBe('https://opencode.ai/inference/go/openai/v1')
+        ->and($setting->isReady())->toBeTrue();
+});
+
+test('opencode refuses any url outside its plans', function () {
+    $this->put(route('ai.settings.update'), [
+        'provider' => 'opencode',
+        'api_key' => 'oc-console-key-12345',
+        'base_url' => 'http://10.0.0.5/v1',
+    ])->assertSessionHasErrors('base_url');
+
+    expect($this->user->fresh()->aiSetting)->toBeNull();
+});
+
+test('opencode is available without enabling custom endpoints', function () {
+    $this->get(route('ai.settings.edit'))
+        ->assertInertia(fn (Assert $page) => $page
+            ->where('providers', fn ($providers) => collect($providers)->firstWhere('value', 'opencode')['available'] === true
+                && count(collect($providers)->firstWhere('value', 'opencode')['endpoint_options']) === 2));
+});

@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\ExchangeRate;
 use App\Models\User;
+use Carbon\CarbonInterface;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
@@ -75,7 +76,7 @@ class ExchangeRateService
      *
      * @return array{rate: string, source: string, provider: string, rate_date: string}
      */
-    public function rateForUser(?User $user, ?Carbon $date = null): array
+    public function rateForUser(?User $user, ?CarbonInterface $date = null): array
     {
         $date ??= Carbon::today();
 
