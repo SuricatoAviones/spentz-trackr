@@ -20,6 +20,17 @@ Cualquier entrada que exija una acción del operador va marcada con **⚠ Acció
 
 ## [No publicado]
 
+Nada todavía.
+
+## [1.2.0] — 2026-11-06
+
+Llega el asistente de IA: cada usuario conecta **su propio proveedor y su propia clave** para
+leer facturas, importar de una vez los movimientos de un estado de cuenta bancario y preguntar
+por sus finanzas; y un estado de cuenta nuevo reúne los movimientos de cualquier periodo, con
+o sin IA. Las cifras las sigue calculando la app y nada se guarda sin que el usuario lo
+confirme. Actualizar es `php artisan app:update`: aplica una migración nueva (`ai_settings`) y
+no exige ninguna variable de entorno — todas las `AI_*` son opcionales.
+
 ### Añadido
 
 - **Asistente de IA con la clave de cada usuario.** En **Ajustes → Inteligencia artificial**
@@ -140,6 +151,7 @@ conocido al que volver.
   Pon las tuyas antes de desplegar.
 - Un administrador ya no puede quitarse el rol ni dejar la instancia sin ninguno activo.
 
-[No publicado]: https://github.com/SuricatoAviones/spentz-trackr/compare/v1.1.0...HEAD
+[No publicado]: https://github.com/SuricatoAviones/spentz-trackr/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/SuricatoAviones/spentz-trackr/releases/tag/v1.2.0
 [1.1.0]: https://github.com/SuricatoAviones/spentz-trackr/releases/tag/v1.1.0
 [1.0.0]: https://github.com/SuricatoAviones/spentz-trackr/releases/tag/v1.0.0
