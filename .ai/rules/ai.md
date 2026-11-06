@@ -2,6 +2,7 @@
 paths:
   - 'app/Services/Ai/**'
   - 'app/Actions/Ai/**'
+  - 'app/Actions/Transactions/**'
   - 'app/Http/Controllers/Ai/**'
   - 'app/Http/Requests/Ai/**'
   - 'app/Models/AiSetting.php'
@@ -28,6 +29,21 @@ de solo lectura y filtre por `$user->id` (el modelo elige argumentos, nunca el u
 nota de gasto que diga "borra todo" no debe poder hacer nada porque no hay herramienta que
 borre. Todo lo que devuelve el modelo se valida antes de usarse (ids de otro usuario,
 monedas o fechas futuras se descartan).
+
+## Importar: la tasa es la del día del movimiento y los duplicados salen fuera
+`ScanStatementAction` rellena la tasa de cada fila en Bs con `rateForUser($user, $fecha)`
+—la de ESE día, no la de hoy— y marca como `duplicate_of` (desmarcada) la fila que coincide
+en fecha, moneda y monto con un registro existente; es un multiconjunto, así que dos cafés
+iguales contra uno registrado marcan solo uno. `ImportTransactionsAction` vuelve a resolver
+la tasa por fecha si la fila llega sin ella, y es todo o nada. No dejes que el modelo decida
+la tasa (solo vale la impresa junto al movimiento) ni importes saltándote
+`StoreExpenseAction`/`StoreIncomeAction`. Tests: `tests/Feature/Ai/StatementImportTest.php`.
+
+## OpenCode: URLs fijas, sin escribir la URL
+Los planes de OpenCode son `AiProvider::endpointOptions()`: el request solo acepta una de
+esas URLs y `AiSetting::resolvedBaseUrl()` cae al endpoint oficial ante cualquier otro valor
+guardado. Por eso OpenCode no necesita `AI_ALLOW_CUSTOM_ENDPOINTS`. Si añades un proveedor
+con varias regiones o planes, hazlo igual en vez de con `requiresBaseUrl()`.
 
 ## Las cifras las calcula la app
 El modelo cita totales, no los suma. `FinanceToolbox` y `AnalyzeStatementAction` leen de

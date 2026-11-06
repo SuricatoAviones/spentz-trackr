@@ -6,7 +6,7 @@ Before planning or editing, find the row whose globs match the file's path and r
 | --- | --- |
 | app/Actions/**, app/Http/Controllers/ExpenseController.php, app/Http/Controllers/IncomeController.php, app/Http/Controllers/Api/V1/{Expense,Income}Controller.php | .ai/rules/controllers.md |
 | app/Http/Controllers/Admin/** | .ai/rules/admin.md |
-| app/Services/Ai/**, app/Actions/Ai/**, app/Http/Controllers/Ai/**, app/Http/Requests/Ai/**, app/Models/AiSetting.php, app/Enums/AiProvider.php, resources/js/components/ai/**, resources/js/pages/ai/** | .ai/rules/ai.md |
+| app/Services/Ai/**, app/Actions/Ai/**, app/Actions/Transactions/**, app/Http/Controllers/Ai/**, app/Http/Requests/Ai/**, app/Models/AiSetting.php, app/Enums/AiProvider.php, resources/js/components/ai/**, resources/js/pages/ai/** | .ai/rules/ai.md |
 | resources/js/components/language-switcher.tsx | .ai/rules/components.md |
 | app/Http/Controllers/**, app/Http/Controllers/ExpenseController.php | .ai/rules/controllers.md |
 | **, Dockerfile, vite.config.ts | .ai/rules/general.md |

@@ -148,7 +148,7 @@ return [
                 'heading' => '4. Third parties',
                 'body' => [
                     'On its own, the application makes a single outbound call: it reads the exchange rates published at ve.dolarapi.com. That request contains none of your data — it only asks for the price of the dollar.',
-                    'If you connect an artificial intelligence provider (OpenAI, Anthropic, Google or another) with your own key, every time you use an AI feature it receives what is needed to answer: the invoice you upload, your question and the movement data the answer requires. You decide to send it, it goes to your account with that provider and is governed by its privacy policy. You can disconnect it at any time from Settings > Artificial intelligence.',
+                    'If you connect an artificial intelligence provider (OpenAI, Anthropic, Google or another) with your own key, every time you use an AI feature it receives what is needed to answer: the invoice or statement you upload, your question and the movement data the answer requires. You decide to send it, it goes to your account with that provider and is governed by its privacy policy. You can disconnect it at any time from Settings > Artificial intelligence.',
                     'The rest depends on how :operator deployed the instance: the hosting provider and, if configured, the mail service that sends verification and password-recovery messages will process data on the operator\'s behalf.',
                 ],
             ],

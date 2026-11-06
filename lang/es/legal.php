@@ -148,7 +148,7 @@ return [
                 'heading' => '4. Terceros',
                 'body' => [
                     'Por sí sola, la aplicación hace una única llamada saliente: consulta las tasas de cambio publicadas en ve.dolarapi.com. Esa petición no incluye ningún dato tuyo — solo pregunta el precio del dólar.',
-                    'Si tú conectas un proveedor de inteligencia artificial (OpenAI, Anthropic, Google u otro) con tu propia clave, cada vez que uses una función de IA se le envía lo necesario para responder: la factura que subas, tu pregunta y los datos de tus movimientos que la respuesta requiera. Ese envío lo decides tú, va a tu cuenta con ese proveedor y se rige por su política de privacidad. Puedes desconectarlo en cualquier momento desde Ajustes > Inteligencia artificial.',
+                    'Si tú conectas un proveedor de inteligencia artificial (OpenAI, Anthropic, Google u otro) con tu propia clave, cada vez que uses una función de IA se le envía lo necesario para responder: la factura o el estado de cuenta que subas, tu pregunta y los datos de tus movimientos que la respuesta requiera. Ese envío lo decides tú, va a tu cuenta con ese proveedor y se rige por su política de privacidad. Puedes desconectarlo en cualquier momento desde Ajustes > Inteligencia artificial.',
                     'El resto depende de cómo :operator haya desplegado la instancia: el proveedor de alojamiento y, si está configurado, el servicio de correo que envía los mensajes de verificación y recuperación de contraseña tratarán datos por cuenta del operador.',
                 ],
             ],
