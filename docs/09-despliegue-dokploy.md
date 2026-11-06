@@ -286,6 +286,7 @@ Cada push a la rama hace build + redeploy (o usa **Deploy** manual). El volumen 
 - [ ] Subir un comprobante → aparece en `storage/app/public/receipts` y sobrevive a un redeploy.
 - [ ] `/admin` accesible con la cuenta creada con `admin:create`.
 - [ ] Panel admin → **Sistema** muestra `database_ok: true` y storage escribible.
+- [ ] (Opcional) **Ajustes → Inteligencia artificial**: conectar un proveedor y pulsar **Probar**. Las peticiones a la IA salen del contenedor hacia el proveedor (`api.openai.com`, `api.anthropic.com`, `generativelanguage.googleapis.com`…), así que el VPS necesita salida HTTPS. Una lectura de factura o una respuesta del asistente puede tardar decenas de segundos: si Traefik u otro proxy corta antes, sube su timeout de lectura (≥ 120 s) o baja `AI_TIMEOUT`.
 
 ## Riesgos y mitigaciones
 

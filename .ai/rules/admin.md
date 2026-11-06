@@ -24,5 +24,6 @@ Ver `tests/Feature/Admin/AdminRoleGuardsTest.php`.
 nueva hay que añadirla ahí explícitamente. Omitió durante un tiempo ingresos, recibos de
 ingresos, items de gasto, metas, aportes y pagos recurrentes — un restore desde ese fichero
 perdía datos en silencio. Nunca incluir `password`, `two_factor_secret`,
-`two_factor_recovery_codes` ni `remember_token`. Hay dos tests en
+`two_factor_recovery_codes`, `remember_token` ni `api_key` (la clave de IA de cada usuario,
+ver `.ai/rules/ai.md`). Hay dos tests en
 `tests/Feature/HardeningTest.php` que vigilan ambas cosas.

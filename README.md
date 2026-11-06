@@ -47,6 +47,12 @@ Alrededor de esa idea:
   global y por categoría.
 - **Reportes** con exportación CSV, **API REST** (tokens Sanctum + OpenAPI) y
   **panel de administración** multiusuario.
+- **Estado de cuenta** por periodo: movimientos con neto acumulado, desgloses, CSV e
+  impresión.
+- **Asistente de IA con tu propia clave** (OpenAI, Claude, Gemini, Mistral, Groq, DeepSeek,
+  OpenRouter u Ollama): lee facturas y comprobantes para rellenar el gasto, responde
+  preguntas sobre tus finanzas, arma estados de cuenta y propone gastos que tú confirmas.
+  Las cifras las calcula la app; la IA solo las interpreta.
 - **PWA** instalable, interfaz en **español e inglés**, 2FA y passkeys.
 
 ## Instalación

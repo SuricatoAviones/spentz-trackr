@@ -20,7 +20,39 @@ Cualquier entrada que exija una acción del operador va marcada con **⚠ Acció
 
 ## [No publicado]
 
-Nada todavía.
+### Añadido
+
+- **Asistente de IA con la clave de cada usuario.** En **Ajustes → Inteligencia artificial**
+  cada usuario elige su proveedor (OpenAI, Anthropic, Google Gemini, Mistral, Groq,
+  DeepSeek, OpenRouter y, si el operador lo permite, Ollama o un endpoint OpenAI-compatible),
+  el modelo y pega su clave, que se guarda cifrada y nunca vuelve al navegador ni a los
+  backups. La instancia no paga el consumo.
+- **Leer facturas con IA.** En "Nuevo gasto", una foto o PDF de la factura, ticket o
+  comprobante de pago móvil rellena monto, moneda, fecha, categoría, origen, tasa impresa y
+  nota (comercio, RIF, número de factura y líneas). Nada se guarda hasta que el usuario
+  revisa y pulsa Guardar.
+- **Asistente financiero** (`/asistente`): preguntas en lenguaje natural sobre gastos,
+  ingresos, presupuesto, metas, recurrentes y tarjetas; resúmenes, comparativas, estados de
+  cuenta e ideas para ahorrar. Puede proponer un gasto que el usuario confirma con un botón.
+  Las conversaciones no se guardan en el servidor.
+- **Estado de cuenta** (`/reports/estado-de-cuenta`): movimientos de un periodo en orden
+  cronológico con neto acumulado, totales, desgloses, comparación con el periodo anterior,
+  presupuesto, export CSV, versión imprimible y análisis con IA.
+- **API:** `GET /api/v1/reports/statement` y `/api/v1/ai/*` (ajustes, prueba de conexión,
+  lectura de facturas, chat y análisis del estado de cuenta).
+- **Panel admin:** interruptor del asistente de IA en **Sistema** (no borra claves).
+
+### Variables nuevas (todas opcionales)
+
+`AI_ENABLED` (true), `AI_ALLOW_CUSTOM_ENDPOINTS` (false — activarlo permite que los usuarios
+hagan que el servidor conecte a cualquier URL), `AI_TIMEOUT` (60), `AI_CONNECT_TIMEOUT` (10),
+`AI_RATE_LIMIT_PER_MINUTE` (10), `AI_RATE_LIMIT_PER_DAY` (300), `AI_MAX_UPLOAD_KB` (10240).
+Ver `.env.example`.
+
+### Cambiado
+
+- La **política de datos** explica ahora el envío a proveedores de IA cuando el usuario los
+  conecta; la fecha de vigencia por defecto pasa a 2026-11-06.
 
 ## [1.1.0] — 2026-09-18
 

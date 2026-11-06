@@ -12,6 +12,7 @@
 | Almacenamiento | Disco `storage/app/public` | Comprobantes; `php artisan storage:link` |
 | Tasas | `https://ve.dolarapi.com/v1/dolares` | BCV + paralelo; fallback manual |
 | API | Sanctum (tokens, 90 días) + Scramble (OpenAPI) | `/api/v1` |
+| IA | Cliente HTTP propio (`app/Services/Ai`) | OpenAI-compatible, Anthropic y Gemini; clave por usuario |
 | Charts | Componentes SVG propios (`resources/js/components/tracker/*`) | Sin librería |
 | Tests | Pest + Larastan (nivel 7) + Pint | Obligatorios por cambio |
 | Despliegue | cPanel / VPS / Docker | Ver `06`, `09` |
@@ -225,3 +226,39 @@ no se suma: convertirlo con la tasa de hoy contradiría el congelado del ADR-001
 Los abonos son entidad propia y **nunca un `Expense`**: si el pago de la tarjeta se registrara
 como gasto, cada consumo se contaría dos veces (al comprar y al pagar) y los informes
 mentirían. Ver `docs/12-tarjetas-de-credito.md`.
+
+### ADR-013 — Asistente de IA con la clave de cada usuario (BYOK), sin SDK
+Cada usuario conecta **su** proveedor de IA (OpenAI, Anthropic, Gemini, Mistral, Groq,
+DeepSeek, OpenRouter y, si el operador lo permite, Ollama o un endpoint OpenAI-compatible)
+con **su** clave. La instancia no paga ni intermedia el consumo, y no hay una clave global
+que proteger o repartir. La clave vive en `ai_settings.api_key` con el cast `encrypted`
+(APP_KEY), nunca vuelve al navegador (`AiSettingPresenter` solo publica `has_key` y los
+cuatro últimos caracteres) y **no viaja en los backups** (`BackupSchema::secretColumns`).
+
+**Sin SDK ni dependencias nuevas.** Solo hay tres protocolos (`AiProvider::driver()`):
+OpenAI Chat Completions —que hablan casi todos—, Anthropic Messages y Google Gemini. Cada
+uno es un driver sobre el cliente HTTP de Laravel (`app/Services/Ai/Drivers`) que traduce
+un formato neutro (`AiRequest`/`AiMessage`/`AiTool`). Añadir un proveedor compatible con
+OpenAI es añadir un caso al enum. Todas las peticiones llevan timeout (`AI_TIMEOUT`).
+
+**Las cifras las calcula la app, no el modelo.** El asistente consulta los datos con
+herramientas de solo lectura (`FinanceToolbox`) que filtran siempre por el usuario
+autenticado y devuelven totales ya calculados desde los equivalentes USD congelados
+(ADR-001). El estado de cuenta sale de `AccountStatementService`, el mismo que usan la
+página `/reports/estado-de-cuenta`, su CSV y la API; el análisis con IA solo lo interpreta.
+
+**La IA propone, el usuario decide.** Leer una factura (`ScanReceiptAction`) devuelve un
+borrador que rellena el formulario de gasto; el chat puede `propose_expense`, que pinta una
+tarjeta con botón. Ningún camino de IA escribe en la base de datos: el gasto se guarda por
+`StoreExpenseAction` como cualquier otro. Todo lo que devuelve el modelo se valida (ids que
+no son del usuario, monedas inexistentes, fechas futuras se descartan).
+
+**Sin conversaciones en el servidor.** El cliente manda el historial en cada petición
+(acotado por `AskAssistantRequest`) y lo guarda en `sessionStorage`. No hay una tabla más
+con datos financieros sensibles ni nada que purgar.
+
+**Interruptores y límites.** `AI_ENABLED` / panel admin (`Features::aiEnabled()`) apagan la
+IA para toda la instancia (503 en JSON, 404 en páginas) sin borrar claves. Ollama y los
+endpoints propios exigen `AI_ALLOW_CUSTOM_ENDPOINTS=true`: con ellos un usuario puede hacer
+que el servidor abra conexiones a cualquier URL, incluida la red interna (SSRF). El limitador
+`ai` (por usuario, por minuto y por día) protege la cuota del propio usuario y los workers.
